@@ -208,6 +208,14 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_SOIL_LIQ].description,
            "soil liquid moisture content for each soil layer");
 
+    strcpy(out_metadata[OUT_SOIL_EFF_SAT].varname, "OUT_SOIL_EFF_SAT");
+    strcpy(out_metadata[OUT_SOIL_EFF_SAT].long_name, "soil_eff_sat");
+    strcpy(out_metadata[OUT_SOIL_EFF_SAT].standard_name,
+           "soil_effective_saturation");
+    strcpy(out_metadata[OUT_SOIL_EFF_SAT].units, "-");
+    strcpy(out_metadata[OUT_SOIL_EFF_SAT].description,
+           "soil effective saturation for each soil layer");
+
     /* soil ice content [1] for each soil layer */
     strcpy(out_metadata[OUT_SOIL_ICE_FRAC].varname, "OUT_SOIL_ICE_FRAC");
     strcpy(out_metadata[OUT_SOIL_ICE_FRAC].long_name, "soil_ice_frac");
@@ -1485,6 +1493,7 @@ set_output_met_data_info()
     out_metadata[OUT_SMFROZFRAC].nelem = options.Nlayer;
     out_metadata[OUT_SOIL_ICE].nelem = options.Nlayer;
     out_metadata[OUT_SOIL_LIQ].nelem = options.Nlayer;
+    out_metadata[OUT_SOIL_EFF_SAT].nelem = options.Nlayer;
     out_metadata[OUT_SOIL_ICE_FRAC].nelem = options.Nlayer;
     out_metadata[OUT_SOIL_LIQ_FRAC].nelem = options.Nlayer;
     out_metadata[OUT_SOIL_MOIST].nelem = options.Nlayer;

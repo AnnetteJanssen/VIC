@@ -774,6 +774,7 @@ typedef struct {
     // Fluxes
     double bare_evap_frac;  /**< fraction of evapotranspiration coming from bare soil evap, from soil layer (mm) */
     double evap;            /**< evapotranspiration from soil layer (mm) */
+    double eff_sat;
 } layer_data_struct;
 
 /******************************************************************************

@@ -261,6 +261,7 @@ get_default_outvar_aggtype(unsigned int varid)
     case OUT_SNOW_DEPTH:
     case OUT_SOIL_ICE:
     case OUT_SOIL_LIQ:
+    case OUT_SOIL_EFF_SAT:
     case OUT_SOIL_MOIST:
     case OUT_SOIL_WET:
     case OUT_SURFSTOR:

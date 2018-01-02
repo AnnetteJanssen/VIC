@@ -72,6 +72,7 @@ initialize_soil(cell_data_struct **cell,
             for (lindex = 0; lindex < options.Nlayer; lindex++) {
                 cell[veg][band].layer[lindex].bare_evap_frac = 0.0;
                 cell[veg][band].layer[lindex].evap = 0.0;
+                cell[veg][band].layer[lindex].eff_sat = 0.0;
             }
         }
     }

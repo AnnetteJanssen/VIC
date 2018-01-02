@@ -58,6 +58,7 @@ set_nc_var_info(unsigned int       varid,
     case OUT_SMFROZFRAC:
     case OUT_SOIL_ICE:
     case OUT_SOIL_LIQ:
+    case OUT_SOIL_EFF_SAT:
     case OUT_SOIL_ICE_FRAC:
     case OUT_SOIL_LIQ_FRAC:
     case OUT_SOIL_MOIST:
@@ -135,6 +136,7 @@ set_nc_var_dimids(unsigned int    varid,
     case OUT_SMFROZFRAC:
     case OUT_SOIL_ICE:
     case OUT_SOIL_LIQ:
+    case OUT_SOIL_EFF_SAT:
     case OUT_SOIL_ICE_FRAC:
     case OUT_SOIL_LIQ_FRAC:
     case OUT_SOIL_MOIST:

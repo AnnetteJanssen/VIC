@@ -132,6 +132,7 @@ enum
     OUT_SOIL_LIQ,         /**< soil liquid content  [mm] for each soil layer */
     OUT_SOIL_ICE_FRAC,    /**< soil ice content fraction of column volume [1] for each soil layer */
     OUT_SOIL_LIQ_FRAC,    /**< soil liquid content fraction of column volume [1] for each soil layer */
+    OUT_SOIL_EFF_SAT,
     OUT_SOIL_MOIST,       /**< soil total moisture content  [mm] for each soil layer */
     OUT_SOIL_WET,         /**< vertical average of (soil moisture - wilting point)/(maximum soil moisture - wilting point) [mm/mm] */
     OUT_SURFSTOR,         /**< storage of liquid water and ice (not snow) on surface (ponding) [mm] */
