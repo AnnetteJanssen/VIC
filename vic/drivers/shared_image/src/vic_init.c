@@ -466,7 +466,7 @@ vic_init(void)
     // expt: unsaturated hydraulic conductivity exponent for each layer
     for (j = 0; j < options.Nlayer; j++) {
         d3start[0] = j;
-        get_scatter_nc_field_double(filenames.params, "expt",
+        get_scatter_nc_field_double(filenames.params, "K_expt",
                                     d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             soil_con[i].expt[j] = (double) dvar[i];
