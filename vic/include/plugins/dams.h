@@ -15,6 +15,8 @@
 #define DAYS_PER_MONTH_AVG 30.42
 #define DAYS_PER_WEEK 7
 
+#define DAM_SERV_DIST 2
+
 typedef struct{
     size_t nd_active;
 }dam_con_map_struct;
@@ -25,6 +27,8 @@ typedef struct{
     double max_volume;
     double max_area;
     double max_height;
+    size_t nservice;
+    size_t *service;
 }dam_con_struct;
 
 typedef struct{    

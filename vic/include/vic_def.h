@@ -341,6 +341,7 @@ typedef struct {
     int NIRRSEASONS;
     // EFR options
     // Dam options
+    int MAXSERVICE;
     int MAXDAMS;
     
     // Variable global parameters
