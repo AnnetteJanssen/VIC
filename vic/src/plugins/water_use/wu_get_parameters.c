@@ -41,6 +41,9 @@ wu_get_global_parameters(char *cmdstr)
     else if (strcasecmp("WATER_USE_FORCING", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.water_use_forcing_pfx);
     }
+    else if (strcasecmp("WATER_USE_PARAMETERS", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", filenames.water_use.nc_filename);
+    }
     else if (strcasecmp("WATER_USE_INPUT_FREQUENCY", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         if(strcasecmp("DAILY", flgstr) == 0){
@@ -126,6 +129,10 @@ wu_validate_global_parameters(void)
     if(strcasecmp(filenames.water_use_forcing_pfx, MISSING_S) == 0 &&
             options.WU_NINPUT_FROM_FILE > 0){
         log_err("WATER_USE = TRUE but WATER_USE_FORCING is missing");
+    }
+    if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0 &&
+            options.WU_NINPUT_FROM_FILE > 0){
+        log_err("WATER_USE = TRUE but WATER_USE_PARAMETERS is missing");
     }
     for(i = 0; i < WU_NSECTORS; i++){
         if(options.WU_COMPENSATION_TIME[i] < 0){

@@ -199,7 +199,7 @@ irr_set_demand(size_t cur_cell)
     extern domain_struct local_domain;
     extern global_param_struct global_param;
     extern option_struct options;
-    extern wu_con_struct **wu_con;
+    extern wu_hist_struct **wu_hist;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
     
@@ -222,10 +222,10 @@ irr_set_demand(size_t cur_cell)
             }
 	}
 
-        wu_con[cur_cell][WU_IRRIGATION].demand = total_demand / 
+        wu_hist[cur_cell][WU_IRRIGATION].demand = total_demand / 
                     MM_PER_M * local_domain.locations[cur_cell].area / 
                     global_param.dt;
-        wu_con[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0; 
+        wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0; 
     }
 }
 
@@ -239,7 +239,7 @@ irr_get_withdrawn(size_t cur_cell)
     extern irr_con_map_struct *irr_con_map;
     extern irr_con_struct **irr_con;
     extern irr_var_struct ***irr_var;
-    extern wu_var_struct **wu_var;
+    extern wu_var_struct *wu_var;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
     extern option_struct options;
@@ -319,7 +319,7 @@ irr_get_withdrawn(size_t cur_cell)
                         
             if(options.WATER_USE){
                 irrigation_available = 
-                        wu_var[cur_cell][WU_IRRIGATION].consumed *
+                        wu_var[cur_cell].sector[WU_IRRIGATION].consumed *
                         global_param.dt / local_domain.locations[cur_cell].area /
                         veg_con[cur_cell][cur_veg].Cv * MM_PER_M;
 

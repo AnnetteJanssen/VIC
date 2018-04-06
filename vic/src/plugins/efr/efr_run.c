@@ -77,11 +77,11 @@ void
 efr_set_demand(size_t cur_cell)
 {
     extern option_struct options;
-    extern wu_con_struct **wu_con;
+    extern wu_hist_struct **wu_hist;
     
     if(options.WATER_USE){
-        wu_con[cur_cell][WU_ENVIRONMENTAL].demand = 
+        wu_hist[cur_cell][WU_ENVIRONMENTAL].demand = 
                 efr_var[cur_cell].requirement;
-        wu_con[cur_cell][WU_ENVIRONMENTAL].consumption_fraction = 0.0; 
+        wu_hist[cur_cell][WU_ENVIRONMENTAL].consumption_fraction = 0.0; 
     }
 }

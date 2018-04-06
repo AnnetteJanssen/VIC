@@ -33,21 +33,36 @@ enum{
 };
 
 typedef struct{
+    size_t link_id;
+    int nsending;
+    int nreceiving;
+    size_t *sending;
+    size_t *receiving;
+}wu_con_struct;
+
+typedef struct{
     double demand;
     double consumption_fraction;
-}wu_con_struct;
+}wu_hist_struct;
 
 typedef struct{
     double demand;
     double withdrawn;
     double consumed;    
     double returned;
+}sector_var_struct;
+
+typedef struct{
+    sector_var_struct *sector;
+    size_t last_run;
 }wu_var_struct;
 
 bool wu_get_global_parameters(char *cmdstr);
 void wu_validate_global_parameters(void);
+void wu_start(void);
 void wu_alloc(void);
 void initialize_wu_local_structures(void);
+void wu_init(void);
 void wu_set_output_meta_data_info(void);
 void wu_set_state_meta_data_info(void);
 bool wu_history(int, unsigned int *);
@@ -57,7 +72,8 @@ void wu_put_data(void);
 void wu_finalize(void);
 void wu_add_types(void);
 
-wu_var_struct **wu_var;
-wu_con_struct **wu_con;
+wu_var_struct *wu_var;
+wu_hist_struct **wu_hist;
+wu_con_struct *wu_con;
 
 #endif
