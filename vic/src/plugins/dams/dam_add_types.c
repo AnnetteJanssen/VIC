@@ -44,6 +44,9 @@ dam_add_types(void) {
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_DISCHARGE");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_VOLUME");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_MONTH");
+    outvar_types = list_prepend(outvar_types, "OUT_DAM_HIST_DEMAND");
+    outvar_types = list_prepend(outvar_types, "OUT_DAM_HIST_FLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_DAM_HIST_SHORTAGE");
 
     outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
     N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;

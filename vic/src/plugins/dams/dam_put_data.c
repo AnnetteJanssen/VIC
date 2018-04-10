@@ -20,6 +20,9 @@ dam_put_data(void)
     int OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
     int OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
     int OUT_DAM_OP_MONTH = list_search_id(outvar_types, "OUT_DAM_OP_MONTH");
+    int OUT_DAM_HIST_DEMAND = list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND");
+    int OUT_DAM_HIST_FLOW = list_search_id(outvar_types, "OUT_DAM_HIST_FLOW");
+    int OUT_DAM_HIST_SHORTAGE = list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE");
 
     // If running with OpenMP, run this for loop using multiple threads
     //#pragma omp parallel for default(shared) private(i, timer, vic_run_ref_str)
@@ -32,6 +35,9 @@ dam_put_data(void)
             out_data[i][OUT_DAM_OP_DISCHARGE][j] = dam_var[i][j].op_discharge[0];
             out_data[i][OUT_DAM_OP_VOLUME][j] = dam_var[i][j].op_volume[0] / pow(M_PER_KM, 3);
             out_data[i][OUT_DAM_OP_MONTH][j] = dam_var[i][j].op_year;
+            out_data[i][OUT_DAM_HIST_DEMAND][j] = dam_var[i][j].history_demand[1];
+            out_data[i][OUT_DAM_HIST_FLOW][j] = dam_var[i][j].history_flow[1];
+            out_data[i][OUT_DAM_HIST_SHORTAGE][j] = dam_var[i][j].history_shortage[1];
         }
     }    
 }

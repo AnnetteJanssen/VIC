@@ -63,6 +63,30 @@ dam_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_MONTH")].description,
            "dam_operational_month");
 
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].varname, "OUT_DAM_HIST_DEMAND");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].long_name, "dam_historical_demand");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].standard_name,
+           "dam_historical_demand");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].description,
+           "dam_historical_demand");
+
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].varname, "OUT_DAM_HIST_FLOW");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].long_name, "dam_historical_inflow");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].standard_name,
+           "dam_historical_inflow");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].description,
+           "dam_historical_inflow");
+
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].varname, "OUT_DAM_HIST_SHORTAGE");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].long_name, "dam_historical_shortage");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].standard_name,
+           "dam_historical_shortage");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].description,
+           "dam_historical_shortage");
+
     out_metadata[list_search_id(outvar_types, "OUT_DAM_VOLUME")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_DISCHARGE")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].nelem = options.MAXDAMS;
@@ -70,6 +94,9 @@ dam_set_output_meta_data_info(void)
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_VOLUME")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_MONTH")].nelem = options.MAXDAMS;
+    out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND")].nelem = options.MAXDAMS;
+    out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_FLOW")].nelem = options.MAXDAMS;
+    out_metadata[list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE")].nelem = options.MAXDAMS;
 }
 
 void
