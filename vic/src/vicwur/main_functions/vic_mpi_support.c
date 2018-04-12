@@ -474,7 +474,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 73;
+    nitems = 72;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -769,10 +769,6 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // int MAXDAMS;
     offsets[i] = offsetof(option_struct, MAXDAMS);
     mpi_types[i++] = MPI_INT;
-    
-    // size_t wu_force_offset;
-    offsets[i] = offsetof(option_struct, wu_force_offset);
-    mpi_types[i++] = MPI_AINT;
     
     // make sure that the we have the right number of elements
     if (i != (size_t) nitems) {

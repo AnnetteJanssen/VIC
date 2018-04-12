@@ -118,7 +118,6 @@ initialize_options()
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
         options.WU_COMPENSATION_TIME[i] = 0;
     }
-    options.wu_force_offset = 0;
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;

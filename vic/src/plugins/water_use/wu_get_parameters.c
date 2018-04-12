@@ -53,9 +53,9 @@ get_wu_forcing_files_info(size_t sector)
             forceday != global_param.forceday[0] ||
             forcesecond != global_param.forcesec[0]){
         log_err("Water use forcing file time must match the forcing file time.  "
-                "Forcing file time is set to %hu-%hu-%hu : %hu "
+                "Forcing file time is set to %04hu-%02hu-%02hu : %hu "
                 "[year-month-day : seconds] and the water use forcing "
-                "file time is set to  %hu-%hu-%hu : %hu "
+                "file time is set to  %04hu-%02hu-%02hu : %hu "
                 "[year-month-day : seconds]",
                 global_param.forceyear[0],
                 global_param.forcemonth[0],
