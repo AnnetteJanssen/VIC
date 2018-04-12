@@ -141,7 +141,7 @@ main(int    argc,
         timer_continue(&(global_timers[TIMER_VIC_FORCE]));
         vic_force();
         if(options.WATER_USE){
-            wu_force();
+            wu_forcing();
         }
         timer_stop(&(global_timers[TIMER_VIC_FORCE]));
 

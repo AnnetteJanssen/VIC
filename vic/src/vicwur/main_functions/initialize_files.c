@@ -53,8 +53,10 @@ initialize_filenames()
     strcpy(filenames.groundwater.nc_filename, "MISSING");
     strcpy(filenames.routing.nc_filename, "MISSING");
     strcpy(filenames.rout_params.nc_filename, "MISSING");
-    strcpy(filenames.water_use_forcing_pfx, "MISSING");
-    strcpy(filenames.water_use.nc_filename, "MISSING");
+    for (i = 0; i < WU_NSECTORS; i++) {
+        strcpy(filenames.water_use_forcing_pfx[i], "MISSING");
+        strcpy(filenames.water_use[i].nc_filename, "MISSING");
+    }
     strcpy(filenames.irrigation.nc_filename, "MISSING");
     strcpy(filenames.dams.nc_filename, "MISSING");
 }

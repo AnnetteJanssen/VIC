@@ -199,7 +199,7 @@ irr_set_demand(size_t cur_cell)
     extern domain_struct local_domain;
     extern global_param_struct global_param;
     extern option_struct options;
-    extern wu_con_struct **wu_con;
+    extern wu_hist_struct **wu_hist;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
     
@@ -222,10 +222,10 @@ irr_set_demand(size_t cur_cell)
             }
 	}
 
-        wu_con[cur_cell][WU_IRRIGATION].demand = total_demand / 
+        wu_hist[cur_cell][WU_IRRIGATION].demand = total_demand / 
                     MM_PER_M * local_domain.locations[cur_cell].area / 
                     global_param.dt;
-        wu_con[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0; 
+        wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0; 
     }
 }
 

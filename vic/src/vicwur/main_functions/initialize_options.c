@@ -114,14 +114,10 @@ initialize_options()
     options.RIRF_NSTEPS = 0;
     options.GIRF_NSTEPS = 0;
     // Water use options
-    options.WU_INPUT_FREQUENCY = WU_INPUT_MONTHLY;
     for(i = 0; i < WU_NSECTORS; i++){
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
-        options.WU_RETURN_LOCATION[i] = WU_RETURN_SURFACEWATER;
         options.WU_COMPENSATION_TIME[i] = 0;
     }
-    options.WU_NINPUT_FROM_FILE = 0;
-    options.wu_force_offset = 0;
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;

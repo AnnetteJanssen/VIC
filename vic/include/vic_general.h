@@ -723,8 +723,8 @@ typedef struct {
     nameid_struct groundwater;
     nameid_struct routing;
     nameid_struct rout_params;  /**< routing parameters file name and nc_id */
-    char water_use_forcing_pfx[MAXSTRING];
-    nameid_struct water_use;
+    nameid_struct water_use[WU_NSECTORS];
+    char water_use_forcing_pfx[WU_NSECTORS][MAXSTRING];
     nameid_struct irrigation;
     nameid_struct dams;
     

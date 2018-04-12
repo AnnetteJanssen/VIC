@@ -474,7 +474,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 76;
+    nitems = 72;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -743,24 +743,14 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(option_struct, GIRF_NSTEPS);
     mpi_types[i++] = MPI_AINT;
     
-    // int WU_INPUT_FREQUENCY;
-    offsets[i] = offsetof(option_struct, WU_INPUT_FREQUENCY);
-    mpi_types[i++] = MPI_INT;
     // int WU_INPUT_LOCATION[WU_NSECTORS];
     offsets[i] = offsetof(option_struct, WU_INPUT_LOCATION);
-    blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;
-    // int WU_RETURN_LOCATION[WU_NSECTORS];
-    offsets[i] = offsetof(option_struct, WU_RETURN_LOCATION);
     blocklengths[i] = WU_NSECTORS;
     mpi_types[i++] = MPI_INT;
     // int WU_COMPENSATION_TIME[WU_NSECTORS];
     offsets[i] = offsetof(option_struct, WU_COMPENSATION_TIME);
     blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;
-    // size_t WU_NINPUT_FROM_FILE;
-    offsets[i] = offsetof(option_struct, WU_NINPUT_FROM_FILE);
-    mpi_types[i++] = MPI_AINT;    
+    mpi_types[i++] = MPI_INT;   
     // int WU_STRATEGY;
     offsets[i] = offsetof(option_struct, WU_STRATEGY);
     mpi_types[i++] = MPI_INT;
@@ -779,10 +769,6 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // int MAXDAMS;
     offsets[i] = offsetof(option_struct, MAXDAMS);
     mpi_types[i++] = MPI_INT;
-    
-    // size_t wu_force_offset;
-    offsets[i] = offsetof(option_struct, wu_force_offset);
-    mpi_types[i++] = MPI_AINT;
     
     // make sure that the we have the right number of elements
     if (i != (size_t) nitems) {
