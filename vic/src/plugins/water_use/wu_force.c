@@ -1,7 +1,7 @@
 #include <vic.h>
 
 void
-wu_force(void)
+wu_forcing(void)
 {
     extern size_t              current;
     extern domain_struct local_domain;
@@ -10,7 +10,8 @@ wu_force(void)
     extern dmy_struct         *dmy;
     extern option_struct options;
     extern filenames_struct filenames;
-    extern wu_con_struct **wu_con;
+    extern wu_force_struct **wu_force;
+    extern wu_hist_struct **wu_hist;
     extern size_t NF;
     extern int mpi_rank;
     
@@ -30,6 +31,7 @@ wu_force(void)
     
     for(f = 0; f < WU_NSECTORS; f++){
         if(options.WU_INPUT_LOCATION[f] == WU_INPUT_FROM_FILE){
+            // Open forcing file if it is the first time step
             if (current == 0 ) {
                 if (mpi_rank == VIC_MPI_ROOT) {  
                     // open new forcing file
@@ -40,10 +42,8 @@ wu_force(void)
                     check_nc_status(status, "Error opening %s",
                                     filenames.water_use[f].nc_filename);
                 }
-            }else if (dmy[current].year != dmy[current - 1].year) {
-                // reset offset
-                options.wu_force_offset = 0;
-
+            // Open forcing file if it is a new year
+            }else if (current > 0 && dmy[current].year != dmy[current - 1].year) {
                 if (mpi_rank == VIC_MPI_ROOT) {            
                     // close previous forcing file
                     status = nc_close(filenames.water_use[f].nc_id);
@@ -65,26 +65,48 @@ wu_force(void)
             d3count[0] = 1;
             d3count[1] = global_domain.n_ny;
             d3count[2] = global_domain.n_nx;
-
+            
+            // Get forcing data
             for (j = 0; j < NF; j++) {
-                d3start[0] = global_param.forceskip[1] +
-                             global_param.forceoffset[1] + j;
+                d3start[0] = global_param.forceskip[0] +
+                             global_param.forceoffset[0] + j;
 
                 get_scatter_nc_field_double(&(filenames.water_use[f]), 
                     "consumption_fraction", d3start, d3count, dvar);
+                
                 for (i = 0; i < local_domain.ncells_active; i++) {
-                    wu_con[i][j].consumption_fraction = dvar[i];
+                    wu_force[i][f].consumption_fraction[j] = dvar[i];
                 }
 
                 get_scatter_nc_field_double(&(filenames.water_use[f]), 
                     "demand", d3start, d3count, dvar);
+                
                 for (i = 0; i < local_domain.ncells_active; i++) {
-                    wu_con[i][j].demand = dvar[i];
+                    wu_force[i][f].demand[j] = dvar[i];
                 }
             }
+            
+            // Average forcing data
+            for (i = 0; i < local_domain.ncells_active; i++) {
+                wu_hist[i][f].consumption_fraction =  
+                        average(wu_force[i][f].consumption_fraction, NF);
+            }
+            for (i = 0; i < local_domain.ncells_active; i++) {
+                wu_hist[i][f].demand = 
+                        average(wu_force[i][f].demand, NF);
+            }
         }
-
-        options.wu_force_offset += NF;
+        
+                
+        // Close forcing file if it is the last time step
+        if (current == global_param.nrecs - 1) {
+            if (mpi_rank == VIC_MPI_ROOT) {         
+                // close previous forcing file
+                status = nc_close(filenames.water_use[f].nc_id);
+                check_nc_status(status, "Error closing %s",
+                                filenames.water_use[f].nc_filename);
+            }
+        }
     }
     
     free(dvar);

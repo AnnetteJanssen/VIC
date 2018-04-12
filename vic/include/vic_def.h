@@ -365,9 +365,6 @@ typedef struct {
     // EFR options
     // Dam options
     int MAXDAMS;
-    
-    // Variable global parameters
-    size_t wu_force_offset;
 } option_struct;
 
 /******************************************************************************

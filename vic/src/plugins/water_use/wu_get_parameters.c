@@ -1,5 +1,110 @@
 #include <vic.h>
 
+void
+get_wu_forcing_files_info(size_t sector)
+{    
+    extern global_param_struct global_param;
+    extern filenames_struct    filenames;
+
+    double                     nc_times[2];
+    double                     nc_time_origin;
+    size_t                     start = 0;
+    size_t                     count = 2;
+    char                      *nc_unit_chars = NULL;
+    char                      *calendar_char = NULL;
+    unsigned short int         time_units;
+    unsigned short int         calendar;
+    dmy_struct                 nc_origin_dmy;
+    dmy_struct                 nc_start_dmy;
+    size_t                     force_step_per_day;
+    unsigned short int         forceyear;
+    unsigned short int         forcemonth;
+    unsigned short int         forceday;
+    unsigned short int         forcesecond;
+    
+    // read time info from netcdf file
+    get_nc_field_double(&(filenames.water_use[sector]), "time", &start, &count,
+                        nc_times);
+    get_nc_var_attr(&(filenames.forcing[sector]), "time", "units",
+                    &nc_unit_chars);
+    get_nc_var_attr(&(filenames.forcing[sector]), "time", "calendar",
+                    &calendar_char);
+
+    // parse the calendar string and check to make sure it matches the global clock
+    calendar = str_to_calendar(calendar_char);
+
+    // parse the time units
+    parse_nc_time_units(nc_unit_chars, &time_units, &nc_origin_dmy);
+
+    // Get date/time of the first entry in the forcing file.
+    nc_time_origin =
+        date2num(0., &nc_origin_dmy, 0., calendar, TIME_UNITS_DAYS);
+    num2date(nc_time_origin, nc_times[0], 0., calendar, time_units,
+             &nc_start_dmy);
+
+    // Assign file start date/time            
+    forceyear = nc_start_dmy.year;
+    forcemonth = nc_start_dmy.month;
+    forceday = nc_start_dmy.day;
+    forcesecond = nc_start_dmy.dayseconds;
+
+    if(forceyear != global_param.forceyear[0] ||
+            forcemonth != global_param.forcemonth[0] ||
+            forceday != global_param.forceday[0] ||
+            forcesecond != global_param.forcesec[0]){
+        log_err("Water use forcing file time must match the forcing file time.  "
+                "Forcing file time is set to %hu-%hu-%hu : %hu "
+                "[year-month-day : seconds] and the water use forcing "
+                "file time is set to  %hu-%hu-%hu : %hu "
+                "[year-month-day : seconds]",
+                global_param.forceyear[0],
+                global_param.forcemonth[0],
+                global_param.forceday[0],
+                global_param.forcesec[0],
+                forceyear,
+                forcemonth,
+                forceday,
+                forcesecond);
+    }
+
+    // calculate timestep in forcing file
+    if (time_units == TIME_UNITS_DAYS) {
+        force_step_per_day =
+            (size_t) nearbyint(1. / (nc_times[1] - nc_times[0]));
+    }
+    else if (time_units == TIME_UNITS_HOURS) {
+       force_step_per_day =
+            (size_t) nearbyint(HOURS_PER_DAY / (nc_times[1] - nc_times[0]));
+    }
+    else if (time_units == TIME_UNITS_MINUTES) {
+        force_step_per_day =
+            (size_t) nearbyint(MIN_PER_DAY / (nc_times[1] - nc_times[0]));
+    }
+    else if (time_units == TIME_UNITS_SECONDS) {
+        force_step_per_day =
+            (size_t) nearbyint(SEC_PER_DAY / (nc_times[1] - nc_times[0]));
+    }
+
+    // check that this forcing file will work
+    if (force_step_per_day !=
+        global_param.snow_steps_per_day) {
+        log_err("Water use forcing file timestep must match the snow model timestep.  "
+                "Snow model timesteps per day is set to %zu and the forcing "
+                "file timestep is set to %zu",
+                global_param.snow_steps_per_day,
+                force_step_per_day);
+    }
+    if (calendar != global_param.calendar) {
+        log_err("Calendar in water use forcing file (%s) "
+                "does not match the calendar of "
+                "VIC's clock", calendar_char);
+    }
+
+    // Free attribute character arrays
+    free(nc_unit_chars);
+    free(calendar_char);
+}
+
 int
 wu_get_sector_id(char *flgstr)
 {    
@@ -100,8 +205,10 @@ wu_validate_global_parameters(void)
 {
     extern filenames_struct filenames;
     extern option_struct options;
+    extern global_param_struct global_param;
     
     size_t i;
+    int status;
     
     if(!options.ROUTING){
         log_err("WATER_USE = TRUE but ROUTING = FALSE");
@@ -112,9 +219,24 @@ wu_validate_global_parameters(void)
             if(strcasecmp(filenames.water_use_forcing_pfx[i], MISSING_S) == 0){
                 log_err("WATER_USE = TRUE but WATER_USE_FORCING is missing");
             }
+                        
+            // Open first-year forcing files and get info
+            sprintf(filenames.water_use[i].nc_filename, "%s%4d.nc",
+                    filenames.water_use_forcing_pfx[i], global_param.startyear);
+            status = nc_open(filenames.water_use[i].nc_filename, NC_NOWRITE,
+                             &(filenames.water_use[i].nc_id));
+            check_nc_status(status, "Error opening %s",
+                            filenames.water_use[i].nc_filename);  
+            
+            // Get information from the forcing file(s)
+            get_wu_forcing_files_info(i); 
+            
+            // Close first-year forcing files
+            status = nc_close(filenames.water_use[i].nc_id);
+            check_nc_status(status, "Error closing %s",
+                            filenames.water_use[i].nc_filename);
         }
     }
-    
       // TODO: implement compensation time for water use from file
 //    for(i = 0; i < WU_NSECTORS; i++){
 //        if(options.WU_COMPENSATION_TIME[i] < 0){
