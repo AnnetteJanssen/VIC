@@ -94,17 +94,16 @@ wu_forcing(void)
             for (i = 0; i < local_domain.ncells_active; i++) {
                 wu_hist[i][f].demand = 
                         average(wu_force[i][f].demand, NF);
-            }
-        }
-        
+            }        
                 
-        // Close forcing file if it is the last time step
-        if (current == global_param.nrecs - 1) {
-            if (mpi_rank == VIC_MPI_ROOT) {         
-                // close previous forcing file
-                status = nc_close(filenames.water_use[f].nc_id);
-                check_nc_status(status, "Error closing %s",
-                                filenames.water_use[f].nc_filename);
+            // Close forcing file if it is the last time step
+            if (current == global_param.nrecs - 1) {
+                if (mpi_rank == VIC_MPI_ROOT) {         
+                    // close previous forcing file
+                    status = nc_close(filenames.water_use[f].nc_id);
+                    check_nc_status(status, "Error closing %s",
+                                    filenames.water_use[f].nc_filename);
+                }
             }
         }
     }
