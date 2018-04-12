@@ -30,78 +30,61 @@ wu_get_global_parameters(char *cmdstr)
     char                       optstr[MAXSTRING];
     char                       flgstr[MAXSTRING];
     
+    char sector[MAXSTRING];
+    char source[MAXSTRING];
+    char file[MAXSTRING];
+    char strategy[MAXSTRING];
+    char priority_sector[WU_NSECTORS][MAXSTRING];
     int cur_sector;
+    
+    size_t i;
     
     sscanf(cmdstr, "%s", optstr);
     
     if (strcasecmp("WATER_USE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.WATER_USE = str_to_bool(flgstr);
-    } 
-    else if (strcasecmp("WATER_USE_FORCING", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", filenames.water_use_forcing_pfx);
     }
-    else if (strcasecmp("WATER_USE_INPUT_FREQUENCY", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        if(strcasecmp("DAILY", flgstr) == 0){
-            options.WU_INPUT_FREQUENCY = WU_INPUT_DAILY;
-        }else if(strcasecmp("MONTHLY", flgstr) == 0){
-            options.WU_INPUT_FREQUENCY = WU_INPUT_MONTHLY;
-        }else if(strcasecmp("YEARLY", flgstr) == 0){
-            options.WU_INPUT_FREQUENCY = WU_INPUT_YEARLY;
-        }else{
-            log_err("WATER_USE_INPUT_FREQUENCY should be DAILY, MONTHLY or YEARLY; %s is unknown", flgstr);
-        }
-    }
+    
     else if (strcasecmp("WU_SECTOR", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s %*s %*s %*d", flgstr);
-        cur_sector = wu_get_sector_id(flgstr);
+        sscanf(cmdstr, "%*s %s %s %s", sector, source, file);
         
-        sscanf(cmdstr, "%*s %*s %s %*s %*d", flgstr);
-        if(strcasecmp("CALCULATE", flgstr) == 0){
+        cur_sector = wu_get_sector_id(sector);
+        
+        if(strcasecmp("CALCULATE", source) == 0){
             options.WU_INPUT_LOCATION[cur_sector] = WU_INPUT_CALCULATE;
-        }else if(strcasecmp("NONE", flgstr) == 0){
+        }else if(strcasecmp("NONE", source) == 0){
             options.WU_INPUT_LOCATION[cur_sector] = WU_INPUT_NONE;
-        }else if(strcasecmp("FROM_FILE", flgstr) == 0){
+        }else if(strcasecmp("FROM_FILE", source) == 0){
             options.WU_INPUT_LOCATION[cur_sector] = WU_INPUT_FROM_FILE;
-            options.WU_NINPUT_FROM_FILE++;
         }else{
-            log_err("WU_SECTOR INPUT should be CALCULATE, NONE or FROM_FILE; %s is unknown", flgstr);
+            log_err("WU_SECTOR SOURCE should be CALCULATE, NONE or FROM_FILE; "
+                    "%s is unknown", source);
         }
         
-        sscanf(cmdstr, "%*s %*s %*s %s %*d", flgstr);
-        if(strcasecmp("SURFACEWATER", flgstr) == 0){
-            options.WU_RETURN_LOCATION[cur_sector] = WU_RETURN_SURFACEWATER;
-        }else if(strcasecmp("GROUNDWATER", flgstr) == 0){
-            options.WU_RETURN_LOCATION[cur_sector] = WU_RETURN_GROUNDWATER;
-        }else{
-            log_err("WU_SECTOR RETURN_LOCATION should be SURFACEWATER or GROUNDWATER; %s is unknown", flgstr);
-        }
+        strcpy(filenames.water_use_forcing_pfx[cur_sector], file);
         
-        sscanf(cmdstr, "%*s %*s %*s %*s %d", &options.WU_COMPENSATION_TIME[cur_sector]);
+        // TODO: implement compensation time for water use from file
+        //sscanf(cmdstr, "%*s %*s %*s %d %*s", &options.WU_COMPENSATION_TIME[cur_sector]);
     }
     
     else if (strcasecmp("WU_STRATEGY", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        if(strcasecmp("EQUAL", flgstr) == 0){
+        sscanf(cmdstr, "%*s %s %s %s %s %s %s %s", strategy, 
+                priority_sector[0],priority_sector[1],
+                priority_sector[2],priority_sector[3],
+                priority_sector[4],priority_sector[5]);
+        
+        if(strcasecmp("EQUAL", strategy) == 0){
             options.WU_STRATEGY = WU_STRATEGY_EQUAL;
-        }else if(strcasecmp("PRIORITY", flgstr) == 0){
+        }else if(strcasecmp("PRIORITY", strategy) == 0){
             options.WU_STRATEGY = WU_STRATEGY_PRIORITY;
             
-            sscanf(cmdstr, "%*s %*s %s %*s %*s %*s %*s %*s", flgstr);
-            options.WU_PRIORITY[0] = wu_get_sector_id(flgstr);
-            sscanf(cmdstr, "%*s %*s %*s %s %*s %*s %*s %*s", flgstr);
-            options.WU_PRIORITY[1] = wu_get_sector_id(flgstr);
-            sscanf(cmdstr, "%*s %*s %*s %*s %s %*s %*s %*s", flgstr);
-            options.WU_PRIORITY[2] = wu_get_sector_id(flgstr);
-            sscanf(cmdstr, "%*s %*s %*s %*s %*s %s %*s %*s", flgstr);
-            options.WU_PRIORITY[3] = wu_get_sector_id(flgstr);
-            sscanf(cmdstr, "%*s %*s %*s %*s %*s %*s %s %*s", flgstr);
-            options.WU_PRIORITY[4] = wu_get_sector_id(flgstr);
-            sscanf(cmdstr, "%*s %*s %*s %*s %*s %*s %*s %s", flgstr);
-            options.WU_PRIORITY[5] = wu_get_sector_id(flgstr);
+            for(i = 0; i < WU_NSECTORS; i++){
+                options.WU_PRIORITY[i] = wu_get_sector_id(priority_sector[i]);
+            }
         }else{
-            log_err("WU_STRATEGY should be EQUAL or PRIORITY,; %s is unknown", flgstr);
+            log_err("WU_STRATEGY should be EQUAL or PRIORITY; "
+                    "%s is unknown", strategy);
         }
     }    
     
@@ -123,13 +106,19 @@ wu_validate_global_parameters(void)
     if(!options.ROUTING){
         log_err("WATER_USE = TRUE but ROUTING = FALSE");
     }
-    if(strcasecmp(filenames.water_use_forcing_pfx, MISSING_S) == 0 &&
-            options.WU_NINPUT_FROM_FILE > 0){
-        log_err("WATER_USE = TRUE but WATER_USE_FORCING is missing");
-    }
-    for(i = 0; i < WU_NSECTORS; i++){
-        if(options.WU_COMPENSATION_TIME[i] < 0){
-            log_err("WATER_USE_SECTOR COMPENSATION_TIME must be defined on the interval [0,inf) (days)");
+    
+    for(i = 0; i < WU_NSECTORS; i ++){
+        if(options.WU_INPUT_LOCATION[i] == WU_INPUT_FROM_FILE){
+            if(strcasecmp(filenames.water_use_forcing_pfx[i], MISSING_S) == 0){
+                log_err("WATER_USE = TRUE but WATER_USE_FORCING is missing");
+            }
         }
     }
+    
+      // TODO: implement compensation time for water use from file
+//    for(i = 0; i < WU_NSECTORS; i++){
+//        if(options.WU_COMPENSATION_TIME[i] < 0){
+//            log_err("WATER_USE_SECTOR COMPENSATION_TIME must be defined on the interval [0,inf) (days)");
+//        }
+//    }
 }

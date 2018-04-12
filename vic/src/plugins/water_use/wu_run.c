@@ -59,15 +59,7 @@ wu_run(size_t cur_cell)
      
     // Return flow
     for(i = 0; i < WU_NSECTORS; i++){
-        if(options.WU_RETURN_LOCATION[i] == WU_RETURN_SURFACEWATER){
-            rout_var[cur_cell].discharge[0] +=
-                    wu_var[cur_cell][i].returned;
-        }else if(options.WU_RETURN_LOCATION[i] == WU_RETURN_GROUNDWATER){
-            log_warn("Water use returned to groundwater not yet implemented...");
-            rout_var[cur_cell].discharge[0] +=
-                    wu_var[cur_cell][i].returned;
-        }else{
-            log_err("Unknown water use return location");
-        }
+        rout_var[cur_cell].discharge[0] +=
+                wu_var[cur_cell][i].returned;
     }
 }

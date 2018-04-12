@@ -330,13 +330,10 @@ typedef struct {
     size_t RIRF_NSTEPS;
     size_t GIRF_NSTEPS;
     // Water use options
-    int WU_INPUT_FREQUENCY;
     int WU_INPUT_LOCATION[WU_NSECTORS];
-    int WU_RETURN_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
     int WU_STRATEGY;
     int WU_PRIORITY[WU_NSECTORS];
-    size_t WU_NINPUT_FROM_FILE;
     // Irrigation options
     int NIRRTYPES;
     int NIRRSEASONS;

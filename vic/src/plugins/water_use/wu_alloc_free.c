@@ -37,11 +37,13 @@ wu_finalize(void)
     
     size_t i;
                 
-    if(options.WU_NINPUT_FROM_FILE > 0){
-        // close previous forcing file
-        status = nc_close(filenames.water_use.nc_id);
-        check_nc_status(status, "Error closing %s",
-                        filenames.water_use.nc_filename);
+    for(i = 0; i < WU_NSECTORS; i++){
+        if(options.WU_INPUT_LOCATION[i] == WU_INPUT_FROM_FILE){
+            // close previous forcing file
+            status = nc_close(filenames.water_use[i].nc_id);
+            check_nc_status(status, "Error closing %s",
+                            filenames.water_use[i].nc_filename);
+        }
     }
             
     for(i=0; i<local_domain.ncells_active; i++){
