@@ -14,6 +14,9 @@ dam_start(void)
     check_nc_status(status, "Error opening %s",
                     filenames.dams.nc_filename);
 
+    options.MAXSERVICE = get_nc_dimension(&(filenames.dams), 
+            "max_service");
+    
     options.MAXDAMS = get_nc_dimension(&(filenames.dams), 
             "dam_class");
 

@@ -364,6 +364,7 @@ typedef struct {
     int NIRRSEASONS;
     // EFR options
     // Dam options
+    int MAXSERVICE;
     int MAXDAMS;
 } option_struct;
 
