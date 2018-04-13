@@ -7,8 +7,8 @@
 #define DAM_AMP_STEP 0.05
 #define DAM_PREF_VOL_FRAC 0.85
 #define DAM_MIN_VOL_FRAC 0.1
-#define DAM_DIS_MOD_FRAC 0.33
-#define DAM_DIS_MOD_FRAC_IRR 0.1
+#define DAM_DIS_MOD_FRAC 0.5
+#define DAM_VOL_MOD_FRAC 0.1
 
 #define DAM_FUN_IRR 1
 #define DAM_FUN_FLO 2
