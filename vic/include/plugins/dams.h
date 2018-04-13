@@ -6,10 +6,9 @@
 #define DAM_HIST_YEARS 3
 #define DAM_AMP_STEP 0.05
 #define DAM_PREF_VOL_FRAC 0.85
-#define DAM_MAX_VOL_FRAC 0.9
 #define DAM_MIN_VOL_FRAC 0.1
-#define DAM_DIS_MOD_FRAC 0.25
-#define DAM_DIS_MOD_FRAC_HYD 0.05
+#define DAM_DIS_MOD_FRAC 0.33
+#define DAM_DIS_MOD_FRAC_IRR 0.1
 
 #define DAM_FUN_IRR 1
 #define DAM_FUN_FLO 2
