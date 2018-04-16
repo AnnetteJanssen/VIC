@@ -10,6 +10,7 @@ wu_run(size_t cur_cell)
     
     double total_available;
     double total_demand;
+    double total_withdrawn;
     double withdrawn_fraction;
     
     size_t i;    
@@ -26,16 +27,18 @@ wu_run(size_t cur_cell)
     // Get availability
     total_available = 0.0;
     for(i = 0; i < options.RIRF_NSTEPS; i++){
-        total_available = rout_var[cur_cell].discharge[i];
+        total_available += rout_var[cur_cell].discharge[i];
     }
     
     // Satisfy demand
-    total_demand = 0;
+    total_demand = 0.0;
     for(i = 0; i < WU_NSECTORS; i++){
         total_demand += wu_var[cur_cell][i].demand;
     }
     
+    total_withdrawn = 0.0;
     if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+        
         withdrawn_fraction = 0.0;
         if(total_available > 0 && total_demand > 0){
             withdrawn_fraction = total_available / total_demand;
@@ -53,30 +56,34 @@ wu_run(size_t cur_cell)
                 wu_var[cur_cell][i].returned += 
                         wu_var[cur_cell][i].withdrawn * 
                         (1 - wu_hist[cur_cell][i].consumption_fraction);
-            } 
+            
+                total_withdrawn += wu_var[cur_cell][i].withdrawn;
+            }
         }
     } else {
         log_err("WU_STRATEGY PRIORITY has not been implemented yet");
     }
      
     // Discharge reduction and return flow
-    for(i = 0; i < WU_NSECTORS; i++){
-        for(j = 0; j < options.RIRF_NSTEPS; j++){
-            rout_var[cur_cell].discharge[j] -=
-                    (wu_var[cur_cell][i].withdrawn - 
-                    wu_var[cur_cell][i].returned) * 
-                    (rout_var[cur_cell].discharge[j] / 
-                    total_available);
+    if(total_withdrawn > 0){
+        for(i = 0; i < WU_NSECTORS; i++){
+            for(j = 0; j < options.RIRF_NSTEPS; j++){
+                rout_var[cur_cell].discharge[j] -=
+                        (wu_var[cur_cell][i].withdrawn - 
+                        wu_var[cur_cell][i].returned) * 
+                        (rout_var[cur_cell].discharge[j] / 
+                        total_available);
 
-            if(rout_var[cur_cell].discharge[j] < 0){
-                if(abs(rout_var[cur_cell].discharge[j]) > DBL_EPSILON){
-                    log_err("Routing discharge reduction due to water use "
-                            "[%.4f] is abnormally large", 
-                            rout_var[cur_cell].discharge[j]);
-                } else {
-                    rout_var[cur_cell].discharge[j] = 0.0;
-                }
-            }       
+                if(rout_var[cur_cell].discharge[j] < 0){
+                    if(abs(rout_var[cur_cell].discharge[j]) > DBL_EPSILON){
+                        log_err("Routing discharge reduction due to water use "
+                                "is abnormally large [%.4f]", 
+                                rout_var[cur_cell].discharge[j]);
+                    } else {
+                        rout_var[cur_cell].discharge[j] = 0.0;
+                    }
+                }    
+            }
         }
     }
     
