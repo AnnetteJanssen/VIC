@@ -142,7 +142,7 @@ irr_set_nseasons(void)
 }
 
 void
-irr_alloc(void)
+irr_late_alloc(void)
 {
     extern domain_struct local_domain;
     extern option_struct options;

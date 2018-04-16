@@ -34,36 +34,34 @@ wu_set_nreceiving(void)
 }
 
 void
-wu_set_nsending(void)
+wu_set_nservice(void)
 {
+    extern option_struct options;
     extern domain_struct local_domain;
-    extern domain_struct global_domain;
-    extern filenames_struct filenames;
     extern wu_con_struct *wu_con;
-        
-    int *ivar;
+    extern dam_con_map_struct *dam_con_map;
+    extern dam_con_struct **dam_con;
     
+    size_t cur_ser;
     size_t i;
+    size_t j;
+    size_t k;
     
-    size_t  d2count[2];
-    size_t  d2start[2];
-    
-    // Get active irrigated vegetation    
-    d2start[0] = 0;
-    d2start[1] = 0;
-    d2count[0] = global_domain.n_ny;
-    d2count[1] = global_domain.n_nx; 
-    
-    ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
-    check_alloc_status(ivar, "Memory allocation error."); 
-        
-    get_scatter_nc_field_int(&(filenames.water_use), 
-            "nsending", d2start, d2count, ivar);
     for (i = 0; i < local_domain.ncells_active; i++) {
-        wu_con[i].nsending = ivar[i];
+        wu_con[i].nservice = 0;
     }
     
-    free(ivar);
+    if(options.DAMS){
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            for(j = 0; j < dam_con_map[i].nd_active; j++){
+                for(k = 0; k < dam_con[i][j].nservice; k++){
+                    cur_ser = dam_con[i][j].service[k];
+                    
+                    wu_con[cur_ser].nservice++;
+                }
+            }
+        }
+    }
 }
 
 void
@@ -103,7 +101,6 @@ wu_alloc(void)
     check_alloc_status(wu_con,"Memory allocation error");
     
     wu_set_nreceiving();
-    wu_set_nsending();
 
     for(i=0; i<local_domain.ncells_active; i++){        
         wu_hist[i] = malloc(WU_NSECTORS * sizeof(*wu_hist[i]));
@@ -117,9 +114,6 @@ wu_alloc(void)
         
         wu_con[i].receiving = malloc(wu_con[i].nreceiving * sizeof(*wu_con[i].receiving));
         check_alloc_status(wu_con[i].receiving,"Memory allocation error");
-        
-        wu_con[i].sending = malloc(wu_con[i].nsending * sizeof(*wu_con[i].sending));
-        check_alloc_status(wu_con[i].sending,"Memory allocation error");
 
         for(j = 0; j < WU_NSECTORS; j++){        
             wu_force[i][j].consumption_fraction = malloc(NF * sizeof(*wu_force[i][j].consumption_fraction));
@@ -136,6 +130,24 @@ wu_alloc(void)
         check_nc_status(status, "Error closing %s",
                         filenames.water_use.nc_filename);
     } 
+}
+
+void
+wu_late_alloc(void)
+{
+    extern domain_struct local_domain;
+    extern wu_con_struct *wu_con;
+    size_t i;
+    
+    wu_set_nservice();
+
+    for(i=0; i<local_domain.ncells_active; i++){         
+        wu_con[i].service = malloc(wu_con[i].nservice * sizeof(*wu_con[i].service));
+        check_alloc_status(wu_con[i].service,"Memory allocation error");
+
+        wu_con[i].service_idx = malloc(wu_con[i].nservice * sizeof(*wu_con[i].service_idx));
+        check_alloc_status(wu_con[i].service_idx,"Memory allocation error");
+    }
 }
 
 void
@@ -157,7 +169,8 @@ wu_finalize(void)
         free(wu_hist[i]);
         free(wu_var[i]);
     	free(wu_con[i].receiving);
-    	free(wu_con[i].sending);
+    	free(wu_con[i].service);
+    	free(wu_con[i].service_idx);
     }
     free(wu_con);
     free(wu_force);

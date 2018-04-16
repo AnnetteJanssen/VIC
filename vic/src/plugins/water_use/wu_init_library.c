@@ -27,14 +27,14 @@ initialize_wu_hist(wu_hist_struct *wu_hist)
 void
 initialize_wu_con(wu_con_struct *wu_con)
 {    
-    int i;
+    size_t i;
     
-    wu_con->link_id = 0;    
     for(i = 0; i < wu_con->nreceiving; i++){
         wu_con->receiving[i] = MISSING_USI;
     }
-    for(i = 0; i < wu_con->nsending; i++){
-        wu_con->sending[i] = MISSING_USI;
+    for(i = 0; i < wu_con->nservice; i++){
+        wu_con->service[i] = MISSING_USI;
+        wu_con->service_idx[i] = MISSING_USI;
     }
 }
 

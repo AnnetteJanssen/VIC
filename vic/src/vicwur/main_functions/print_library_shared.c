@@ -474,23 +474,23 @@ print_option(option_struct *option)
             option->LAKES ? "true" : "false");
     
     // Plugins    
-    fprintf(LOG_DEST, "\tMATRIC                : %s\n",
+    fprintf(LOG_DEST, "\tMATRIC               : %s\n",
             option->MATRIC ? "true" : "false");
-    fprintf(LOG_DEST, "\tGROUNDWATER                : %s\n",
+    fprintf(LOG_DEST, "\tGROUNDWATER          : %s\n",
             option->GROUNDWATER ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING                : %s\n",
+    fprintf(LOG_DEST, "\tROUTING              : %s\n",
             option->ROUTING ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING_LOHMANN                : %s\n",
+    fprintf(LOG_DEST, "\tROUTING_LOHMANN      : %s\n",
             option->ROUTING_LOHMANN ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING_RVIC                : %s\n",
+    fprintf(LOG_DEST, "\tROUTING_RVIC         : %s\n",
             option->ROUTING_RVIC ? "true" : "false");
-    fprintf(LOG_DEST, "\tDAMS                : %s\n",
+    fprintf(LOG_DEST, "\tDAMS                 : %s\n",
             option->DAMS ? "true" : "false");
-    fprintf(LOG_DEST, "\tEFR                : %s\n",
-            option->IRRIGATION ? "true" : "false");
-    fprintf(LOG_DEST, "\tIRRIGATION            : %s\n",
+    fprintf(LOG_DEST, "\tEFR                  : %s\n",
             option->EFR ? "true" : "false");
-    fprintf(LOG_DEST, "\tWATER_USE                : %s\n",
+    fprintf(LOG_DEST, "\tIRRIGATION           : %s\n",
+            option->IRRIGATION ? "true" : "false");
+    fprintf(LOG_DEST, "\tWATER_USE            : %s\n",
             option->WATER_USE ? "true" : "false");
     
     fprintf(LOG_DEST, "\tNcanopy              : %zu\n", option->Ncanopy);
@@ -542,6 +542,20 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tSAVE_STATE           : %s\n",
             option->SAVE_STATE ? "true" : "false");
     fprintf(LOG_DEST, "\tNoutstreams          : %zu\n", option->Noutstreams);
+    
+    // Plugins    
+    fprintf(LOG_DEST, "\tGW_INIT_FROM_FILE    : %s\n",
+            option->GW_INIT_FROM_FILE ? "true" : "false");
+    fprintf(LOG_DEST, "\tROUTING_TYPE         : %d\n", option->ROUTING_TYPE);
+    fprintf(LOG_DEST, "\tRIRF_NSTEPS          : %zu\n", option->RIRF_NSTEPS);
+    fprintf(LOG_DEST, "\tGIRF_NSTEPS          : %zu\n", option->GIRF_NSTEPS);
+    fprintf(LOG_DEST, "\tMAXRECEIVING         : %zu\n", option->MAXRECEIVING);
+    fprintf(LOG_DEST, "\tMAXSENDING           : %zu\n", option->MAXSENDING);
+    fprintf(LOG_DEST, "\tWU_STRATEGY          : %d\n", option->WU_STRATEGY);
+    fprintf(LOG_DEST, "\tNIRRTYPES            : %zu\n", option->NIRRTYPES);
+    fprintf(LOG_DEST, "\tNIRRSEASONS          : %zu\n", option->NIRRSEASONS);
+    fprintf(LOG_DEST, "\tMAXSERVICE           : %zu\n", option->MAXSERVICE);
+    fprintf(LOG_DEST, "\tMAXDAMS              : %zu\n", option->MAXDAMS);
 }
 
 /******************************************************************************

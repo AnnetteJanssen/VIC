@@ -195,6 +195,10 @@ wu_get_global_parameters(char *cmdstr)
                     "%s is unknown", strategy);
         }
     }    
+    else if (strcasecmp("REMOTE_WATER_USE", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.WU_REMOTE = str_to_bool(flgstr);
+    }
     
     else {
         return false;
@@ -238,6 +242,12 @@ wu_validate_global_parameters(void)
             status = nc_close(filenames.water_use_forcing[i].nc_id);
             check_nc_status(status, "Error closing %s",
                             filenames.water_use_forcing[i].nc_filename);
+        }
+    }
+    
+    if(!options.WU_REMOTE){
+        if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
+            log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
         }
     }
       // TODO: implement compensation time for water use from file

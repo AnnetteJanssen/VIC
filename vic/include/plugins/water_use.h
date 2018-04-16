@@ -19,12 +19,13 @@ enum{
     WU_NSTRATEGY
 };
 
-typedef struct{
-    size_t link_id;
-    int nsending;
-    int nreceiving;
-    size_t *sending;
+typedef struct{    
+    size_t nreceiving;
     size_t *receiving;
+    
+    size_t nservice;
+    size_t *service;
+    size_t *service_idx;
 }wu_con_struct;
 
 typedef struct{
@@ -48,6 +49,7 @@ bool wu_get_global_parameters(char *cmdstr);
 void wu_validate_global_parameters(void);
 void wu_start(void);
 void wu_alloc(void);
+void wu_late_alloc(void);
 void initialize_wu_local_structures(void);
 void wu_init(void);
 void wu_set_output_meta_data_info(void);

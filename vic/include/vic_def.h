@@ -355,19 +355,20 @@ typedef struct {
     size_t RIRF_NSTEPS;
     size_t GIRF_NSTEPS;
     // Water use options
-    int MAXRECEIVING;
-    int MAXSENDING;
+    bool WU_REMOTE;
+    size_t MAXRECEIVING;
+    size_t MAXSENDING;
     int WU_INPUT_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
     int WU_STRATEGY;
     int WU_PRIORITY[WU_NSECTORS];
     // Irrigation options
-    int NIRRTYPES;
-    int NIRRSEASONS;
+    size_t NIRRTYPES;
+    size_t NIRRSEASONS;
     // EFR options
     // Dam options
-    int MAXSERVICE;
-    int MAXDAMS;
+    size_t MAXSERVICE;
+    size_t MAXDAMS;
 } option_struct;
 
 /******************************************************************************

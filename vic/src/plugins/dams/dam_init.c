@@ -36,7 +36,7 @@ dam_set_info(void)
         d3start[0] = j;
         
         get_scatter_nc_field_int(&(filenames.dams), 
-                "id", d3start, d3count, ivar);
+                "dam_id", d3start, d3count, ivar);
         
         for(i = 0; i < local_domain.ncells_active; i++){
             if(j < dam_con_map[i].nd_active){

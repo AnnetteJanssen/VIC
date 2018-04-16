@@ -52,11 +52,12 @@ vic_init(void)
         initialize_efr_local_structures();
     }
     if (options.WATER_USE) {
+        wu_late_alloc();
         initialize_wu_local_structures();
         wu_init();
     }
     if (options.IRRIGATION) {
-        irr_alloc();
+        irr_late_alloc();
         initialize_irr_local_structures();
         irr_init();
     }
