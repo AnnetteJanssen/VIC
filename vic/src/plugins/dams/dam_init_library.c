@@ -31,11 +31,18 @@ initialize_dam_var(dam_var_struct *dam_var)
 void
 initialize_dam_con(dam_con_struct *dam_con)
 {    
+    size_t i;
+    
+    dam_con->id = 0;
     dam_con->year = 0;
     dam_con->function = DAM_FUN_FLO;
     dam_con->max_area = 0;
     dam_con->max_height = 0;
     dam_con->max_volume = 0;
+    
+    for(i = 0; i < dam_con->nservice; i++){
+        dam_con->service[i] = MISSING_USI;
+    }    
 }
 
 void

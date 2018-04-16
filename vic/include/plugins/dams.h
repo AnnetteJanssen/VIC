@@ -22,6 +22,7 @@ typedef struct{
 }dam_con_map_struct;
 
 typedef struct{
+    int id;
     int year;
     int function;
     double max_volume;
