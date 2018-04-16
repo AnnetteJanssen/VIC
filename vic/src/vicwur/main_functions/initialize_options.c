@@ -114,10 +114,14 @@ initialize_options()
     options.RIRF_NSTEPS = 0;
     options.GIRF_NSTEPS = 0;
     // Water use options
+    options.MAXRECEIVING = 0;
+    options.MAXSENDING = 0;
     for(i = 0; i < WU_NSECTORS; i++){
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
         options.WU_COMPENSATION_TIME[i] = 0;
+        options.WU_PRIORITY[i] = i;
     }
+    options.WU_STRATEGY = WU_STRATEGY_EQUAL;
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;

@@ -38,11 +38,14 @@ vic_finalize(void)
     if (options.ROUTING_RVIC) {
         routing_rvic_finalize();
     }
-    if (options.DAMS) {
-        dam_finalize();
+    if (options.GROUNDWATER) {
+        gw_finalize();
     }
     if (options.ROUTING) {
         rout_finalize();
+    }
+    if (options.DAMS) {
+        dam_finalize();
     }
     if (options.IRRIGATION) {
         irr_finalize();
@@ -52,9 +55,6 @@ vic_finalize(void)
     }
     if (options.WATER_USE) {
         wu_finalize();
-    }
-    if (options.GROUNDWATER) {
-        gw_finalize();
     }
 
     // Allocate memory for all non specific VIC structures

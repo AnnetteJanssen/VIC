@@ -355,6 +355,8 @@ typedef struct {
     size_t RIRF_NSTEPS;
     size_t GIRF_NSTEPS;
     // Water use options
+    int MAXRECEIVING;
+    int MAXSENDING;
     int WU_INPUT_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
     int WU_STRATEGY;

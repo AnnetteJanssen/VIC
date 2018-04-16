@@ -23,7 +23,7 @@ get_wu_forcing_files_info(size_t sector)
     unsigned short int         forcesecond;
     
     // read time info from netcdf file
-    get_nc_field_double(&(filenames.water_use[sector]), "time", &start, &count,
+    get_nc_field_double(&(filenames.water_use_forcing[sector]), "time", &start, &count,
                         nc_times);
     get_nc_var_attr(&(filenames.forcing[sector]), "time", "units",
                     &nc_unit_chars);
@@ -150,6 +150,9 @@ wu_get_global_parameters(char *cmdstr)
         sscanf(cmdstr, "%*s %s", flgstr);
         options.WATER_USE = str_to_bool(flgstr);
     }
+    else if (strcasecmp("WATER_USE_PARAMETERS", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", filenames.water_use.nc_filename);
+    }
     
     else if (strcasecmp("WU_SECTOR", optstr) == 0) {
         sscanf(cmdstr, "%*s %s %s %s", sector, source, file);
@@ -221,20 +224,20 @@ wu_validate_global_parameters(void)
             }
                         
             // Open first-year forcing files and get info
-            sprintf(filenames.water_use[i].nc_filename, "%s%4d.nc",
+            sprintf(filenames.water_use_forcing[i].nc_filename, "%s%4d.nc",
                     filenames.water_use_forcing_pfx[i], global_param.startyear);
-            status = nc_open(filenames.water_use[i].nc_filename, NC_NOWRITE,
-                             &(filenames.water_use[i].nc_id));
+            status = nc_open(filenames.water_use_forcing[i].nc_filename, NC_NOWRITE,
+                             &(filenames.water_use_forcing[i].nc_id));
             check_nc_status(status, "Error opening %s",
-                            filenames.water_use[i].nc_filename);  
+                            filenames.water_use_forcing[i].nc_filename);  
             
             // Get information from the forcing file(s)
             get_wu_forcing_files_info(i); 
             
             // Close first-year forcing files
-            status = nc_close(filenames.water_use[i].nc_id);
+            status = nc_close(filenames.water_use_forcing[i].nc_id);
             check_nc_status(status, "Error closing %s",
-                            filenames.water_use[i].nc_filename);
+                            filenames.water_use_forcing[i].nc_filename);
         }
     }
       // TODO: implement compensation time for water use from file

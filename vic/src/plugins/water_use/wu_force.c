@@ -35,28 +35,28 @@ wu_forcing(void)
             if (current == 0 ) {
                 if (mpi_rank == VIC_MPI_ROOT) {  
                     // open new forcing file
-                    sprintf(filenames.water_use[f].nc_filename, "%s%4d.nc",
+                    sprintf(filenames.water_use_forcing[f].nc_filename, "%s%4d.nc",
                             filenames.water_use_forcing_pfx[f], dmy[current].year);        
-                    status = nc_open(filenames.water_use[f].nc_filename, NC_NOWRITE,
-                                     &(filenames.water_use[f].nc_id));
+                    status = nc_open(filenames.water_use_forcing[f].nc_filename, NC_NOWRITE,
+                                     &(filenames.water_use_forcing[f].nc_id));
                     check_nc_status(status, "Error opening %s",
-                                    filenames.water_use[f].nc_filename);
+                                    filenames.water_use_forcing[f].nc_filename);
                 }
             // Open forcing file if it is a new year
             }else if (current > 0 && dmy[current].year != dmy[current - 1].year) {
                 if (mpi_rank == VIC_MPI_ROOT) {            
                     // close previous forcing file
-                    status = nc_close(filenames.water_use[f].nc_id);
+                    status = nc_close(filenames.water_use_forcing[f].nc_id);
                     check_nc_status(status, "Error closing %s",
-                                    filenames.water_use[f].nc_filename);
+                                    filenames.water_use_forcing[f].nc_filename);
 
                     // open new forcing file
-                    sprintf(filenames.water_use[f].nc_filename, "%s%4d.nc",
+                    sprintf(filenames.water_use_forcing[f].nc_filename, "%s%4d.nc",
                             filenames.water_use_forcing_pfx[f], dmy[current].year);        
-                    status = nc_open(filenames.water_use[f].nc_filename, NC_NOWRITE,
-                                     &(filenames.water_use[f].nc_id));
+                    status = nc_open(filenames.water_use_forcing[f].nc_filename, NC_NOWRITE,
+                                     &(filenames.water_use_forcing[f].nc_id));
                     check_nc_status(status, "Error opening %s",
-                                    filenames.water_use[f].nc_filename);
+                                    filenames.water_use_forcing[f].nc_filename);
                 }
             }
       
@@ -71,14 +71,14 @@ wu_forcing(void)
                 d3start[0] = global_param.forceskip[0] +
                              global_param.forceoffset[0] + j;
 
-                get_scatter_nc_field_double(&(filenames.water_use[f]), 
+                get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
                     "consumption_fraction", d3start, d3count, dvar);
                 
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     wu_force[i][f].consumption_fraction[j] = dvar[i];
                 }
 
-                get_scatter_nc_field_double(&(filenames.water_use[f]), 
+                get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
                     "demand", d3start, d3count, dvar);
                 
                 for (i = 0; i < local_domain.ncells_active; i++) {
@@ -100,9 +100,9 @@ wu_forcing(void)
             if (current == global_param.nrecs - 1) {
                 if (mpi_rank == VIC_MPI_ROOT) {         
                     // close previous forcing file
-                    status = nc_close(filenames.water_use[f].nc_id);
+                    status = nc_close(filenames.water_use_forcing[f].nc_id);
                     check_nc_status(status, "Error closing %s",
-                                    filenames.water_use[f].nc_filename);
+                                    filenames.water_use_forcing[f].nc_filename);
                 }
             }
         }

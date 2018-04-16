@@ -55,7 +55,7 @@ initialize_filenames()
     strcpy(filenames.rout_params.nc_filename, "MISSING");
     for (i = 0; i < WU_NSECTORS; i++) {
         strcpy(filenames.water_use_forcing_pfx[i], "MISSING");
-        strcpy(filenames.water_use[i].nc_filename, "MISSING");
+        strcpy(filenames.water_use_forcing[i].nc_filename, "MISSING");
     }
     strcpy(filenames.irrigation.nc_filename, "MISSING");
     strcpy(filenames.dams.nc_filename, "MISSING");

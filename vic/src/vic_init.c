@@ -53,6 +53,7 @@ vic_init(void)
     }
     if (options.WATER_USE) {
         initialize_wu_local_structures();
+        wu_init();
     }
     if (options.IRRIGATION) {
         irr_alloc();
