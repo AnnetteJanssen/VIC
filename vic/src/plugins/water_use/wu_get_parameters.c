@@ -192,6 +192,10 @@ wu_get_global_parameters(char *cmdstr)
                     "%s is unknown", strategy);
         }
     }    
+    else if (strcasecmp("POTENTIAL_IRRIGATION", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.IRR_POTENTIAL = str_to_bool(flgstr);
+    }
     
     else {
         return false;
@@ -212,6 +216,10 @@ wu_validate_global_parameters(void)
     
     if(!options.ROUTING){
         log_err("WATER_USE = TRUE but ROUTING = FALSE");
+    }
+    
+    if(options.IRR_POTENTIAL && !options.IRRIGATION){
+        log_err("POTENTIAL_IRRIGATION = TRUE but IRRIGATION = FALSE");
     }
     
     for(i = 0; i < WU_NSECTORS; i ++){

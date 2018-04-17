@@ -6,7 +6,7 @@
 #define FIELD_CAP_FRAC 0.7
 #define IRR_CRIT_FRAC 0.9
 
-#define POND_IRR_CRIT_FRAC 0.1
+#define POND_IRR_CRIT_FRAC 0.2
 #define POND_CAPACITY 150
 #define POND_KSAT_FRAC 0.1
 
@@ -30,15 +30,13 @@ typedef struct{
     double season_offset;
 }irr_con_struct;
 
-typedef struct{
-    double requirement;
-    double shortage;
-    
+typedef struct{    
     double pond_storage;
     double leftover;  
     
+    double requirement;
+    double shortage;
     double prev_req;
-    double prev_store;
     double prev_short;
     
     double need;
@@ -53,7 +51,6 @@ void irr_set_state_meta_data_info(void);
 void irr_alloc(void);
 void initialize_irr_local_structures(void);
 void irr_init(void);
-void irr_generate_default_state(void);
 bool irr_history(int, unsigned int *);
 void irr_run(size_t cur_cell);
 void irr_set_demand(size_t cur_cell);

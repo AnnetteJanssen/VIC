@@ -65,9 +65,6 @@ vic_populate_model_state(dmy_struct *dmy_current)
         if (options.DAMS) {
             dam_generate_default_state();
         }
-        if (options.IRRIGATION) {
-            irr_generate_default_state();
-        }
         if (options.GROUNDWATER) {
             gw_generate_default_state();
         }

@@ -3,9 +3,11 @@
 void
 wu_run(size_t cur_cell)
 {
+    extern option_struct options;
     extern wu_hist_struct **wu_hist;
     extern wu_var_struct **wu_var;
     extern rout_var_struct *rout_var;
+    extern global_param_struct global_param;
     
     double total_available;
     double total_demand;
@@ -22,7 +24,8 @@ wu_run(size_t cur_cell)
     }    
     
     // Get availability
-    total_available = rout_var[cur_cell].discharge[0];
+    total_available = rout_var[cur_cell].discharge[0] * 
+            global_param.dt;
     
     // Satisfy demand
     total_demand = 0;
@@ -60,5 +63,16 @@ wu_run(size_t cur_cell)
     for(i = 0; i < WU_NSECTORS; i++){
         rout_var[cur_cell].discharge[0] +=
                 wu_var[cur_cell][i].returned;
+    }
+    
+    if(options.IRR_POTENTIAL){
+        wu_var[cur_cell][WU_IRRIGATION].withdrawn = 
+                wu_var[cur_cell][WU_IRRIGATION].demand;
+        wu_var[cur_cell][WU_IRRIGATION].consumed = 
+                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
+                wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction;
+        wu_var[cur_cell][WU_IRRIGATION].returned = 
+                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
+                (1 - wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction);
     }
 }

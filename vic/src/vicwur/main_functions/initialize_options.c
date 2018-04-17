@@ -114,6 +114,7 @@ initialize_options()
     options.RIRF_NSTEPS = 0;
     options.GIRF_NSTEPS = 0;
     // Water use options
+    options.IRR_POTENTIAL = false;
     for(i = 0; i < WU_NSECTORS; i++){
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
         options.WU_COMPENSATION_TIME[i] = 0;
