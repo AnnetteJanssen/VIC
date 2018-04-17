@@ -652,7 +652,7 @@ collect_wb_terms(cell_data_struct cell,
 
     /** record runoff **/
     out_data[OUT_RUNOFF][0] += cell.runoff * AreaFactor;
-
+    
     /** record baseflow **/
     out_data[OUT_BASEFLOW][0] += cell.baseflow * AreaFactor;
 
