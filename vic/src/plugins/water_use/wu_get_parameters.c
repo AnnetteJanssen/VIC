@@ -171,9 +171,6 @@ wu_get_global_parameters(char *cmdstr)
         }
         
         strcpy(filenames.water_use_forcing_pfx[cur_sector], file);
-        
-        // TODO: implement compensation time for water use from file
-        //sscanf(cmdstr, "%*s %*s %*s %d %*s", &options.WU_COMPENSATION_TIME[cur_sector]);
     }
     
     else if (strcasecmp("WU_STRATEGY", optstr) == 0) {
@@ -194,7 +191,11 @@ wu_get_global_parameters(char *cmdstr)
             log_err("WU_STRATEGY should be EQUAL or PRIORITY; "
                     "%s is unknown", strategy);
         }
-    }    
+    }     
+    else if (strcasecmp("POTENTIAL_IRRIGATION", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.IRR_POTENTIAL = str_to_bool(flgstr);
+    }
     else if (strcasecmp("REMOTE_WATER_USE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.WU_REMOTE = str_to_bool(flgstr);
@@ -221,10 +222,20 @@ wu_validate_global_parameters(void)
         log_err("WATER_USE = TRUE but ROUTING = FALSE");
     }
     
+    if(options.IRR_POTENTIAL && !options.IRRIGATION){
+        log_err("POTENTIAL_IRRIGATION = TRUE but IRRIGATION = FALSE");
+    }
+    
+    if(!options.WU_REMOTE){
+        if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
+            log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
+        }
+    }
+    
     for(i = 0; i < WU_NSECTORS; i ++){
         if(options.WU_INPUT_LOCATION[i] == WU_INPUT_FROM_FILE){
             if(strcasecmp(filenames.water_use_forcing_pfx[i], MISSING_S) == 0){
-                log_err("WATER_USE = TRUE but WATER_USE_FORCING is missing");
+                log_err("WATER_USE SOURCE = FROM_FILE but WATER_USE_FORCING is missing");
             }
                         
             // Open first-year forcing files and get info
@@ -242,18 +253,14 @@ wu_validate_global_parameters(void)
             status = nc_close(filenames.water_use_forcing[i].nc_id);
             check_nc_status(status, "Error closing %s",
                             filenames.water_use_forcing[i].nc_filename);
+            
+        } else if(options.WU_INPUT_LOCATION == WU_INPUT_CALCULATE){
+            if(i == WU_IRRIGATION && !options.IRRIGATION){
+                log_err("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing");
+            }
+            if(i == WU_ENVIRONMENTAL && !options.EFR){
+                log_err("WATER_USE SOURCE = CALCULATE but EFR = FALSE is missing");
+            }
         }
     }
-    
-    if(!options.WU_REMOTE){
-        if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
-            log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
-        }
-    }
-      // TODO: implement compensation time for water use from file
-//    for(i = 0; i < WU_NSECTORS; i++){
-//        if(options.WU_COMPENSATION_TIME[i] < 0){
-//            log_err("WATER_USE_SECTOR COMPENSATION_TIME must be defined on the interval [0,inf) (days)");
-//        }
-//    }
 }

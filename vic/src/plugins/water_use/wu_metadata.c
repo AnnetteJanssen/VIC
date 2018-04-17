@@ -10,7 +10,7 @@ wu_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_DEMAND")].long_name, "sectoral_demand");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_DEMAND")].standard_name,
            "sectoral_demand");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_DEMAND")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_DEMAND")].units, "m3");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_DEMAND")].description,
            "sectoral_demand");
 
@@ -18,7 +18,7 @@ wu_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_WITHDRAWN")].long_name, "sectoral_withdrawals");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_WITHDRAWN")].standard_name,
            "sectoral_withdrawals");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_WITHDRAWN")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_WITHDRAWN")].units, "m3");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_WITHDRAWN")].description,
            "sectoral_withdrawals");
 
@@ -26,7 +26,7 @@ wu_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_CONSUMED")].long_name, "sectoral_consumption");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_CONSUMED")].standard_name,
            "sectoral_consumption");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_CONSUMED")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_CONSUMED")].units, "m3");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_CONSUMED")].description,
            "sectoral_consumption");
 
@@ -34,7 +34,7 @@ wu_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_RETURNED")].long_name, "sectoral_return_flow");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_RETURNED")].standard_name,
            "sectoral_return_flow");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_RETURNED")].units, "m3/s");
+    strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_RETURNED")].units, "m3");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_WU_RETURNED")].description,
            "sectoral_return_flow");
 

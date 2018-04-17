@@ -7,6 +7,7 @@ wu_run(size_t cur_cell)
     extern wu_hist_struct **wu_hist;
     extern wu_var_struct **wu_var;
     extern rout_var_struct *rout_var;
+    extern global_param_struct global_param;
     
     double total_available;
     double total_demand;
@@ -27,7 +28,8 @@ wu_run(size_t cur_cell)
     // Get availability
     total_available = 0.0;
     for(i = 0; i < options.RIRF_NSTEPS; i++){
-        total_available += rout_var[cur_cell].discharge[i];
+        total_available += rout_var[cur_cell].discharge[i] * 
+            global_param.dt;
     }
     
     // Satisfy demand
@@ -72,7 +74,7 @@ wu_run(size_t cur_cell)
                         (wu_var[cur_cell][i].withdrawn - 
                         wu_var[cur_cell][i].returned) * 
                         (rout_var[cur_cell].discharge[j] / 
-                        total_available);
+                        total_available) / global_param.dt;
 
                 if(rout_var[cur_cell].discharge[j] < 0){
                     if(abs(rout_var[cur_cell].discharge[j]) > DBL_EPSILON){
@@ -89,5 +91,16 @@ wu_run(size_t cur_cell)
     
     if(options.WU_REMOTE){
         log_err("WU_REMOTE has not been implemented yet");
+    }
+    
+    if(options.IRR_POTENTIAL){
+        wu_var[cur_cell][WU_IRRIGATION].withdrawn = 
+                wu_var[cur_cell][WU_IRRIGATION].demand;
+        wu_var[cur_cell][WU_IRRIGATION].consumed = 
+                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
+                wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction;
+        wu_var[cur_cell][WU_IRRIGATION].returned = 
+                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
+                (1 - wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction);
     }
 }

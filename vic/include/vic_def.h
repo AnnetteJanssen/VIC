@@ -355,6 +355,7 @@ typedef struct {
     size_t RIRF_NSTEPS;
     size_t GIRF_NSTEPS;
     // Water use options
+    bool IRR_POTENTIAL;
     bool WU_REMOTE;
     size_t MAXRECEIVING;
     size_t MAXSENDING;
@@ -854,7 +855,7 @@ typedef struct {
                                (mm) */
     double eff_saturation;  /**< effective saturation of the unfrozen sublayer
                                (-) */
-    double Ksat;
+    double Ksat;            /**< saturated hydraulic  conductivity (mm/day) */
     double phi;             /**< moisture diffusion parameter */
     double zwt;             /**< water table position relative to soil surface within the layer (cm) */
     // Fluxes

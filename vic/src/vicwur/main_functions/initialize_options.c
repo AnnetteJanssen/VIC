@@ -114,6 +114,8 @@ initialize_options()
     options.RIRF_NSTEPS = 0;
     options.GIRF_NSTEPS = 0;
     // Water use options
+    options.IRR_POTENTIAL = false;
+    options.WU_REMOTE = false;
     options.MAXRECEIVING = 0;
     options.MAXSENDING = 0;
     for(i = 0; i < WU_NSECTORS; i++){
