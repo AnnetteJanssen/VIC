@@ -358,7 +358,6 @@ typedef struct {
     bool IRR_POTENTIAL;
     bool WU_REMOTE;
     size_t MAXRECEIVING;
-    size_t MAXSENDING;
     int WU_INPUT_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
     int WU_STRATEGY;

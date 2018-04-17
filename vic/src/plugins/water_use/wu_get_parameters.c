@@ -254,12 +254,14 @@ wu_validate_global_parameters(void)
             check_nc_status(status, "Error closing %s",
                             filenames.water_use_forcing[i].nc_filename);
             
-        } else if(options.WU_INPUT_LOCATION == WU_INPUT_CALCULATE){
+        } else if(options.WU_INPUT_LOCATION[i] == WU_INPUT_CALCULATE){
             if(i == WU_IRRIGATION && !options.IRRIGATION){
-                log_err("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing");
+                log_warn("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing. "
+                        "ignoring IRRIGATION for now...");
             }
             if(i == WU_ENVIRONMENTAL && !options.EFR){
-                log_err("WATER_USE SOURCE = CALCULATE but EFR = FALSE is missing");
+                log_warn("WATER_USE SOURCE = CALCULATE but EFR = FALSE is missing. "
+                        "ignoring EFR for now...");
             }
         }
     }

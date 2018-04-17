@@ -117,7 +117,6 @@ initialize_options()
     options.IRR_POTENTIAL = false;
     options.WU_REMOTE = false;
     options.MAXRECEIVING = 0;
-    options.MAXSENDING = 0;
     for(i = 0; i < WU_NSECTORS; i++){
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
         options.WU_COMPENSATION_TIME[i] = 0;

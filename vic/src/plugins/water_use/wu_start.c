@@ -16,8 +16,6 @@ wu_start(void)
 
     options.MAXRECEIVING = get_nc_dimension(&(filenames.water_use), 
             "max_receiving");
-    options.MAXSENDING = get_nc_dimension(&(filenames.water_use), 
-            "max_sending");
 
     // close routing parameter file
     status = nc_close(filenames.water_use.nc_id);
