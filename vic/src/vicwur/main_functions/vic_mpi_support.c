@@ -604,6 +604,10 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(option_struct, NVEGTYPES);
     mpi_types[i++] = MPI_AINT; // note there is no MPI_SIZE_T equivalent
 
+    // size_t NLAKENODES;
+    offsets[i] = offsetof(option_struct, NLAKENODES);
+    mpi_types[i++] = MPI_AINT; // note there is no MPI_SIZE_T equivalent
+
     // unsigned short RC_MODE;
     offsets[i] = offsetof(option_struct, RC_MODE);
     mpi_types[i++] = MPI_UNSIGNED_SHORT;
@@ -703,18 +707,22 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool SAVE_STATE;
     offsets[i] = offsetof(option_struct, SAVE_STATE);
     mpi_types[i++] = MPI_C_BOOL;
+    
+    // size_t Noutstreams;
+    offsets[i] = offsetof(option_struct, Noutstreams);
+    mpi_types[i++] = MPI_AINT;
 
-    // bool ROUTING_RVIC;
-    offsets[i] = offsetof(option_struct, ROUTING_RVIC);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool ROUTING_LOHMANN;
-    offsets[i] = offsetof(option_struct, ROUTING_LOHMANN);
-    mpi_types[i++] = MPI_C_BOOL;
     // bool GROUNDWATER;
     offsets[i] = offsetof(option_struct, GROUNDWATER);
     mpi_types[i++] = MPI_C_BOOL;
     // bool ROUTING;
     offsets[i] = offsetof(option_struct, ROUTING);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool ROUTING_RVIC;
+    offsets[i] = offsetof(option_struct, ROUTING_RVIC);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool ROUTING_LOHMANN;
+    offsets[i] = offsetof(option_struct, ROUTING_LOHMANN);
     mpi_types[i++] = MPI_C_BOOL;
     // bool WATER_USE;
     offsets[i] = offsetof(option_struct, WATER_USE);
@@ -727,6 +735,9 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     mpi_types[i++] = MPI_C_BOOL;
     // bool DAMS;
     offsets[i] = offsetof(option_struct, DAMS);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool MATRIC;
+    offsets[i] = offsetof(option_struct, MATRIC);
     mpi_types[i++] = MPI_C_BOOL;
     
     // bool GW_INIT_FROM_FILE; 
@@ -759,7 +770,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // int WU_COMPENSATION_TIME[WU_NSECTORS];
     offsets[i] = offsetof(option_struct, WU_COMPENSATION_TIME);
     blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;   
+    mpi_types[i++] = MPI_INT;
     // int WU_STRATEGY;
     offsets[i] = offsetof(option_struct, WU_STRATEGY);
     mpi_types[i++] = MPI_INT;
@@ -789,7 +800,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     check_mpi_status(status, "MPI error.");
     status = MPI_Type_commit(mpi_type);
     check_mpi_status(status, "MPI error.");
-
+    
     // cleanup
     free(blocklengths);
     free(offsets);

@@ -197,7 +197,7 @@ vic_start(void)
     status = MPI_Bcast(&param, 1, mpi_param_struct_type,
                        VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
-
+    
     // setup the local domain_structs
 
     // First scatter the array sizes
