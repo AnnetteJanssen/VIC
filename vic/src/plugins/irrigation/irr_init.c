@@ -132,11 +132,12 @@ irr_set_seasons(void)
                             between_jday(irr_con[i][j].season_start[l],
                             irr_con[i][j].season_end[l],
                             irr_con[i][j].season_end[k]) > 0)){
-                        log_info("Cell %zu; crop %zu [veg_class %d]; season %zu [%.2f - %.2f] and %zu [%.2f - %.2f]",
+                        log_err("Irrigated calendars are overlapping; "
+                                "Cell %zu; crop %zu [veg_class %d]; "
+                                "season %zu [%.2f - %.2f] and %zu [%.2f - %.2f]",
                                 i,j, veg_con[i][irr_con[i][j].veg_index].veg_class,
                                 k,irr_con[i][j].season_start[k],irr_con[i][j].season_end[k],
                                 l,irr_con[i][j].season_start[l],irr_con[i][j].season_end[l]);
-                        log_err("Irrigated calendars are overlapping");
                     }
                 }
             }
