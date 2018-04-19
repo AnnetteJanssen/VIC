@@ -120,26 +120,29 @@ wu_set_service(void)
 void
 wu_init(void)
 {
+    extern option_struct options;
     extern filenames_struct filenames;
     extern int mpi_rank;
     
     int status;
     
-    // open parameter file
-    if(mpi_rank == VIC_MPI_ROOT){
-        status = nc_open(filenames.water_use.nc_filename, NC_NOWRITE,
-                         &(filenames.water_use.nc_id));
-        check_nc_status(status, "Error opening %s",
-                        filenames.water_use.nc_filename);
-    }
+    if(options.WU_REMOTE){
+        // open parameter file
+        if(mpi_rank == VIC_MPI_ROOT){
+            status = nc_open(filenames.water_use.nc_filename, NC_NOWRITE,
+                             &(filenames.water_use.nc_id));
+            check_nc_status(status, "Error opening %s",
+                            filenames.water_use.nc_filename);
+        }
     
-    wu_set_receiving();
-    wu_set_service();
+        wu_set_receiving();
+        wu_set_service();
     
-    // close parameter file
-    if(mpi_rank == VIC_MPI_ROOT){
-        status = nc_close(filenames.water_use.nc_id);
-        check_nc_status(status, "Error closing %s",
-                        filenames.water_use.nc_filename);
+        // close parameter file
+        if(mpi_rank == VIC_MPI_ROOT){
+            status = nc_close(filenames.water_use.nc_id);
+            check_nc_status(status, "Error closing %s",
+                            filenames.water_use.nc_filename);
+        }
     }
 }
