@@ -478,7 +478,7 @@ dam_run(size_t cur_cell)
                     dam_con[cur_cell][i].max_volume * 
                     DAM_VOL_MOD_FRAC * vol_discharge_modifier,
                     dam_var[cur_cell][i].total_steps,
-                   tmp_volume);
+                   tmp_volume - rout_var[cur_cell].discharge[0]);
             } else if(dam_con[cur_cell][i].function == DAM_FUN_IRR){                
                 dam_var[cur_cell][i].discharge = 
                     rout_var[cur_cell].discharge[0] +
@@ -488,7 +488,7 @@ dam_run(size_t cur_cell)
                     dam_con[cur_cell][i].max_volume * 
                     DAM_VOL_MOD_FRAC * op_year_discharge_modifier,
                     dam_var[cur_cell][i].total_steps,
-                    tmp_volume);
+                    tmp_volume - rout_var[cur_cell].discharge[0]);
             } else if (dam_con[cur_cell][i].function == DAM_FUN_FLO){                
                 dam_var[cur_cell][i].discharge = 
                     dam_var[cur_cell][i].op_discharge[0] +
@@ -498,7 +498,7 @@ dam_run(size_t cur_cell)
                     dam_var[cur_cell][i].op_discharge[0] * 
                     DAM_DIS_MOD_FRAC * vol_discharge_modifier,   
                     dam_var[cur_cell][i].total_steps,
-                    tmp_volume);
+                    tmp_volume - dam_var[cur_cell][i].op_discharge[0]);
             }else{
                 log_err("Unknown dam function");
             }        
