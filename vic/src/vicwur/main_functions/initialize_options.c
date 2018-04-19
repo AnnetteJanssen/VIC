@@ -129,6 +129,7 @@ initialize_options()
     options.NIRRSEASONS = 0;
     // EFR options
     // Dam options
+    options.MAXSERVICE = 0;
     options.MAXDAMS = 0;
     
 }
