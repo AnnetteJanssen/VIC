@@ -18,7 +18,7 @@ wu_put_data(void)
     
     for(i = 0; i < local_domain.ncells_active; i++){ 
         for(j = 0; j < WU_NSECTORS; j++){
-            out_data[i][OUT_WU_DEMAND][j] = wu_var[i][j].demand;
+            out_data[i][OUT_WU_DEMAND][j] = wu_hist[i][j].demand;
             out_data[i][OUT_WU_WITHDRAWN][j] = wu_var[i][j].withdrawn;
             out_data[i][OUT_WU_CONSUMED][j] = wu_var[i][j].consumed;
             out_data[i][OUT_WU_RETURNED][j] = wu_var[i][j].returned;

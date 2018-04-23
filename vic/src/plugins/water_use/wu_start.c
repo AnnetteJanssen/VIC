@@ -8,6 +8,7 @@ wu_start(void)
     
     int status;
     
+    if(options.WU_REMOTE){
     // open routing parameter file
     status = nc_open(filenames.water_use.nc_filename, NC_NOWRITE,
                      &(filenames.water_use.nc_id));
@@ -23,4 +24,5 @@ wu_start(void)
     status = nc_close(filenames.water_use.nc_id);
     check_nc_status(status, "Error closing %s",
                     filenames.water_use.nc_filename);
+    }
 }
