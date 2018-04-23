@@ -525,7 +525,8 @@ mpi_map_decomp_domain_file(size_t   ncells,
                      &(filenames.mpi.nc_id));
     check_nc_status(status, "Error opening %s",
                     filenames.mpi.nc_filename);
-    
+        
+    compare_ncdomain_with_global_domain(&filenames.mpi);
     get_basins_file(&basins);
     
     // close extension routing file

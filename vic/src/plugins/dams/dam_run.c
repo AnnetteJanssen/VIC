@@ -443,11 +443,22 @@ dam_run(size_t cur_cell)
                     rout_var[cur_cell].discharge[0] * 
                     global_param.dt;       
             
-            // Calculate volume and volume fraction
+            // Calculate volume at end of step
             tmp_volume = dam_var[cur_cell][i].volume;
+            if(dam_con[cur_cell][i].function == DAM_FUN_HYD){
+                tmp_volume -= rout_var[cur_cell].discharge[0] * 
+                    global_param.dt;
+            } else if(dam_con[cur_cell][i].function == DAM_FUN_IRR){ 
+                tmp_volume -= rout_var[cur_cell].discharge[0] * 
+                    global_param.dt;
+            } else if (dam_con[cur_cell][i].function == DAM_FUN_FLO){  
+                tmp_volume -= dam_var[cur_cell][i].op_discharge[0];
+            }
             if(tmp_volume > dam_con[cur_cell][i].max_volume){
                 tmp_volume = dam_con[cur_cell][i].max_volume;
-            }            
+            }         
+            
+            // Calculate volume fraction
             tmp_volume_frac = tmp_volume / dam_con[cur_cell][i].max_volume;
             
             // Calculate discharge modifier based on volume
@@ -478,7 +489,7 @@ dam_run(size_t cur_cell)
                     dam_con[cur_cell][i].max_volume * 
                     DAM_VOL_MOD_FRAC * vol_discharge_modifier,
                     dam_var[cur_cell][i].total_steps,
-                   tmp_volume - rout_var[cur_cell].discharge[0]);
+                    tmp_volume);
             } else if(dam_con[cur_cell][i].function == DAM_FUN_IRR){                
                 dam_var[cur_cell][i].discharge = 
                     rout_var[cur_cell].discharge[0] +
@@ -488,7 +499,7 @@ dam_run(size_t cur_cell)
                     dam_con[cur_cell][i].max_volume * 
                     DAM_VOL_MOD_FRAC * op_year_discharge_modifier,
                     dam_var[cur_cell][i].total_steps,
-                    tmp_volume - rout_var[cur_cell].discharge[0]);
+                    tmp_volume);
             } else if (dam_con[cur_cell][i].function == DAM_FUN_FLO){                
                 dam_var[cur_cell][i].discharge = 
                     dam_var[cur_cell][i].op_discharge[0] +
@@ -498,7 +509,7 @@ dam_run(size_t cur_cell)
                     dam_var[cur_cell][i].op_discharge[0] * 
                     DAM_DIS_MOD_FRAC * vol_discharge_modifier,   
                     dam_var[cur_cell][i].total_steps,
-                    tmp_volume - dam_var[cur_cell][i].op_discharge[0]);
+                    tmp_volume);
             }else{
                 log_err("Unknown dam function");
             }        
