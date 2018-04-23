@@ -13,6 +13,8 @@ rout_start(void)
                      &(filenames.routing.nc_id));
     check_nc_status(status, "Error opening %s",
                     filenames.routing.nc_filename);
+    
+    compare_ncdomain_with_global_domain(&filenames.routing);
 
     options.RIRF_NSTEPS = get_nc_dimension(&(filenames.routing), 
             "rirf_nsteps");

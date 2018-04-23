@@ -164,6 +164,9 @@ vic_start(void)
         }
         
         // plugins
+        if (options.GROUNDWATER) {
+            gw_start();
+        }
         if (options.ROUTING) {
             rout_start();
         }

@@ -13,6 +13,8 @@ irr_start(void)
                      &(filenames.irrigation.nc_id));
     check_nc_status(status, "Error opening %s",
                     filenames.irrigation.nc_filename);
+    
+    compare_ncdomain_with_global_domain(&filenames.irrigation);
 
     options.NIRRTYPES = get_nc_dimension(&(filenames.irrigation), 
             "irr_classes");

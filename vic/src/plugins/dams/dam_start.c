@@ -13,6 +13,8 @@ dam_start(void)
                      &(filenames.dams.nc_id));
     check_nc_status(status, "Error opening %s",
                     filenames.dams.nc_filename);
+    
+    compare_ncdomain_with_global_domain(&filenames.dams);
 
     options.MAXSERVICE = get_nc_dimension(&(filenames.dams), 
             "max_service");
