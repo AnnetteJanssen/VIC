@@ -106,6 +106,7 @@ dam_set_service(void)
     
     int *service_var;
     int *ivar;
+    int **adjustment;
     bool done;
     
     size_t i;
@@ -133,10 +134,21 @@ dam_set_service(void)
     d4count[3] = global_domain.n_nx; 
     
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
-    check_alloc_status(ivar, "Memory allocation error."); 
-    
+    check_alloc_status(ivar, "Memory allocation error.");     
     service_var = malloc(local_domain.ncells_active * sizeof(*service_var));
     check_alloc_status(service_var, "Memory allocation error."); 
+    adjustment = malloc(local_domain.ncells_active * sizeof(*adjustment));
+    check_alloc_status(adjustment, "Memory allocation error."); 
+    for(i = 0; i < local_domain.ncells_active; i++){
+        adjustment[i] = malloc(options.MAXDAMS * sizeof(*adjustment[i]));
+        check_alloc_status(adjustment[i], "Memory allocation error.");
+    }
+    
+    for(i = 0; i < local_domain.ncells_active; i++){
+        for(j = 0; j < (size_t)options.MAXDAMS; j++){
+            adjustment[i][j] = 0;
+        }
+    }
     
     get_scatter_nc_field_int(&(filenames.dams), 
             "service_id", d2start, d2count, service_var);
@@ -157,14 +169,17 @@ dam_set_service(void)
                         done = false;
                         for(l = 0; l < local_domain.ncells_active; l++){
                             if(ivar[i] == service_var[l]){
-                                dam_con[i][j].service[k] = l;
+                                dam_con[i][j].service[k - adjustment[i][j]] = l;
                                 done = true;
                                 break;
                             }
                         }
                         
                         if(!done){
-                            log_err("Dams service cell id %d not found.",ivar[i]);
+                            log_err("Dams service cell id %d not found. "
+                                    "Removing... ", ivar[i]);
+                            dam_con[i][j].nservice--;
+                            adjustment[i][j]++;
                         }
                     }
                 }
