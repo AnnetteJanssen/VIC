@@ -187,8 +187,8 @@ irr_set_ponding(void)
     for(i = 0; i < local_domain.ncells_active; i++){        
         for(j = 0; j < (size_t)options.NIRRTYPES; j++){
             if(ivar[j] == 1 && irr_con_map[i].iidx[j] != NODATA_VEG){
-                irr_con[i][irr_con_map[i].iidx[j]].ponding = true;
-                irr_con[i][irr_con_map[i].iidx[j]].pond_capacity = POND_CAPACITY;
+                //irr_con[i][irr_con_map[i].iidx[j]].ponding = true;
+                //irr_con[i][irr_con_map[i].iidx[j]].pond_capacity = POND_CAPACITY;
             }
         }
     }

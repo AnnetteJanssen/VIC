@@ -118,8 +118,6 @@ wu_get_sector_id(char *flgstr)
         return WU_ENERGY;
     }else if(strcasecmp("LIV", flgstr) == 0){
         return WU_LIVESTOCK;
-    }else if(strcasecmp("ENV", flgstr) == 0){
-        return WU_ENVIRONMENTAL;
     }else{
         log_err("WU_SECTOR SECTOR should be IRR(IGATION), DOM(ESTIC),"
                 "IND(USTRIAL), ENE(RGY), LIV(ESTOCK) or ENV(IRONMENTAL); %s is unknown", flgstr);
@@ -258,10 +256,6 @@ wu_validate_global_parameters(void)
             if(i == WU_IRRIGATION && !options.IRRIGATION){
                 log_warn("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing. "
                         "ignoring IRRIGATION for now...");
-            }
-            if(i == WU_ENVIRONMENTAL && !options.EFR){
-                log_warn("WATER_USE SOURCE = CALCULATE but EFR = FALSE is missing. "
-                        "ignoring EFR for now...");
             }
         }
     }

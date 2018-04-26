@@ -6,9 +6,9 @@
 #define FIELD_CAP_FRAC 0.7
 #define IRR_CRIT_FRAC 0.9
 
-#define POND_IRR_CRIT_FRAC 0.2
-#define POND_CAPACITY 150
-#define POND_KSAT_FRAC 0.1
+#define POND_IRR_CRIT_FRAC 0.1
+#define POND_CAPACITY 100
+#define POND_KSAT_FRAC 0.05
 
 typedef struct{
     size_t ni_types;
@@ -55,6 +55,7 @@ bool irr_history(int, unsigned int *);
 void irr_run(size_t cur_cell);
 void irr_set_demand(size_t cur_cell);
 void irr_get_withdrawn(size_t cur_cell);
+void irr_run_ponding_leftover(size_t cur_cell);
 void irr_put_data(void);
 void irr_finalize(void);
 void irr_add_types(void);

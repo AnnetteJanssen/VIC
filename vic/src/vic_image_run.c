@@ -123,11 +123,6 @@ vic_image_run(dmy_struct *dmy_current)
                         WU_INPUT_CALCULATE){
                     irr_set_demand(cur_cell);
                 }
-                if(options.EFR &&
-                        options.WU_INPUT_LOCATION[WU_ENVIRONMENTAL] == 
-                        WU_INPUT_CALCULATE){
-                    efr_set_demand(cur_cell);
-                }
                 
                 wu_run(cur_cell);
                 
@@ -135,6 +130,7 @@ vic_image_run(dmy_struct *dmy_current)
                         options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
                         WU_INPUT_CALCULATE){
                     irr_get_withdrawn(cur_cell);
+                    irr_run_ponding_leftover(cur_cell);
                 }
             }
         }
