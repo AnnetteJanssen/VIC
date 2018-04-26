@@ -132,9 +132,6 @@ irr_run(size_t cur_cell)
                             irr_con[cur_cell][i].pond_capacity - 
                             (irr_var[cur_cell][i][j].pond_storage + 
                             irr_var[cur_cell][i][j].leftover);
-                } else {
-                    // no requirements
-                    //irr_var[cur_cell][i][j].requirement = 0.0;
                 }
             }else{
                 bool calc_req = false;
@@ -162,9 +159,6 @@ irr_run(size_t cur_cell)
                             irr_con[cur_cell][i].pond_capacity - 
                             (irr_var[cur_cell][i][j].pond_storage + 
                             irr_var[cur_cell][i][j].leftover);
-                } else {
-                    // no requirements
-                    //irr_var[cur_cell][i][j].requirement = 0.0;
                 }
             }
             
@@ -269,7 +263,6 @@ irr_get_withdrawn(size_t cur_cell)
         fraction =  total_available / total_requirement;        
         if(fraction > 1.0){
             if(abs(fraction - 1.0) > DBL_EPSILON){
-                // Got more than requested?
                 log_err("Fraction is > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;

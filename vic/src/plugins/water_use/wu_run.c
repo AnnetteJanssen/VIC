@@ -10,25 +10,22 @@ wu_run(size_t cur_cell)
     extern rout_var_struct *rout_var;
     extern global_param_struct global_param;
     
-    double withdrawn_fraction;
+    double fraction;
     
     double *withdrawn_local;
     double total_demand_local;
     double total_available_local;
     double total_withdrawn_local;
-    double total_return_local;
     
     double *withdrawn_remote;
     double total_demand_remote;
     double total_available_remote;
     double total_withdrawn_remote;
-    double total_return_remote;
     
     double *withdrawn_dam;
     double total_demand_dam;
     double total_available_dam;
     double total_withdrawn_dam;
-    double total_return_dam;
     
     size_t rec_cell;
     size_t ser_cell;
@@ -52,15 +49,12 @@ wu_run(size_t cur_cell)
     total_demand_local = 0.0;
     total_available_local = 0.0;
     total_withdrawn_local = 0.0;
-    total_return_local = 0.0;
     total_demand_remote = 0.0;
     total_available_remote = 0.0;
     total_withdrawn_remote = 0.0;
-    total_return_remote = 0.0;
     total_demand_dam = 0.0;
     total_available_dam = 0.0;
     total_withdrawn_dam = 0.0;
-    total_return_dam = 0.0;
     
     for(i = 0; i < WU_NSECTORS; i++){
         withdrawn_local[i] = 0.0;
@@ -91,26 +85,30 @@ wu_run(size_t cur_cell)
     }
     
     // Calculate withdrawal
-    if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
-        
-        withdrawn_fraction = 0.0;
-        if(total_available_local > 0 && total_demand_local > 0){
-            withdrawn_fraction = total_available_local / total_demand_local;
-            if(withdrawn_fraction > 1){
-                withdrawn_fraction = 1.0;
+    if(total_available_local > 0 && total_demand_local > 0){
+        if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+            
+            // Calculate fraction
+            fraction = total_available_local / total_demand_local;
+            if(fraction > 1){
+                if(abs(fraction - 1.0) > DBL_EPSILON){
+                    log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+                fraction = 1.0;
             }
-
+            
+            // Calculate withdrawal
             for(i = 0; i < WU_NSECTORS; i++){
                 withdrawn_local[i] = wu_var[cur_cell][i].demand * 
-                        withdrawn_fraction;
+                        fraction;
                 
-                wu_var[cur_cell][i].demand *= (1 - withdrawn_fraction);
+                wu_var[cur_cell][i].demand *= (1 - fraction);
                 
                 total_withdrawn_local += withdrawn_local[i];
             }
+        } else {
+            log_err("WU_STRATEGY PRIORITY has not been implemented yet");
         }
-    } else {
-        log_err("WU_STRATEGY PRIORITY has not been implemented yet");
     }
     
     /**********************************************************************
@@ -135,26 +133,30 @@ wu_run(size_t cur_cell)
         }
     
         // Calculate withdrawal
-        if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
-
-            withdrawn_fraction = 0.0;
-            if(total_available_remote > 0 && total_demand_remote > 0){
-                withdrawn_fraction = total_available_remote / total_demand_remote;
-                if(withdrawn_fraction > 1){
-                    withdrawn_fraction = 1.0;
+        if(total_available_remote > 0 && total_demand_remote > 0){
+            if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+                
+                // Calculate fraction
+                fraction = total_available_remote / total_demand_remote;
+                if(fraction > 1){
+                    if(abs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                    }
+                    fraction = 1.0;
                 }
-
+                
+                // Calculate withdrawal
                 for(i = 0; i < WU_NSECTORS; i++){
                     withdrawn_remote[i] = wu_var[cur_cell][i].demand * 
-                            withdrawn_fraction;
+                            fraction;
                     
-                    wu_var[cur_cell][i].demand *= (1 - withdrawn_fraction);
+                    wu_var[cur_cell][i].demand *= (1 - fraction);
 
                     total_withdrawn_remote += withdrawn_remote[i];
                 }
+            } else {
+                log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
-        } else {
-            log_err("WU_STRATEGY PRIORITY has not been implemented yet");
         }
     }
     
@@ -166,6 +168,7 @@ wu_run(size_t cur_cell)
             total_demand_remote > total_withdrawn_remote) ||            
             (total_demand_local > total_withdrawn_local &&
             total_demand_remote == 0.0))){
+        
         // Get availability
         for(i = 0; i < wu_con[cur_cell].nservice; i++){
             ser_cell = wu_con[cur_cell].service[i];
@@ -180,26 +183,30 @@ wu_run(size_t cur_cell)
         }
     
         // Calculate withdrawal
-        if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
-
-            withdrawn_fraction = 0.0;
-            if(total_available_dam > 0 && total_demand_dam > 0){
-                withdrawn_fraction = total_available_dam / total_demand_dam;
-                if(withdrawn_fraction > 1){
-                    withdrawn_fraction = 1.0;
+        if(total_available_dam > 0 && total_demand_dam > 0){
+            if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+                
+                // Calculate fraction
+                fraction = total_available_dam / total_demand_dam;
+                if(fraction > 1){
+                    if(abs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                    }
+                    fraction = 1.0;
                 }
-
+                
+                // Calculate withdrawal
                 for(i = 0; i < WU_NSECTORS; i++){
                     withdrawn_dam[i] = wu_var[cur_cell][i].demand * 
-                            withdrawn_fraction;
-                    
-                    wu_var[cur_cell][i].demand *= (1 - withdrawn_fraction);
+                            fraction;
+
+                    wu_var[cur_cell][i].demand *= (1 - fraction);
 
                     total_withdrawn_dam += withdrawn_dam[i];
                 }
+            } else {
+                log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
-        } else {
-            log_err("WU_STRATEGY PRIORITY has not been implemented yet");
         }
     }
     
@@ -216,81 +223,91 @@ wu_run(size_t cur_cell)
         wu_var[cur_cell][i].returned +=
                 wu_var[cur_cell][i].withdrawn * 
                 (1 - wu_hist[cur_cell][i].consumption_fraction);
-        
-        total_return_local += withdrawn_local[i] * 
-                (1 - wu_hist[cur_cell][i].consumption_fraction);
-        total_return_remote += withdrawn_remote[i] * 
-                (1 - wu_hist[cur_cell][i].consumption_fraction);
-        total_return_dam += withdrawn_dam[i] * 
-                (1 - wu_hist[cur_cell][i].consumption_fraction);
     }
     
     /**********************************************************************
     * 5. Actual withdrawal
     **********************************************************************/
     // Calculate reduction and return flow
-    if(total_withdrawn_local > 0){
+    if(total_withdrawn_local > 0 && total_available_local > 0){
+        
+        // Calculate fraction
+        fraction = (total_withdrawn_local - wu_var[cur_cell][i].returned) / 
+                total_available_local;
+        if(fraction > 1.0){
+            if(abs(fraction - 1.0) > DBL_EPSILON){
+                log_err("fraction > 1.0 [%.3f]?", fraction);
+            }
+            fraction = 1.0;
+        }
+        
+        // Modify discharge
         for(i = 0; i < options.RIRF_NSTEPS; i++){
-            rout_var[cur_cell].discharge[i] -=
-                    (total_withdrawn_local - total_return_local - 
-                    total_return_remote - total_return_dam) * 
-                    ((rout_var[cur_cell].discharge[i] * global_param.dt) / 
-                    total_available_local) / 
-                    global_param.dt;
+            rout_var[cur_cell].discharge[i] *= 1 - fraction;
 
             if(rout_var[cur_cell].discharge[i] < 0){
                 if(abs(rout_var[cur_cell].discharge[i]) > DBL_EPSILON){
-                    log_err("Routing discharge reduction due to water use "
-                            "is abnormally large [%.4f]", 
+                    log_err("Routing discharge < 0.0 [%.3f]?", 
                             rout_var[cur_cell].discharge[i]);
-                } else {
-                    rout_var[cur_cell].discharge[i] = 0.0;
                 }
+                rout_var[cur_cell].discharge[i] = 0.0;
             }    
         }
     }
     
-    if(total_withdrawn_remote > 0){
+    if(total_withdrawn_remote > 0 && total_available_remote > 0){
+        
+        // Calculate fraction
+        fraction = total_withdrawn_remote / total_available_remote;
+        if(fraction > 1.0){
+            if(abs(fraction - 1.0) > DBL_EPSILON){
+                log_err("fraction > 1.0 [%.3f]?", fraction);
+            }
+            fraction = 1.0;
+        }
+        
+        // Modify discharge
         for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
             rec_cell = wu_con[cur_cell].receiving[i];
             
             for(j = 0; j < options.RIRF_NSTEPS; j++){
-                rout_var[rec_cell].discharge[j] -=
-                    (total_withdrawn_remote) * 
-                    ((rout_var[rec_cell].discharge[j] * global_param.dt) / 
-                        total_available_remote) / 
-                    global_param.dt;
+                rout_var[rec_cell].discharge[j] *= 1 - fraction;
 
                 if(rout_var[rec_cell].discharge[j] < 0){
                     if(abs(rout_var[rec_cell].discharge[j]) > DBL_EPSILON){
-                        log_err("Remote routing discharge reduction due to water use "
-                                "is abnormally large [%.4f]", 
-                                rout_var[rec_cell].discharge[j]);
-                    } else {
-                        rout_var[rec_cell].discharge[j] = 0.0;
+                        log_err("Routing discharge < 0.0 [%.3f]?", 
+                                rout_var[cur_cell].discharge[i]);
                     }
+                    rout_var[rec_cell].discharge[j] = 0.0;
                 }
             }
         }
     }
     
-    if(total_withdrawn_dam > 0){
+    if(total_withdrawn_dam > 0 && total_available_dam > 0){
+        
+        // Calculate fraction
+        fraction = total_withdrawn_dam / total_available_dam;
+        if(fraction > 1.0){
+            if(abs(fraction - 1.0) > DBL_EPSILON){
+                log_err("fraction > 1.0 [%.3f]?", fraction);
+            }
+            fraction = 1.0;
+        }
+        
+        // Modify volume
         for(i = 0; i < wu_con[cur_cell].nservice; i++){
             ser_cell = wu_con[cur_cell].service[i];
             ser_idx = wu_con[cur_cell].service_idx[i];
             
-            dam_var[ser_cell][ser_idx].volume -=
-                (total_withdrawn_dam) * 
-                (dam_var[ser_cell][ser_idx].volume / total_available_dam);
+            dam_var[ser_cell][ser_idx].volume *= 1 - fraction;
 
             if(dam_var[ser_cell][ser_idx].volume < 0){
                 if(abs(dam_var[ser_cell][ser_idx].volume) > DBL_EPSILON){
-                    log_err("Dam volume reduction due to water use "
-                            "is abnormally large [%.4f]", 
+                    log_err("Dam volume < 0.0 [%.3f]?", 
                             dam_var[ser_cell][ser_idx].volume);
-                } else {
-                    dam_var[ser_cell][ser_idx].volume = 0.0;
                 }
+                dam_var[ser_cell][ser_idx].volume = 0.0;
             }
         }
     }
