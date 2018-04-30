@@ -142,6 +142,14 @@ wu_get_global_parameters(char *cmdstr)
     
     size_t i;
     
+    strcpy(sector, "MISSING");
+    strcpy(source, "MISSING");
+    strcpy(file, "MISSING");
+    strcpy(strategy, "MISSING");
+    for(i = 0; i < WU_NSECTORS; i++){
+        strcpy(priority_sector[i], "MISSING");
+    }
+    
     sscanf(cmdstr, "%s", optstr);
     
     if (strcasecmp("WATER_USE", optstr) == 0) {

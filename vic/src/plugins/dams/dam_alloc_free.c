@@ -143,8 +143,12 @@ dam_finalize(void)
     extern dam_con_struct **dam_con;
     
     size_t i;    
+    size_t j;
             
-    for(i=0; i<local_domain.ncells_active; i++){        
+    for(i=0; i < local_domain.ncells_active; i++){
+        for(j = 0; j < dam_con_map[i].nd_active; j++){
+            free(dam_con[i][j].service);
+        }
         free(dam_var[i]);
         free(dam_con[i]);
     }

@@ -16,6 +16,7 @@ wu_run(size_t cur_cell)
     double total_demand_local;
     double total_available_local;
     double total_withdrawn_local;
+    double total_returned_local;
     
     double *withdrawn_remote;
     double total_demand_remote;
@@ -49,6 +50,7 @@ wu_run(size_t cur_cell)
     total_demand_local = 0.0;
     total_available_local = 0.0;
     total_withdrawn_local = 0.0;
+    total_returned_local = 0.0;
     total_demand_remote = 0.0;
     total_available_remote = 0.0;
     total_withdrawn_remote = 0.0;
@@ -214,6 +216,8 @@ wu_run(size_t cur_cell)
         wu_var[cur_cell][i].returned +=
                 wu_var[cur_cell][i].withdrawn * 
                 (1 - wu_hist[cur_cell][i].consumption_fraction);
+        
+        total_returned_local += wu_var[cur_cell][i].returned;
     }
     
     /**********************************************************************
@@ -223,7 +227,7 @@ wu_run(size_t cur_cell)
     if(total_withdrawn_local > 0 && total_available_local > 0){
         
         // Calculate fraction
-        fraction = (total_withdrawn_local - wu_var[cur_cell][i].returned) / 
+        fraction = (total_withdrawn_local - total_returned_local) / 
                 total_available_local;
         if(fraction > 1.0){
             if(abs(fraction - 1.0) > DBL_EPSILON){

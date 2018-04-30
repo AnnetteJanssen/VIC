@@ -91,5 +91,7 @@ get_active_nc_field_int(nameid_struct   *nc_nameid,
             NULL,
             ivar, var);
     
+    free(ivar);
+    
     return status;
 }

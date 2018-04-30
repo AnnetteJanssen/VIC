@@ -186,7 +186,11 @@ dam_set_service(void)
             }
         }
     }
-    
+     
+    for(i = 0; i < local_domain.ncells_active; i++){
+        free(adjustment[i]);
+    }
+    free(adjustment);
     free(ivar);
     free(service_var);
 }

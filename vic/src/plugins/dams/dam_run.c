@@ -264,11 +264,11 @@ dam_history(size_t cur_cell, size_t cur_dam)
     }
 
     // Shift array
-    cshift(dam_var[cur_cell][cur_dam].history_flow, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
-    cshift(dam_var[cur_cell][cur_dam].history_demand, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
-    cshift(dam_var[cur_cell][cur_dam].history_shortage, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
-    cshift(dam_var[cur_cell][cur_dam].op_discharge, 1, MONTHS_PER_YEAR, 1, 1);
-    cshift(dam_var[cur_cell][cur_dam].op_volume, 1, MONTHS_PER_YEAR, 1, 1);
+    cshift(dam_var[cur_cell][cur_dam].history_flow, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
+    cshift(dam_var[cur_cell][cur_dam].history_demand, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
+    cshift(dam_var[cur_cell][cur_dam].history_shortage, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
+    cshift(dam_var[cur_cell][cur_dam].op_discharge, MONTHS_PER_YEAR, 1, 0, 1);
+    cshift(dam_var[cur_cell][cur_dam].op_volume, MONTHS_PER_YEAR, 1, 0, 1);
     
     // Store monthly average
     dam_var[cur_cell][cur_dam].history_flow[0] =
@@ -373,13 +373,13 @@ dam_total(size_t cur_cell, size_t cur_dam)
                     dam_var[cur_cell][cur_dam].total_demand +=
                             irr_var[other_cell][j][k].need / MM_PER_M * 
                             (local_domain.locations[cur_cell].area *
-                            soil_con[cur_cell].AreaFract[j] * 
+                            soil_con[cur_cell].AreaFract[k] * 
                             veg_con[cur_cell][cur_veg].Cv) / 
                             global_param.dt;
                     dam_var[cur_cell][cur_dam].total_shortage +=
                             irr_var[other_cell][j][k].deficit / MM_PER_M * 
                             (local_domain.locations[cur_cell].area *
-                            soil_con[cur_cell].AreaFract[j] * 
+                            soil_con[cur_cell].AreaFract[k] * 
                             veg_con[cur_cell][cur_veg].Cv) / 
                             global_param.dt;
                 }
