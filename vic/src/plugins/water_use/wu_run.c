@@ -91,9 +91,6 @@ wu_run(size_t cur_cell)
             // Calculate fraction
             fraction = total_available_local / total_demand_local;
             if(fraction > 1){
-                if(abs(fraction - 1.0) > DBL_EPSILON){
-                    log_err("fraction > 1.0 [%.3f]?", fraction);
-                }
                 fraction = 1.0;
             }
             
@@ -139,9 +136,6 @@ wu_run(size_t cur_cell)
                 // Calculate fraction
                 fraction = total_available_remote / total_demand_remote;
                 if(fraction > 1){
-                    if(abs(fraction - 1.0) > DBL_EPSILON){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
-                    }
                     fraction = 1.0;
                 }
                 
@@ -189,9 +183,6 @@ wu_run(size_t cur_cell)
                 // Calculate fraction
                 fraction = total_available_dam / total_demand_dam;
                 if(fraction > 1){
-                    if(abs(fraction - 1.0) > DBL_EPSILON){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
-                    }
                     fraction = 1.0;
                 }
                 
@@ -325,8 +316,7 @@ wu_run(size_t cur_cell)
                 wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
                 (1 - wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction);
     }
-    
-    
+        
     /**********************************************************************
     * 7. Finalization
     **********************************************************************/  

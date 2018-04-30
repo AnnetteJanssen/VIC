@@ -14,7 +14,7 @@ irr_run(size_t cur_cell)
     extern veg_con_struct **veg_con;
     extern option_struct options;
     
-    double moist[options.Nlayer];
+    double *moist;
     double total_moist;
     double total_wcr;
     double season_day;
@@ -23,8 +23,15 @@ irr_run(size_t cur_cell)
     size_t i;
     size_t j;
     size_t k;
-    size_t l;       
-                       
+    size_t l;
+    
+    /**********************************************************************
+    * 0. Allocation
+    **********************************************************************/
+    // Allocate
+    moist = malloc(options.Nlayer * sizeof(*moist));
+    check_alloc_status(moist, "Memory allocation error.");
+    
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
         
@@ -33,8 +40,10 @@ irr_run(size_t cur_cell)
             irr_var[cur_cell][i][j].need = 0.0;
             irr_var[cur_cell][i][j].shortage = 0.0;
         }
-        
-        // Check irrigation season
+                
+        /**********************************************************************
+        * 1. Check irrigation season
+        **********************************************************************/
         for(j = 0; j < irr_con[cur_cell][i].nseasons; j++){
             season_day = between_jday(irr_con[cur_cell][i].season_start[j],
                 irr_con[cur_cell][i].season_end[j],dmy[current].day_in_year);
@@ -56,6 +65,8 @@ irr_run(size_t cur_cell)
 
             continue;
         } else {
+            // Inside of irrigation season
+            
             for(j = 0; j < options.SNOW_BAND; j++){  
                 if (irr_con[cur_cell][i].ponding){
                     all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
@@ -65,14 +76,20 @@ irr_run(size_t cur_cell)
         }
         
         // Run irrigated vegetation
-        for(j = 0; j < options.SNOW_BAND; j++){   
-            
-            // Get moisture content and critical moisture content of every layer            
+        for(j = 0; j < options.SNOW_BAND; j++){
+                            
+            /**********************************************************************
+            * 2. Get moisture content
+            **********************************************************************/
+            // Initialize     
             total_moist = 0.0;
             total_wcr = 0.0;        
             for(k = 0; k < options.Nlayer; k++){
                 moist[k] = 0.0;
-                
+            } 
+            
+            // Get moisture content and critical moisture content of every layer
+            for(k = 0; k < options.Nlayer; k++){                
                 for (l = 0; l < options.Nfrost; l++) {
                     moist[k] += ((all_vars[cur_cell].cell[cur_veg][j].layer[k].moist -
                       all_vars[cur_cell].cell[cur_veg][j].layer[k].ice[l])
@@ -85,6 +102,9 @@ irr_run(size_t cur_cell)
                 }
             }
             
+            /**********************************************************************
+            * 3. Get shortage/deficit
+            **********************************************************************/
             // Calculate shortage - suboptimal evapotranspiration
             // (based on VIC equations for evapotranspiration)
             if(options.SHARE_LAYER_MOIST){
@@ -105,7 +125,7 @@ irr_run(size_t cur_cell)
                 }
             }
             
-            // Calculate deficit
+            // Calculate deficit - newly added shortage
             irr_var[cur_cell][i][j].deficit =
                     irr_var[cur_cell][i][j].shortage - 
                     irr_var[cur_cell][i][j].prev_short;
@@ -114,9 +134,15 @@ irr_run(size_t cur_cell)
             }
             irr_var[cur_cell][i][j].prev_short = 
                 irr_var[cur_cell][i][j].shortage;
-            
+                                        
+            /**********************************************************************
+            * 4. Check requirement/need
+            **********************************************************************/
             // Get requirement              
             if(options.SHARE_LAYER_MOIST){
+                // In the SHARE_LAYER_MOIST option the moisture and critical
+                // moisture point of all layers with roots are combined
+                
                 if((total_moist + irr_var[cur_cell][i][j].leftover)
                         < (total_wcr / IRR_CRIT_FRAC)){
                     // moisture content is below critical   
@@ -134,6 +160,10 @@ irr_run(size_t cur_cell)
                             irr_var[cur_cell][i][j].leftover);
                 }
             }else{
+                // Without the SHARE_LAYER_MOIST option the moisture and 
+                // critical moisture point of all layers with roots are
+                // assessed individually
+                
                 bool calc_req = false;
                 for(k = 0; k < options.Nlayer; k++){
                     if(veg_con[cur_cell][cur_veg].root[k] > 0.){
@@ -167,7 +197,7 @@ irr_run(size_t cur_cell)
                         irr_var[cur_cell][i][j].requirement);
             }
             
-            // Calculate need
+            // Calculate need - newly added requirement
             irr_var[cur_cell][i][j].need = 
                     irr_var[cur_cell][i][j].requirement - 
                     irr_var[cur_cell][i][j].prev_req;
@@ -178,6 +208,11 @@ irr_run(size_t cur_cell)
                 irr_var[cur_cell][i][j].requirement;
         }
     }
+    
+    /**********************************************************************
+    * 5. Finalization
+    **********************************************************************/  
+    free(moist);
 }
      
 void
