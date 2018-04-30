@@ -64,7 +64,7 @@ vic_image_run(dmy_struct *dmy_current)
     }
         
     // If running with OpenMP, run this for loop using multiple threads
-    //#pragma omp parallel for default(shared) private(i, timer, vic_run_ref_str)
+    #pragma omp parallel for default(shared) private(i, timer)
     for (i = 0; i < local_domain.ncells_active; i++) {
         update_step_vars(&(all_vars[i]), veg_con[i], veg_hist[i]);
 
