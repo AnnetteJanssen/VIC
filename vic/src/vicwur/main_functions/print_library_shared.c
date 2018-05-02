@@ -470,8 +470,8 @@ print_option(option_struct *option)
             option->JULY_TAVG_SUPPLIED ? "true" : "false");
     fprintf(LOG_DEST, "\tLAKES                : %s\n",
             option->LAKES ? "true" : "false");
-    
-    // Plugins    
+
+    // Plugins
     fprintf(LOG_DEST, "\tMATRIC               : %s\n",
             option->MATRIC ? "true" : "false");
     fprintf(LOG_DEST, "\tGROUNDWATER          : %s\n",
@@ -490,7 +490,7 @@ print_option(option_struct *option)
             option->IRRIGATION ? "true" : "false");
     fprintf(LOG_DEST, "\tWATER_USE            : %s\n",
             option->WATER_USE ? "true" : "false");
-    
+
     fprintf(LOG_DEST, "\tNcanopy              : %zu\n", option->Ncanopy);
     fprintf(LOG_DEST, "\tNfrost               : %zu\n", option->Nfrost);
     fprintf(LOG_DEST, "\tNlakenode            : %zu\n", option->Nlakenode);
@@ -508,7 +508,7 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tSHARE_LAYER_MOIST    : %s\n",
             option->SHARE_LAYER_MOIST ? "true" : "false");
     fprintf(LOG_DEST, "\tSNOW_DENSITY         : %d\n", option->SNOW_DENSITY);
-    fprintf(LOG_DEST, "\tSNOW_BAND            : %zu\n", option->SNOW_BAND);
+    fprintf(LOG_DEST, "\tELEV_BAND            : %zu\n", option->ELEV_BAND);
     fprintf(LOG_DEST, "\tSPATIAL_FROST        : %s\n",
             option->SPATIAL_FROST ? "true" : "false");
     fprintf(LOG_DEST, "\tSPATIAL_SNOW         : %s\n",
@@ -566,9 +566,9 @@ void
 print_out_data(double         **out_data,
                metadata_struct *metadata)
 {
-    int    i;
-    size_t j;
-    extern int                 N_OUTVAR_TYPES_ALL;
+    int        i;
+    size_t     j;
+    extern int N_OUTVAR_TYPES_ALL;
 
     fprintf(LOG_DEST, "out_data:\n");
 
@@ -670,7 +670,7 @@ print_param_set(param_set_struct *param_set)
     fprintf(LOG_DEST, "param_set:\n");
     for (i = 0; i < N_FORCING_TYPES; i++) {
         print_force_type(&(param_set->TYPE[i]));
-        fprintf(LOG_DEST, "\force_steps_per_day : %zu\n", 
+        fprintf(LOG_DEST, "\force_steps_per_day : %zu\n",
                 param_set->force_steps_per_day[i]);
     }
 }

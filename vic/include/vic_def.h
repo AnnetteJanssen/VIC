@@ -199,7 +199,7 @@ enum
 /******************************************************************************
  * @brief   Water use sectors
  *****************************************************************************/
-enum{
+enum {
     WU_IRRIGATION,
     WU_DOMESTIC,
     WU_INDUSTRIAL,
@@ -295,7 +295,7 @@ typedef struct {
                             method for final step. */
     bool SHARE_LAYER_MOIST; /**< TRUE = transpiration in moisture-limited layers can draw from other layers (default) */
     unsigned short int SNOW_DENSITY;   /**< DENS_BRAS: Use algorithm of Bras, 1990; DENS_SNTHRM: Use algorithm of SNTHRM89 adapted for 1-layer pack */
-    size_t SNOW_BAND;    /**< Number of elevation bands over which to solve the
+    size_t ELEV_BAND;    /**< Number of elevation bands over which to solve the
                             snow model */
     bool SPATIAL_FROST;   /**< TRUE = use a uniform distribution to simulate the
                              spatial distribution of soil frost; FALSE = assume
@@ -347,9 +347,9 @@ typedef struct {
     bool EFR;
     bool DAMS;
     bool MATRIC;
-    
+
     // Groundwater options
-    bool GW_INIT_FROM_FILE;    
+    bool GW_INIT_FROM_FILE;
     // Routing options
     int ROUTING_TYPE;
     size_t RIRF_NSTEPS;
@@ -390,12 +390,12 @@ typedef struct {
     unsigned short int endyear;    /**< Last year of model simulation */
     unsigned short int forceday[N_FORCING_TYPES];  /**< day forcing files starts */
     unsigned int forcesec[N_FORCING_TYPES];          /**< seconds since midnight when forcing
-                                          files starts */
+                                                        files starts */
     unsigned short int forcemonth[N_FORCING_TYPES];  /**< month forcing files starts */
     unsigned short int forceoffset[N_FORCING_TYPES];  /**< counter to keep track of offset in reading
-                                           forcing files; updated after every read */
+                                                         forcing files; updated after every read */
     unsigned int forceskip[N_FORCING_TYPES];   /**< number of model time steps to skip at
-                                      the start of the forcing file */
+                                                  the start of the forcing file */
     unsigned short int forceyear[N_FORCING_TYPES];  /**< year forcing files start */
     size_t nrecs;                /**< Number of time steps simulated */
     unsigned short int startday;  /**< Starting day of the simulation */
@@ -692,6 +692,7 @@ typedef struct {
     double aspect;
     double ehoriz;
     double whoriz;
+    size_t elev_band_num;             /**< number of elevation bands in the grid cell */
 } soil_con_struct;
 
 /******************************************************************************
@@ -858,8 +859,9 @@ typedef struct {
     double phi;             /**< moisture diffusion parameter */
     double zwt;             /**< water table position relative to soil surface within the layer (cm) */
     // Fluxes
-    double bare_evap_frac;  /**< fraction of evapotranspiration coming from bare soil evap, from soil layer (mm) */
+    double esoil;           /**< soil evaporation from soil layer (mm) */
     double evap;            /**< evapotranspiration from soil layer (mm) */
+    double transp;          /**< transpiration from soil layer (mm) */
 } layer_data_struct;
 
 /******************************************************************************

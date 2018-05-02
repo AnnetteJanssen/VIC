@@ -104,10 +104,13 @@ vic_start(void)
         // add the number of vegetation type to the location info in the
         // global domain struct. This just makes life easier
         add_nveg_to_global_domain(&(filenames.params), &global_domain);
+        // add the number of elevation bands to the location info in the
+        // global domain struct. This just makes life easier
+        add_nelev_to_global_domain(&(filenames.params), &global_domain);
 
         // get the indices for the active cells (used in reading and writing)
         filter_active_cells = malloc(global_domain.ncells_active *
-                                     sizeof(*filter_active_cells)); 
+                                     sizeof(*filter_active_cells));
         check_alloc_status(filter_active_cells, "Memory allocation error");
 
         j = 0;
@@ -117,36 +120,44 @@ vic_start(void)
                 j++;
             }
         }
-        if(mpi_decomposition == MPI_DECOMPOSITION_RANDOM){
+        if (mpi_decomposition == MPI_DECOMPOSITION_RANDOM) {
             // decompose the mask
             mpi_map_decomp_domain(global_domain.ncells_active, mpi_size,
-                              &mpi_map_local_array_sizes,
-                              &mpi_map_global_array_offsets,
-                              &mpi_map_mapping_array);
-        }else if (mpi_decomposition == MPI_DECOMPOSITION_BASIN){
+                                  &mpi_map_local_array_sizes,
+                                  &mpi_map_global_array_offsets,
+                                  &mpi_map_mapping_array);
+        }
+        else if (mpi_decomposition == MPI_DECOMPOSITION_BASIN) {
             // decompose the mask
             mpi_map_decomp_domain_basin(global_domain.ncells_active, mpi_size,
-                              &mpi_map_local_array_sizes,
-                              &mpi_map_global_array_offsets,
-                              &mpi_map_mapping_array);
-        }else if (mpi_decomposition == MPI_DECOMPOSITION_FILE){
+                                        &mpi_map_local_array_sizes,
+                                        &mpi_map_global_array_offsets,
+                                        &mpi_map_mapping_array);
+        }
+        else if (mpi_decomposition == MPI_DECOMPOSITION_FILE) {
             // decompose the mask
             mpi_map_decomp_domain_file(global_domain.ncells_active, mpi_size,
-                              &mpi_map_local_array_sizes,
-                              &mpi_map_global_array_offsets,
-                              &mpi_map_mapping_array);
-        } else{
+                                       &mpi_map_local_array_sizes,
+                                       &mpi_map_global_array_offsets,
+                                       &mpi_map_mapping_array);
+        }
+        else {
             log_err("Unknown mpi decomposition method");
         }
-    
+
         for (i = 0; i < (size_t)mpi_size; i++) {
-            log_info("Mpi decomposition node %zu: %d - %d (%.3f) [offset - size (fraction of total)]",
-                    i,mpi_map_global_array_offsets[i],mpi_map_local_array_sizes[i],
-                    ((float)mpi_map_local_array_sizes[i] / (float)global_domain.ncells_active));
+            log_info(
+                "Mpi decomposition node %zu: %d - %d (%.3f) [offset - size (fraction of total)]",
+                i, mpi_map_global_array_offsets[i],
+                mpi_map_local_array_sizes[i],
+                ((float)mpi_map_local_array_sizes[i] /
+                      (float)global_domain.ncells_active));
         }
         for (i = 0; i < (size_t)mpi_size; i++) {
-            if(mpi_map_local_array_sizes[i]<=0){
-                log_err("Mpi decomposition size node %zu <= 0; please check your decomposition method",i);
+            if (mpi_map_local_array_sizes[i] <= 0) {
+                log_err(
+                    "Mpi decomposition size node %zu <= 0; please check your decomposition method",
+                    i);
             }
         }
 
@@ -154,15 +165,15 @@ vic_start(void)
         options.ROOT_ZONES = get_nc_dimension(&(filenames.params), "root_zone");
         options.Nlayer = get_nc_dimension(&(filenames.params), "nlayer");
         options.NVEGTYPES = get_nc_dimension(&(filenames.params), "veg_class");
-        if (options.SNOW_BAND == SNOW_BAND_TRUE_BUT_UNSET) {
-            options.SNOW_BAND = get_nc_dimension(&(filenames.params),
+        if (options.ELEV_BAND == SNOW_BAND_TRUE_BUT_UNSET) {
+            options.ELEV_BAND = get_nc_dimension(&(filenames.params),
                                                  "snow_band");
         }
         if (options.LAKES) {
             options.NLAKENODES = get_nc_dimension(&(filenames.params),
                                                   "lake_node");
         }
-        
+
         // plugins
         if (options.GROUNDWATER) {
             gw_start();
@@ -192,7 +203,8 @@ vic_start(void)
     status = MPI_Bcast(&NR, 1, MPI_UNSIGNED_LONG, VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
 
-    status = MPI_Bcast(&mpi_decomposition, 1, MPI_INT, VIC_MPI_ROOT, MPI_COMM_VIC);
+    status = MPI_Bcast(&mpi_decomposition, 1, MPI_INT, VIC_MPI_ROOT,
+                       MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
 
     status = MPI_Bcast(&global_param, 1, mpi_global_struct_type,
@@ -270,7 +282,7 @@ vic_start(void)
     for (i = 0; i < (size_t) local_domain.ncells_active; i++) {
         local_domain.locations[i].local_idx = i;
     }
-    
+
     // cleanup
     if (mpi_rank == VIC_MPI_ROOT) {
         free(mapped_locations);

@@ -60,6 +60,7 @@ veg_con_map_struct *veg_con_map = NULL;
 veg_con_struct    **veg_con = NULL;
 veg_hist_struct   **veg_hist = NULL;
 veg_lib_struct    **veg_lib = NULL;
+elev_con_map_struct *elev_con_map = NULL;
 save_data_struct   *save_data;  // [ncells]
 double           ***out_data = NULL;  // [ncells, nvars, nelem]
 stream_struct      *output_streams = NULL;  // [nstreams]
@@ -107,10 +108,10 @@ main(int    argc,
     if (mpi_rank == VIC_MPI_ROOT) {
         cmd_proc(argc, argv, filenames.global);
     }
-    
+
     // read global parameters
     vic_start();
-    
+
     // allocate memory
     vic_alloc();
 
@@ -122,23 +123,22 @@ main(int    argc,
 
     // initialize output structures
     vic_init_output(&(dmy[0]));
-    
+
     // Initialization is complete, print settings
-    if(mpi_rank == VIC_MPI_ROOT){
-        log_info(
-            "Initialization is complete, print global param, parameters and options structures");
-        print_global_param(&global_param);
-        print_option(&options);
-        print_parameters(&param);
-    }
+    log_info(
+        "Initialization is complete, print global param, parameters and options structures");
+    print_global_param(&global_param);
+    print_option(&options);
+    print_parameters(&param);
 
     // stop init timer
     timer_stop(&(global_timers[TIMER_VIC_INIT]));
     // start vic run timer
     timer_start(&(global_timers[TIMER_VIC_RUN]));
-    // initialize vic forcing and writing timer
-    timer_init(&(global_timers[TIMER_VIC_WRITE]));
+    // initialize vic force timer
     timer_init(&(global_timers[TIMER_VIC_FORCE]));
+    // initialize vic write timer
+    timer_init(&(global_timers[TIMER_VIC_WRITE]));
     
     // loop over all timesteps
     for (current = 0; current < global_param.nrecs; current++) {
@@ -169,7 +169,7 @@ main(int    argc,
     timer_stop(&(global_timers[TIMER_VIC_RUN]));
     // start vic final timer
     timer_start(&(global_timers[TIMER_VIC_FINAL]));
-    
+
     // clean up
     vic_finalize();
 

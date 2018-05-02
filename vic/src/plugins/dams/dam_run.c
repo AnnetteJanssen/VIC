@@ -348,6 +348,7 @@ dam_total(size_t cur_cell, size_t cur_dam)
     extern dam_var_struct **dam_var;
     extern rout_var_struct *rout_var;
     extern irr_con_map_struct *irr_con_map;
+    extern elev_con_map_struct *elev_con_map;
     extern irr_var_struct ***irr_var;
     extern dam_con_struct **dam_con;
         
@@ -368,7 +369,7 @@ dam_total(size_t cur_cell, size_t cur_dam)
             for(j = 0; j < irr_con_map[other_cell].ni_active; j++){
                 cur_veg = irr_con[cur_cell][i].veg_index;
             
-                for(k = 0; k < options.SNOW_BAND; k++){
+                for(k = 0; k < elev_con_map[i].ne_active; k++){
 
                     dam_var[cur_cell][cur_dam].total_demand +=
                             irr_var[other_cell][j][k].need / MM_PER_M * 

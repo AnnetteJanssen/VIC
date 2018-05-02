@@ -49,6 +49,7 @@ finalize_general(void)
     extern save_data_struct   *save_data;
     extern soil_con_struct    *soil_con;
     extern veg_con_map_struct *veg_con_map;
+    extern elev_con_map_struct *elev_con_map;
     extern veg_con_struct    **veg_con;
     extern veg_hist_struct   **veg_hist;
     extern veg_lib_struct    **veg_lib;
@@ -61,6 +62,9 @@ finalize_general(void)
     extern MPI_Datatype        mpi_alarm_struct_type;
     extern MPI_Datatype        mpi_option_struct_type;
     extern MPI_Datatype        mpi_param_struct_type;
+
+    extern node               *state_vars;
+    extern node               *outvar_types;
 
     size_t                     i;
     size_t                     j;
@@ -97,7 +101,7 @@ finalize_general(void)
             }
             free_veg_hist(&(veg_hist[i][j]));
         }
-        free_all_vars(&(all_vars[i]), veg_con_map[i].nv_active - 1);
+        free_all_vars(&(all_vars[i]), veg_con_map[i].nv_active - 1, elev_con_map[i].ne_active);
         free(veg_con_map[i].vidx);
         free(veg_con_map[i].Cv);
         free(veg_con[i]);
@@ -111,6 +115,7 @@ finalize_general(void)
     free(force);
     free(soil_con);
     free(veg_con_map);
+    free(elev_con_map);
     free(veg_con);
     free(veg_hist);
     free(veg_lib);
@@ -133,5 +138,9 @@ finalize_general(void)
     MPI_Type_free(&mpi_alarm_struct_type);
     MPI_Type_free(&mpi_option_struct_type);
     MPI_Type_free(&mpi_param_struct_type);
+    
+    list_free(state_vars);
+    list_free(outvar_types);
+
     finalize_logging();
 }

@@ -57,6 +57,5 @@ irr_set_output_meta_data_info(void)
 
 void
 irr_state_metadata(void)
-{
-    
+{  
 }

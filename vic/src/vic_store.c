@@ -39,6 +39,7 @@ vic_store(dmy_struct *dmy_state,
     extern domain_struct       local_domain;
     extern option_struct       options;
     extern veg_con_map_struct *veg_con_map;
+    extern elev_con_map_struct *elev_con_map;
     extern int                 mpi_rank;
 
     int                        status;
@@ -119,13 +120,13 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SOIL_MOISTURE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d5start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d5start[1] = k;
             for (j = 0; j < options.Nlayer; j++) {
                 d5start[2] = j;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] =
                             (double) all_vars[i].cell[v][k].layer[j].moist;
                     }
@@ -148,7 +149,7 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SOIL_ICE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d6start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d6start[1] = k;
             for (j = 0; j < options.Nlayer; j++) {
                 d6start[2] = j;
@@ -156,7 +157,7 @@ vic_store(dmy_struct *dmy_state,
                     d6start[3] = p;
                     for (i = 0; i < local_domain.ncells_active; i++) {
                         v = veg_con_map[i].vidx[m];
-                        if (v >= 0) {
+                        if (v >= 0 && k < elev_con_map[i].ne_active) {
                             dvar[i] =
                                 (double) all_vars[i].cell[v][k].layer[j].ice[p];
                         }
@@ -182,11 +183,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_CANOPY_WATER]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].veg_var[v][k].Wdew;
                 }
                 else {
@@ -209,11 +210,11 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_ANNUALNPP]);
         for (m = 0; m < options.NVEGTYPES; m++) {
             d4start[0] = m;
-            for (k = 0; k < options.SNOW_BAND; k++) {
+            for (k = 0; k < options.ELEV_BAND; k++) {
                 d4start[1] = k;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] = (double) all_vars[i].veg_var[v][k].AnnualNPP;
                     }
                     else {
@@ -234,11 +235,11 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_ANNUALNPPPREV]);
         for (m = 0; m < options.NVEGTYPES; m++) {
             d4start[0] = m;
-            for (k = 0; k < options.SNOW_BAND; k++) {
+            for (k = 0; k < options.ELEV_BAND; k++) {
                 d4start[1] = k;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] =
                             (double) all_vars[i].veg_var[v][k].AnnualNPPPrev;
                     }
@@ -260,11 +261,11 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_CLITTER]);
         for (m = 0; m < options.NVEGTYPES; m++) {
             d4start[0] = m;
-            for (k = 0; k < options.SNOW_BAND; k++) {
+            for (k = 0; k < options.ELEV_BAND; k++) {
                 d4start[1] = k;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] = (double) all_vars[i].cell[v][k].CLitter;
                     }
                     else {
@@ -285,11 +286,11 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_CINTER]);
         for (m = 0; m < options.NVEGTYPES; m++) {
             d4start[0] = m;
-            for (k = 0; k < options.SNOW_BAND; k++) {
+            for (k = 0; k < options.ELEV_BAND; k++) {
                 d4start[1] = k;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] = (double) all_vars[i].cell[v][k].CInter;
                     }
                     else {
@@ -310,11 +311,11 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_CSLOW]);
         for (m = 0; m < options.NVEGTYPES; m++) {
             d4start[0] = m;
-            for (k = 0; k < options.SNOW_BAND; k++) {
+            for (k = 0; k < options.ELEV_BAND; k++) {
                 d4start[1] = k;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] = (double) all_vars[i].cell[v][k].CSlow;
                     }
                     else {
@@ -336,11 +337,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_AGE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     ivar[i] = (int) all_vars[i].snow[v][k].last_snow;
                 }
                 else {
@@ -362,11 +363,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_MELT_STATE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     ivar[i] = (int) all_vars[i].snow[v][k].MELTING;
                 }
                 else {
@@ -388,11 +389,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_COVERAGE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].coverage;
                 }
                 else {
@@ -414,11 +415,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_WATER_EQUIVALENT]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].swq;
                 }
                 else {
@@ -440,11 +441,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_SURF_TEMP]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].surf_temp;
                 }
                 else {
@@ -466,11 +467,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_SURF_WATER]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].surf_water;
                 }
                 else {
@@ -492,11 +493,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_PACK_TEMP]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].pack_temp;
                 }
                 else {
@@ -518,11 +519,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_PACK_WATER]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].pack_water;
                 }
                 else {
@@ -544,11 +545,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_DENSITY]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].density;
                 }
                 else {
@@ -570,11 +571,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_COLD_CONTENT]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].coldcontent;
                 }
                 else {
@@ -596,11 +597,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SNOW_CANOPY]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].snow[v][k].snow_canopy;
                 }
                 else {
@@ -622,13 +623,13 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_SOIL_NODE_TEMP]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d5start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d5start[1] = k;
             for (j = 0; j < options.Nnode; j++) {
                 d5start[2] = j;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     v = veg_con_map[i].vidx[m];
-                    if (v >= 0) {
+                    if (v >= 0 && k < elev_con_map[i].ne_active) {
                         dvar[i] = (double) all_vars[i].energy[v][k].T[j];
                     }
                     else {
@@ -651,11 +652,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_FOLIAGE_TEMPERATURE]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].energy[v][k].Tfoliage;
                 }
                 else {
@@ -678,11 +679,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_ENERGY_LONGUNDEROUT]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].energy[v][k].LongUnderOut;
                 }
                 else {
@@ -705,11 +706,11 @@ vic_store(dmy_struct *dmy_state,
     nc_var = &(nc_state_file.nc_vars[STATE_ENERGY_SNOW_FLUX]);
     for (m = 0; m < options.NVEGTYPES; m++) {
         d4start[0] = m;
-        for (k = 0; k < options.SNOW_BAND; k++) {
+        for (k = 0; k < options.ELEV_BAND; k++) {
             d4start[1] = k;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 v = veg_con_map[i].vidx[m];
-                if (v >= 0) {
+                if (v >= 0 && k < elev_con_map[i].ne_active) {
                     dvar[i] = (double) all_vars[i].energy[v][k].snow_flux;
                 }
                 else {
@@ -1319,7 +1320,7 @@ set_nc_state_file_info(nc_file_struct *nc_state_file)
     nc_state_file->veg_dimid = MISSING;
 
     // set dimension sizes
-    nc_state_file->band_size = options.SNOW_BAND;
+    nc_state_file->band_size = options.ELEV_BAND;
     nc_state_file->front_size = MAX_FRONTS;
     nc_state_file->frost_size = options.Nfrost;
     nc_state_file->layer_size = options.Nlayer;
@@ -1334,7 +1335,7 @@ set_nc_state_file_info(nc_file_struct *nc_state_file)
     if (options.ROUTING_RVIC) {
         routing_rvic_set_nc_state_file_info(nc_state_file);
     }
-        
+
     // allocate memory for nc_vars
     nc_state_file->nc_vars =
         calloc(N_STATE_VARS_ALL,
@@ -1349,8 +1350,8 @@ void
 set_nc_state_var_info(nc_file_struct *nc)
 {
     extern option_struct options;
-    size_t i;
-    size_t j;
+    size_t               i;
+    size_t               j;
 
     for (i = 0; i < N_STATE_VARS; i++) {
         nc->nc_vars[i].nc_varid = i;
@@ -1697,7 +1698,7 @@ initialize_state_file(char           *filename,
         if (options.ROUTING_RVIC) {
             routing_rvic_initialize_state_file(filename, nc_state_file);
         }
- 
+
         set_nc_state_var_info(nc_state_file);
     }
 
@@ -1737,11 +1738,14 @@ initialize_state_file(char           *filename,
                             NC_DOUBLE, ndims, dimids, &(lon_var_id));
         check_nc_status(status, "Error defining lon variable in %s", filename);
 
-        status = nc_put_att_text(nc_state_file->nc_id, lon_var_id, "long_name", strlen(
-                                     "longitude"), "longitude");
+        status =
+            nc_put_att_text(nc_state_file->nc_id, lon_var_id, "long_name",
+                            strlen(
+                                "longitude"), "longitude");
         check_nc_status(status, "Error adding attribute in %s", filename);
-        status = nc_put_att_text(nc_state_file->nc_id, lon_var_id, "units", strlen(
-                                     "degrees_east"), "degrees_east");
+        status =
+            nc_put_att_text(nc_state_file->nc_id, lon_var_id, "units", strlen(
+                                "degrees_east"), "degrees_east");
         check_nc_status(status, "Error adding attribute in %s", filename);
         status = nc_put_att_text(nc_state_file->nc_id, lon_var_id,
                                  "standard_name", strlen(
@@ -1758,11 +1762,14 @@ initialize_state_file(char           *filename,
                             NC_DOUBLE, ndims, dimids, &(lat_var_id));
         check_nc_status(status, "Error defining lat variable (%s) in %s",
                         global_domain.info.lat_var, filename);
-        status = nc_put_att_text(nc_state_file->nc_id, lat_var_id, "long_name", strlen(
-                                     "latitude"), "latitude");
+        status =
+            nc_put_att_text(nc_state_file->nc_id, lat_var_id, "long_name",
+                            strlen(
+                                "latitude"), "latitude");
         check_nc_status(status, "Error adding attribute in %s", filename);
-        status = nc_put_att_text(nc_state_file->nc_id, lat_var_id, "units", strlen(
-                                     "degrees_north"), "degrees_north");
+        status =
+            nc_put_att_text(nc_state_file->nc_id, lat_var_id, "units", strlen(
+                                "degrees_north"), "degrees_north");
         check_nc_status(status, "Error adding attribute in %s", filename);
         status = nc_put_att_text(nc_state_file->nc_id, lat_var_id,
                                  "standard_name", strlen("latitude"),
@@ -1915,20 +1922,23 @@ initialize_state_file(char           *filename,
             }
 
             // create the variable
-            status = nc_def_var(nc_state_file->nc_id, state_metadata[i_var].varname,
-                                nc_state_file->nc_vars[i_var].nc_type,
-                                nc_state_file->nc_vars[i_var].nc_dims,
-                                nc_state_file->nc_vars[i_var].nc_dimids,
-                                &(nc_state_file->nc_vars[i_var].nc_varid));
+            status =
+                nc_def_var(nc_state_file->nc_id, state_metadata[i_var].varname,
+                           nc_state_file->nc_vars[i_var].nc_type,
+                           nc_state_file->nc_vars[i_var].nc_dims,
+                           nc_state_file->nc_vars[i_var].nc_dimids,
+                           &(nc_state_file->nc_vars[i_var].nc_varid));
             check_nc_status(status, "Error defining state variable %s in %s",
                             state_metadata[i_var].varname, filename);
 
             // set the fill value attribute
             if (nc_state_file->nc_vars[i_var].nc_type == NC_DOUBLE) {
-                status = nc_put_att_double(nc_state_file->nc_id,
-                                           nc_state_file->nc_vars[i_var].nc_varid,
-                                           "_FillValue", NC_DOUBLE, 1,
-                                           &(nc_state_file->d_fillvalue));
+                status = nc_put_att_double(
+                    nc_state_file->nc_id,
+                    nc_state_file->nc_vars[i_var].
+                    nc_varid,
+                    "_FillValue", NC_DOUBLE, 1,
+                    &(nc_state_file->d_fillvalue));
             }
             else if (nc_state_file->nc_vars[i_var].nc_type == NC_INT) {
                 status = nc_put_att_int(nc_state_file->nc_id,

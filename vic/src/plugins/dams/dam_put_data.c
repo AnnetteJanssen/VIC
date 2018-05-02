@@ -3,15 +3,15 @@
 void
 dam_put_data(void)
 {
-    extern domain_struct local_domain;
-    extern dam_var_struct **dam_var;
+    extern domain_struct       local_domain;
+    extern dam_var_struct    **dam_var;
     extern dam_con_map_struct *dam_con_map;
-    extern double ***out_data;
-    extern node            *outvar_types;
+    extern double           ***out_data;
+    extern node               *outvar_types;
 
-    size_t i;    
-    size_t j;
-    
+    size_t                     i;
+    size_t                     j;
+
     // Write to output struct
     int OUT_DAM_VOLUME = list_search_id(outvar_types, "OUT_DAM_VOLUME");
     int OUT_DAM_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_DISCHARGE");
@@ -24,8 +24,8 @@ dam_put_data(void)
     int OUT_DAM_HIST_FLOW = list_search_id(outvar_types, "OUT_DAM_HIST_FLOW");
     int OUT_DAM_HIST_SHORTAGE = list_search_id(outvar_types, "OUT_DAM_HIST_SHORTAGE");
 
-    for(i = 0; i < local_domain.ncells_active; i++){ 
-        for(j = 0; j < dam_con_map[i].nd_active; j++){
+    for (i = 0; i < local_domain.ncells_active; i++) { 
+        for (j = 0; j < dam_con_map[i].nd_active; j++) {
             out_data[i][OUT_DAM_VOLUME][j] = dam_var[i][j].volume / pow(M_PER_KM, 2);
             out_data[i][OUT_DAM_DISCHARGE][j] = dam_var[i][j].discharge;
             out_data[i][OUT_DAM_AREA][j] = dam_var[i][j].area / pow(M_PER_KM, 2);

@@ -49,6 +49,7 @@ put_data(all_vars_struct   *all_vars,
     size_t                     veg;
     size_t                     index;
     size_t                     band;
+    size_t                     Nelev;
     size_t                     Nbands;
     bool                       overstory;
     bool                       HasVeg;
@@ -91,11 +92,13 @@ put_data(all_vars_struct   *all_vars,
     frost_fract = soil_con->frost_fract;
     frost_slope = soil_con->frost_slope;
     dt_sec = global_param.dt;
-
+    
+    Nelev = soil_con->elev_band_num;
+    
     // Compute treeline adjustment factors
-    TreeAdjustFactor = calloc(options.SNOW_BAND, sizeof(*TreeAdjustFactor));
+    TreeAdjustFactor = calloc(Nelev, sizeof(*TreeAdjustFactor));
     check_alloc_status(TreeAdjustFactor, "Memory allocation error.");
-    for (band = 0; band < options.SNOW_BAND; band++) {
+    for (band = 0; band < Nelev; band++) {
         if (AboveTreeLine[band]) {
             Cv = 0;
             for (veg = 0; veg < veg_con[0].vegetat_type_num; veg++) {
@@ -170,7 +173,7 @@ put_data(all_vars_struct   *all_vars,
     for (veg = 0; veg <= veg_con[0].vegetat_type_num; veg++) {
         Cv = veg_con[veg].Cv;
         Clake = 0;
-        Nbands = options.SNOW_BAND;
+        Nbands = Nelev;
         IsWet = false;
 
         if (veg < veg_con[0].vegetat_type_num) {
@@ -201,10 +204,11 @@ put_data(all_vars_struct   *all_vars,
                     ThisTreeAdjust = 1;
                 }
 
-                if (ThisAreaFract > 0. && (veg == veg_con[0].vegetat_type_num ||
-                                           (!AboveTreeLine[band] ||
-                                            (AboveTreeLine[band] &&
-                                             !overstory)))) {
+                if (ThisAreaFract > 0. &&
+                    (veg == veg_con[0].vegetat_type_num ||
+                     (!AboveTreeLine[band] ||
+                      (AboveTreeLine[band] &&
+                       !overstory)))) {
                     /** compute running totals of various landcovers **/
                     if (HasVeg) {
                         cv_veg += Cv * ThisAreaFract * ThisTreeAdjust;
@@ -415,7 +419,8 @@ put_data(all_vars_struct   *all_vars,
                             lake_var.runoff_out * MM_PER_M /
                             soil_con->cell_area;  // mm over gridcell
                         // mm over gridcell
-                        out_data[OUT_LAKE_EVAP][0] = lake_var.evapw * MM_PER_M /
+                        out_data[OUT_LAKE_EVAP][0] = lake_var.evapw *
+                                                     MM_PER_M /
                                                      soil_con->cell_area;
                         // mm over gridcell
                         out_data[OUT_LAKE_RCHRG][0] = lake_var.recharge *
@@ -540,10 +545,12 @@ put_data(all_vars_struct   *all_vars,
     }
     storage += out_data[OUT_SWE][0] + out_data[OUT_SNOW_CANOPY][0] +
                out_data[OUT_WDEW][0] + out_data[OUT_SURFSTOR][0];
-    out_data[OUT_WATER_ERROR][0] = calc_water_balance_error(inflow,
-                                                            outflow,
-                                                            storage,
-                                                            save_data->total_moist_storage);
+    out_data[OUT_WATER_ERROR][0] = \
+        calc_water_balance_error(inflow,
+                                 outflow,
+                                 storage,
+                                 save_data->
+                                 total_moist_storage);
 
     // Store total storage for next timestep
     save_data->total_moist_storage = storage;
@@ -612,19 +619,11 @@ collect_wb_terms(cell_data_struct cell,
     tmp_evap = 0.0;
     for (index = 0; index < options.Nlayer; index++) {
         tmp_evap += cell.layer[index].evap;
+        out_data[OUT_EVAP_BARE][0] += cell.layer[index].esoil *
+                                      AreaFactor;
         if (HasVeg) {
-            out_data[OUT_EVAP_BARE][0] += cell.layer[index].evap *
-                                          cell.layer[index].bare_evap_frac
-                                          *
-                                          AreaFactor;
-            out_data[OUT_TRANSP_VEG][0] += cell.layer[index].evap *
-                                           (1 -
-                                            cell.layer[index].
-                                            bare_evap_frac) * AreaFactor;
-        }
-        else {
-            out_data[OUT_EVAP_BARE][0] += cell.layer[index].evap *
-                                          AreaFactor;
+            out_data[OUT_TRANSP_VEG][0] += cell.layer[index].transp *
+                                           AreaFactor;
         }
     }
     tmp_evap += snow.vapor_flux * MM_PER_M;
@@ -704,7 +703,8 @@ collect_wb_terms(cell_data_struct cell,
 
         out_data[OUT_SOIL_LIQ][index] += tmp_moist * AreaFactor;
         out_data[OUT_SOIL_ICE][index] += tmp_ice * AreaFactor;
-        out_data[OUT_SOIL_EFF_SAT][index] += cell.layer[index].eff_saturation * AreaFactor;
+        out_data[OUT_SOIL_EFF_SAT][index] += cell.layer[index].eff_saturation *
+                                             AreaFactor;
     }
     out_data[OUT_SOIL_WET][0] += cell.wetness * AreaFactor;
     out_data[OUT_ROOTMOIST][0] += cell.rootmoist * AreaFactor;

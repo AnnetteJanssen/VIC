@@ -158,8 +158,10 @@ get_nc_latlon(nameid_struct *nc_nameid,
                                        nc_domain->info.y_dim);
 
     // Get number of lat/lon dimensions.
-    nc_domain->info.n_coord_dims = get_nc_varndimensions(nc_nameid,
-                                                         nc_domain->info.lon_var);
+    nc_domain->info.n_coord_dims = get_nc_varndimensions(
+        nc_nameid,
+        nc_domain->info.
+        lon_var);
     if (nc_domain->info.n_coord_dims !=
         (size_t) get_nc_varndimensions(nc_nameid, nc_domain->info.lat_var)) {
         log_err("Un even number of dimensions for %s and %s in: %s",
@@ -303,6 +305,7 @@ initialize_location(location_struct *location)
     location->area = MISSING;
     location->frac = MISSING;
     location->nveg = MISSING_USI;
+    location->nelev = MISSING_USI;
     location->global_idx = MISSING_USI;
     location->io_idx = MISSING_USI;
     location->local_idx = MISSING_USI;
@@ -334,6 +337,42 @@ add_nveg_to_global_domain(nameid_struct *nc_nameid,
     }
 
     free(ivar);
+}
+
+/******************************************************************************
+ * @brief    Read the number of elevation bands per grid cell from file
+ *****************************************************************************/
+void
+add_nelev_to_global_domain(nameid_struct *nc_nameid,
+                          domain_struct *global_domain)
+{
+    extern option_struct options;
+    
+    size_t d2count[2];
+    size_t d2start[2];
+    size_t i;
+    int   *ivar = NULL;
+    
+    if (options.ELEV_BAND == 1) {
+        for (i = 0; i < global_domain->ncells_total; i++) {
+            global_domain->locations[i].nelev = 1;
+        }
+    } else {
+        ivar = malloc(global_domain->ncells_total * sizeof(*ivar));
+        check_alloc_status(ivar, "Memory allocation error.");
+
+        d2start[0] = 0;
+        d2start[1] = 0;
+        d2count[0] = global_domain->n_ny;
+        d2count[1] = global_domain->n_nx;
+        get_nc_field_int(nc_nameid, "Nelev", d2start, d2count, ivar);
+
+        for (i = 0; i < global_domain->ncells_total; i++) {
+            global_domain->locations[i].nelev = (size_t) ivar[i];
+        }
+
+        free(ivar);
+    }
 }
 
 /******************************************************************************

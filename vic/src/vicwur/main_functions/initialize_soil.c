@@ -32,14 +32,15 @@
  *****************************************************************************/
 void
 initialize_soil(cell_data_struct **cell,
-                size_t             veg_num)
+                size_t             veg_num,
+                size_t             nelev)
 {
     extern option_struct options;
 
     size_t               veg, band, lindex, frost_area;
 
     for (veg = 0; veg <= veg_num; veg++) {
-        for (band = 0; band < options.SNOW_BAND; band++) {
+        for (band = 0; band < nelev; band++) {
             // Prognostic states
             cell[veg][band].aero_resist[0] = 0.0;
             cell[veg][band].aero_resist[1] = 0.0;
@@ -71,7 +72,8 @@ initialize_soil(cell_data_struct **cell,
             cell[veg][band].RhSlow = 0.0;
             cell[veg][band].RhTot = 0.0;
             for (lindex = 0; lindex < options.Nlayer; lindex++) {
-                cell[veg][band].layer[lindex].bare_evap_frac = 0.0;
+                cell[veg][band].layer[lindex].esoil = 0.0;
+                cell[veg][band].layer[lindex].transp = 0.0;
                 cell[veg][band].layer[lindex].evap = 0.0;
             }
         }

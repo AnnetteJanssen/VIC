@@ -47,5 +47,4 @@ wu_set_output_meta_data_info(void)
 void
 wu_state_metadata(void)
 {
-    
 }

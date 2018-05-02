@@ -35,8 +35,8 @@ void
 initialize_options()
 {
     extern option_struct options;
-    
-    size_t i;
+
+    size_t               i;
     /** Initialize model option flags **/
 
     // simulation modes
@@ -76,7 +76,7 @@ initialize_options()
     options.Nlayer = 3;
     options.Nnode = 3;
     options.ROOT_ZONES = 0;
-    options.SNOW_BAND = 1;
+    options.ELEV_BAND = 1;
     // input options
     options.ALB_SRC = FROM_VEGLIB;
     options.BASEFLOW = ARNO;
@@ -96,7 +96,7 @@ initialize_options()
     options.SAVE_STATE = false;
     // output options
     options.Noutstreams = 2;
-    
+
     // plugins
     options.ROUTING_RVIC = false;
     options.ROUTING_LOHMANN = false;
@@ -107,7 +107,7 @@ initialize_options()
     options.EFR = false;
     options.DAMS = false;
     options.MATRIC = false;
-    
+
     // Groundwater options
     options.GW_INIT_FROM_FILE = false;
     // Routing options
@@ -118,7 +118,7 @@ initialize_options()
     options.IRR_POTENTIAL = false;
     options.WU_REMOTE = false;
     options.MAXRECEIVING = 0;
-    for(i = 0; i < WU_NSECTORS; i++){
+    for (i = 0; i < WU_NSECTORS; i++) {
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
         options.WU_COMPENSATION_TIME[i] = 0;
         options.WU_PRIORITY[i] = i;
@@ -131,5 +131,4 @@ initialize_options()
     // Dam options
     options.MAXSERVICE = 0;
     options.MAXDAMS = 0;
-    
 }
