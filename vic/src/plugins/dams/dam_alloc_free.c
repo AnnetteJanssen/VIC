@@ -50,30 +50,29 @@ dam_set_nservice(void)
     size_t  d3count[3];
     size_t  d3start[3];
     
-    // Get active dams  
     d3start[0] = 0;
     d3start[1] = 0;
     d3start[2] = 0;
     d3count[0] = 1;
     d3count[1] = global_domain.n_ny;
     d3count[2] = global_domain.n_nx; 
-    
+
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error."); 
-        
+
     for(j = 0; j < (size_t)options.MAXDAMS; j++){
         d3start[0] = j;
-        
+
         get_scatter_nc_field_int(&(filenames.dams), 
                 "nservice", d3start, d3count, ivar);
-        
+
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(j < dam_con_map[i].nd_active){
                 dam_con[i][j].nservice = ivar[i];
             }
         }
     }
-    
+
     free(ivar);
 }
 
@@ -118,7 +117,7 @@ dam_alloc(void)
     }   
     
     dam_set_nservice();
-
+    
     for(i=0; i<local_domain.ncells_active; i++){        
         for(j=0; j < dam_con_map[i].nd_active; j++){
             dam_con[i][j].service = malloc(dam_con[i][j].nservice * sizeof(*dam_con[i][j].service));

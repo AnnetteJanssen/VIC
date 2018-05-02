@@ -17,10 +17,10 @@ dam_start(void)
     compare_ncdomain_with_global_domain(&filenames.dams);
 
     options.MAXSERVICE = get_nc_dimension(&(filenames.dams), 
-            				  "max_service");
-    
+                                          "max_service");
+
     options.MAXDAMS = get_nc_dimension(&(filenames.dams), 
-            			       "dam_class");
+                                       "dam_class");
 
     // close routing parameter file
     status = nc_close(filenames.dams.nc_id);

@@ -159,7 +159,7 @@ wu_run(size_t cur_cell)
     /**********************************************************************
     * 3. Dam abstractions
     **********************************************************************/
-    if(options.WU_REMOTE && options.DAMS && 
+    if(options.WU_DAM && 
             ((total_demand_local > total_withdrawn_local &&
             total_demand_remote > total_withdrawn_remote) ||            
             (total_demand_local > total_withdrawn_local &&
@@ -306,23 +306,9 @@ wu_run(size_t cur_cell)
             }
         }
     }
-    
-    /**********************************************************************
-    * 6. Potential irrigation
-    **********************************************************************/    
-    if(options.IRR_POTENTIAL){
-        wu_var[cur_cell][WU_IRRIGATION].withdrawn = 
-                wu_var[cur_cell][WU_IRRIGATION].demand;
-        wu_var[cur_cell][WU_IRRIGATION].consumed = 
-                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
-                wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction;
-        wu_var[cur_cell][WU_IRRIGATION].returned = 
-                wu_var[cur_cell][WU_IRRIGATION].withdrawn * 
-                (1 - wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction);
-    }
         
     /**********************************************************************
-    * 7. Finalization
+    * 6. Finalization
     **********************************************************************/  
     free(withdrawn_local);
     free(withdrawn_remote);

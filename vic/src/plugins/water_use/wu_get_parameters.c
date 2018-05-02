@@ -197,14 +197,18 @@ wu_get_global_parameters(char *cmdstr)
             log_err("WU_STRATEGY should be EQUAL or PRIORITY; "
                     "%s is unknown", strategy);
         }
-    }     
-    else if (strcasecmp("POTENTIAL_IRRIGATION", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        options.IRR_POTENTIAL = str_to_bool(flgstr);
     }
     else if (strcasecmp("REMOTE_WATER_USE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.WU_REMOTE = str_to_bool(flgstr);
+    }
+    else if (strcasecmp("GROUNDWATER_WATER_USE", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.WU_GW = str_to_bool(flgstr);
+    }
+    else if (strcasecmp("DAM_WATER_USE", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.WU_DAM = str_to_bool(flgstr);
     }
     
     else {
@@ -228,14 +232,14 @@ wu_validate_global_parameters(void)
         log_err("WATER_USE = TRUE but ROUTING = FALSE");
     }
     
-    if(options.IRR_POTENTIAL && !options.IRRIGATION){
-        log_err("POTENTIAL_IRRIGATION = TRUE but IRRIGATION = FALSE");
-    }
-    
-    if(!options.WU_REMOTE){
+    if(options.WU_REMOTE){
         if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
             log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
         }
+    }
+    
+    if(options.WU_DAM && !options.DAMS){
+        log_err("WATER_USE_DAM = TRUE but DAMS = FALSE");
     }
     
     for(i = 0; i < WU_NSECTORS; i ++){

@@ -115,8 +115,9 @@ initialize_options()
     options.RIRF_NSTEPS = 0;
     options.GIRF_NSTEPS = 0;
     // Water use options
-    options.IRR_POTENTIAL = false;
     options.WU_REMOTE = false;
+    options.WU_GW = false;
+    options.WU_DAM = false;
     options.MAXRECEIVING = 0;
     for (i = 0; i < WU_NSECTORS; i++) {
         options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
@@ -127,6 +128,8 @@ initialize_options()
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;
+    options.IRR_POND = false;
+    options.IRR_POTENTIAL = false;
     // EFR options
     // Dam options
     options.MAXSERVICE = 0;

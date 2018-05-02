@@ -52,24 +52,27 @@ irr_run(size_t cur_cell)
             if(season_day > 0){
                 break;
             }
-        }        
+        }
+        
         if(season_day <= 0.0){
-            // Outside of irrigation season
-            
-            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
-                all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
-                        soil_con[cur_cell].Ksat[0];
-                
+            // Outside of irrigation season            
+            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
                 irr_var[cur_cell][i][j].requirement = 0.0;
                 irr_var[cur_cell][i][j].prev_req = 0.0; 
+            }
+            
+            if (irr_con[cur_cell][i].ponding){
+                for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
+                    all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
+                            soil_con[cur_cell].Ksat[0];
+                }
             }
 
             continue;
         } else {
-            // Inside of irrigation season
-            
-            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
-                if (irr_con[cur_cell][i].ponding){
+            // Inside of irrigation season              
+            if (irr_con[cur_cell][i].ponding){
+                for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
                     all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
                             soil_con[cur_cell].Ksat[0] * POND_KSAT_FRAC;
                 }
@@ -207,8 +210,8 @@ irr_run(size_t cur_cell)
             }
             irr_var[cur_cell][i][j].prev_req = 
                 irr_var[cur_cell][i][j].requirement;
+            }
         }
-    }
     
     /**********************************************************************
     * 5. Finalization
@@ -292,6 +295,10 @@ irr_get_withdrawn(size_t cur_cell)
                     soil_con[cur_cell].AreaFract[j] * 
                     veg_con[cur_cell][cur_veg].Cv;
         }
+    }
+    
+    if(options.IRR_POTENTIAL){
+        total_available = total_requirement;
     }
     
     if(total_available > 0 && total_requirement > 0){           

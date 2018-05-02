@@ -195,8 +195,8 @@ irr_set_ponding(void)
         for (j = 0; j < (size_t)options.NIRRTYPES; j++) {
             if (ivar[j] == 1 && irr_con_map[i].iidx[j] != NODATA_VEG) {
                 irr_con[i][irr_con_map[i].iidx[j]].ponding = true;
-                irr_con[i][irr_con_map[i].iidx[j]].pond_capacity =
-                    POND_CAPACITY;
+                irr_con[i][irr_con_map[i].iidx[j]].pond_capacity = 
+                        POND_CAPACITY;
             }
         }
     }
@@ -209,6 +209,7 @@ irr_init(void)
 {
     extern filenames_struct filenames;
     extern int              mpi_rank;
+    extern option_struct    options;
 
     int                     status;
 
@@ -222,7 +223,10 @@ irr_init(void)
 
     irr_set_vegetation();
     irr_set_seasons();
-    irr_set_ponding();
+    
+    if (options.IRR_POND) {
+        irr_set_ponding();
+    }
 
     // close parameter file
     if (mpi_rank == VIC_MPI_ROOT) {

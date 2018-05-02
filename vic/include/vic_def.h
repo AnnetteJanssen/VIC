@@ -355,8 +355,9 @@ typedef struct {
     size_t RIRF_NSTEPS;
     size_t GIRF_NSTEPS;
     // Water use options
-    bool IRR_POTENTIAL;
     bool WU_REMOTE;
+    bool WU_GW;
+    bool WU_DAM;
     size_t MAXRECEIVING;
     int WU_INPUT_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
@@ -365,6 +366,8 @@ typedef struct {
     // Irrigation options
     size_t NIRRTYPES;
     size_t NIRRSEASONS;
+    bool IRR_POTENTIAL;
+    bool IRR_POND;
     // EFR options
     // Dam options
     size_t MAXSERVICE;

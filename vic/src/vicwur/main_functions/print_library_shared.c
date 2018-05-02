@@ -547,14 +547,20 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tROUTING_TYPE         : %d\n", option->ROUTING_TYPE);
     fprintf(LOG_DEST, "\tRIRF_NSTEPS          : %zu\n", option->RIRF_NSTEPS);
     fprintf(LOG_DEST, "\tGIRF_NSTEPS          : %zu\n", option->GIRF_NSTEPS);
-    fprintf(LOG_DEST, "\tIRR_POTENTIAL        : %s\n",
-            option->IRR_POTENTIAL ? "true" : "false");
     fprintf(LOG_DEST, "\tWU_REMOTE            : %s\n",
             option->WU_REMOTE ? "true" : "false");
+    fprintf(LOG_DEST, "\tWU_GW                : %s\n",
+            option->WU_GW ? "true" : "false");
+    fprintf(LOG_DEST, "\tWU_DAM               : %s\n",
+            option->WU_DAM ? "true" : "false");
     fprintf(LOG_DEST, "\tMAXRECEIVING         : %zu\n", option->MAXRECEIVING);
     fprintf(LOG_DEST, "\tWU_STRATEGY          : %d\n", option->WU_STRATEGY);
     fprintf(LOG_DEST, "\tNIRRTYPES            : %zu\n", option->NIRRTYPES);
     fprintf(LOG_DEST, "\tNIRRSEASONS          : %zu\n", option->NIRRSEASONS);
+    fprintf(LOG_DEST, "\tIRR_POTENTIAL        : %s\n",
+            option->IRR_POTENTIAL ? "true" : "false");
+    fprintf(LOG_DEST, "\tIRR_POND             : %s\n",
+            option->IRR_POND ? "true" : "false");
     fprintf(LOG_DEST, "\tMAXSERVICE           : %zu\n", option->MAXSERVICE);
     fprintf(LOG_DEST, "\tMAXDAMS              : %zu\n", option->MAXDAMS);
 }

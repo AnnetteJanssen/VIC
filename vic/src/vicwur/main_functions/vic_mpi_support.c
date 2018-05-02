@@ -478,7 +478,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 79;
+    nitems = 82;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -758,11 +758,14 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(option_struct, GIRF_NSTEPS);
     mpi_types[i++] = MPI_AINT;
 
-    // bool IRR_POTENTIAL;
-    offsets[i] = offsetof(option_struct, IRR_POTENTIAL);
-    mpi_types[i++] = MPI_C_BOOL;
     // bool WU_REMOTE;
     offsets[i] = offsetof(option_struct, WU_REMOTE);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool WU_GW;
+    offsets[i] = offsetof(option_struct, WU_GW);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool WU_DAM;
+    offsets[i] = offsetof(option_struct, WU_DAM);
     mpi_types[i++] = MPI_C_BOOL;
     // int MAXRECEIVING;
     offsets[i] = offsetof(option_struct, MAXRECEIVING);
@@ -789,6 +792,12 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // int NIRRSEASONS;
     offsets[i] = offsetof(option_struct, NIRRSEASONS);
     mpi_types[i++] = MPI_AINT;
+    // bool IRR_POTENTIAL;
+    offsets[i] = offsetof(option_struct, IRR_POTENTIAL);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool IRR_POND;
+    offsets[i] = offsetof(option_struct, IRR_POND);
+    mpi_types[i++] = MPI_C_BOOL;
 
     // int MAXSERVICE;
     offsets[i] = offsetof(option_struct, MAXSERVICE);
