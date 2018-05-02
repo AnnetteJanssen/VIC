@@ -369,7 +369,7 @@ dam_total(size_t cur_cell, size_t cur_dam)
             for(j = 0; j < irr_con_map[other_cell].ni_active; j++){
                 cur_veg = irr_con[cur_cell][i].veg_index;
             
-                for(k = 0; k < elev_con_map[i].ne_active; k++){
+                for(k = 0; k < elev_con_map[cur_cell].ne_active; k++){
 
                     dam_var[cur_cell][cur_dam].total_demand +=
                             irr_var[other_cell][j][k].need / MM_PER_M * 

@@ -37,7 +37,7 @@ irr_run(size_t cur_cell)
         cur_veg = irr_con[cur_cell][i].veg_index;
         
         // Reset values
-        for(j = 0; j < elev_con_map[i].ne_active; j++){     
+        for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){     
             irr_var[cur_cell][i][j].need = 0.0;
             irr_var[cur_cell][i][j].shortage = 0.0;
         }
@@ -56,7 +56,7 @@ irr_run(size_t cur_cell)
         if(season_day <= 0.0){
             // Outside of irrigation season
             
-            for(j = 0; j < elev_con_map[i].ne_active; j++){  
+            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
                 all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
                         soil_con[cur_cell].Ksat[0];
                 
@@ -68,7 +68,7 @@ irr_run(size_t cur_cell)
         } else {
             // Inside of irrigation season
             
-            for(j = 0; j < elev_con_map[i].ne_active; j++){  
+            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
                 if (irr_con[cur_cell][i].ponding){
                     all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
                             soil_con[cur_cell].Ksat[0] * POND_KSAT_FRAC;
@@ -77,7 +77,7 @@ irr_run(size_t cur_cell)
         }
         
         // Run irrigated vegetation
-        for(j = 0; j < elev_con_map[i].ne_active; j++){
+        for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
                             
             /**********************************************************************
             * 2. Get moisture content
@@ -236,7 +236,7 @@ irr_set_demand(size_t cur_cell)
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
 
-        for(j = 0; j < elev_con_map[i].ne_active; j++){
+        for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
             total_demand += irr_var[cur_cell][i][j].requirement *
                     soil_con[cur_cell].AreaFract[j] * 
                     veg_con[cur_cell][cur_veg].Cv;
@@ -286,7 +286,7 @@ irr_get_withdrawn(size_t cur_cell)
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
         
-        for(j = 0; j < elev_con_map[i].ne_active; j++){  
+        for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
             total_requirement +=
                     irr_var[cur_cell][i][j].requirement * 
                     soil_con[cur_cell].AreaFract[j] * 
@@ -309,7 +309,7 @@ irr_get_withdrawn(size_t cur_cell)
         for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
             cur_veg = irr_con[cur_cell][i].veg_index;
 
-            for(j = 0; j < elev_con_map[i].ne_active; j++){
+            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
                 
                 // Availability is equally divided;
                 available = irr_var[cur_cell][i][j].requirement * fraction;
@@ -394,7 +394,7 @@ irr_run_ponding_leftover(size_t cur_cell)
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
         
-        for(j = 0; j < elev_con_map[i].ne_active; j++){  
+        for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){  
             
             // Calculate maximum infiltration
             max_infil = all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat / 
