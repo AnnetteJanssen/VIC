@@ -307,7 +307,7 @@ irr_get_withdrawn(size_t cur_cell)
         // Calculate available as fraction of requirement
         fraction =  total_available / total_requirement;        
         if(fraction > 1.0){
-            if(abs(fraction - 1.0) > DBL_EPSILON){
+            if (fabs(fraction - 1.0) > DBL_EPSILON) {
                 log_err("Fraction is > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;

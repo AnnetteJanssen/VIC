@@ -230,7 +230,7 @@ wu_run(size_t cur_cell)
         fraction = (total_withdrawn_local - total_returned_local) / 
                 total_available_local;
         if(fraction > 1.0){
-            if(abs(fraction - 1.0) > DBL_EPSILON){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
                 log_err("fraction > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;
@@ -241,7 +241,7 @@ wu_run(size_t cur_cell)
             rout_var[cur_cell].discharge[i] *= 1 - fraction;
 
             if(rout_var[cur_cell].discharge[i] < 0){
-                if(abs(rout_var[cur_cell].discharge[i]) > DBL_EPSILON){
+                if(fabs(rout_var[cur_cell].discharge[i]) > DBL_EPSILON){
                     log_err("Routing discharge < 0.0 [%.3f]?", 
                             rout_var[cur_cell].discharge[i]);
                 }
@@ -255,7 +255,7 @@ wu_run(size_t cur_cell)
         // Calculate fraction
         fraction = total_withdrawn_remote / total_available_remote;
         if(fraction > 1.0){
-            if(abs(fraction - 1.0) > DBL_EPSILON){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
                 log_err("fraction > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;
@@ -269,7 +269,7 @@ wu_run(size_t cur_cell)
                 rout_var[rec_cell].discharge[j] *= 1 - fraction;
 
                 if(rout_var[rec_cell].discharge[j] < 0){
-                    if(abs(rout_var[rec_cell].discharge[j]) > DBL_EPSILON){
+                    if(fabs(rout_var[rec_cell].discharge[j]) > DBL_EPSILON){
                         log_err("Routing discharge < 0.0 [%.3f]?", 
                                 rout_var[cur_cell].discharge[i]);
                     }
@@ -284,7 +284,7 @@ wu_run(size_t cur_cell)
         // Calculate fraction
         fraction = total_withdrawn_dam / total_available_dam;
         if(fraction > 1.0){
-            if(abs(fraction - 1.0) > DBL_EPSILON){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
                 log_err("fraction > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;
@@ -298,7 +298,7 @@ wu_run(size_t cur_cell)
             dam_var[ser_cell][ser_idx].volume *= 1 - fraction;
 
             if(dam_var[ser_cell][ser_idx].volume < 0){
-                if(abs(dam_var[ser_cell][ser_idx].volume) > DBL_EPSILON){
+                if(fabs(dam_var[ser_cell][ser_idx].volume) > DBL_EPSILON){
                     log_err("Dam volume < 0.0 [%.3f]?", 
                             dam_var[ser_cell][ser_idx].volume);
                 }
