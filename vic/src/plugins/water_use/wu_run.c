@@ -224,7 +224,7 @@ wu_run(size_t cur_cell)
     * 5. Actual withdrawal
     **********************************************************************/
     // Calculate reduction and return flow
-    if(total_withdrawn_local > 0 && total_available_local > 0){
+    if(total_withdrawn_local > 0){
         
         // Calculate fraction
         fraction = (total_withdrawn_local - total_returned_local) / 
@@ -239,18 +239,10 @@ wu_run(size_t cur_cell)
         // Modify discharge
         for(i = 0; i < options.RIRF_NSTEPS; i++){
             rout_var[cur_cell].discharge[i] *= 1 - fraction;
-
-            if(rout_var[cur_cell].discharge[i] < 0){
-                if(fabs(rout_var[cur_cell].discharge[i]) > DBL_EPSILON){
-                    log_err("Routing discharge < 0.0 [%.3f]?", 
-                            rout_var[cur_cell].discharge[i]);
-                }
-                rout_var[cur_cell].discharge[i] = 0.0;
-            }    
         }
     }
     
-    if(total_withdrawn_remote > 0 && total_available_remote > 0){
+    if(total_withdrawn_remote > 0){
         
         // Calculate fraction
         fraction = total_withdrawn_remote / total_available_remote;
@@ -267,19 +259,11 @@ wu_run(size_t cur_cell)
             
             for(j = 0; j < options.RIRF_NSTEPS; j++){
                 rout_var[rec_cell].discharge[j] *= 1 - fraction;
-
-                if(rout_var[rec_cell].discharge[j] < 0){
-                    if(fabs(rout_var[rec_cell].discharge[j]) > DBL_EPSILON){
-                        log_err("Routing discharge < 0.0 [%.3f]?", 
-                                rout_var[cur_cell].discharge[i]);
-                    }
-                    rout_var[rec_cell].discharge[j] = 0.0;
-                }
             }
         }
     }
     
-    if(total_withdrawn_dam > 0 && total_available_dam > 0){
+    if(total_withdrawn_dam > 0){
         
         // Calculate fraction
         fraction = total_withdrawn_dam / total_available_dam;
@@ -296,14 +280,6 @@ wu_run(size_t cur_cell)
             ser_idx = wu_con[cur_cell].service_idx[i];
             
             dam_var[ser_cell][ser_idx].volume *= 1 - fraction;
-
-            if(dam_var[ser_cell][ser_idx].volume < 0){
-                if(fabs(dam_var[ser_cell][ser_idx].volume) > DBL_EPSILON){
-                    log_err("Dam volume < 0.0 [%.3f]?", 
-                            dam_var[ser_cell][ser_idx].volume);
-                }
-                dam_var[ser_cell][ser_idx].volume = 0.0;
-            }
         }
     }
         

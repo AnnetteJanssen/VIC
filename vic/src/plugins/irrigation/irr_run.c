@@ -301,13 +301,14 @@ irr_get_withdrawn(size_t cur_cell)
         total_available = total_requirement;
     }
     
-    if(total_available > 0 && total_requirement > 0){           
+    if(total_available > 0){
         // Received water for irrigation
         
         // Calculate available as fraction of requirement
         fraction =  total_available / total_requirement;        
         if(fraction > 1.0){
-            if (fabs(fraction - 1.0) > DBL_EPSILON) {
+            if (fabs(fraction - 1.0) > DBL_EPSILON && 
+                    total_requirement > DBL_EPSILON) {
                 log_err("Fraction is > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;
