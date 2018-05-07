@@ -31,11 +31,13 @@ typedef struct {
 typedef struct {
     double *demand;
     double *consumption_fraction;
+    double *gw_fraction;
 } wu_force_struct;
 
 typedef struct{
     double demand;
     double consumption_fraction;
+    double gw_fraction;
 } wu_hist_struct;
 
 typedef struct {

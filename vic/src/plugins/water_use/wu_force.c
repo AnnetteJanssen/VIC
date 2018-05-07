@@ -84,6 +84,13 @@ wu_forcing(void)
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     wu_force[i][f].demand[j] = dvar[i];
                 }
+
+                get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
+                    "groundwater_fraction", d3start, d3count, dvar);
+                
+                for (i = 0; i < local_domain.ncells_active; i++) {
+                    wu_force[i][f].gw_fraction[j] = dvar[i];
+                }
             }
             
             // Average forcing data
@@ -94,7 +101,11 @@ wu_forcing(void)
             for (i = 0; i < local_domain.ncells_active; i++) {
                 wu_hist[i][f].demand = 
                         average(wu_force[i][f].demand, NF);
-            }        
+            }       
+            for (i = 0; i < local_domain.ncells_active; i++) {
+                wu_hist[i][f].gw_fraction = 
+                        average(wu_force[i][f].gw_fraction, NF);
+            }       
                 
             // Close forcing file if it is the last time step
             if (current == global_param.nrecs - 1) {

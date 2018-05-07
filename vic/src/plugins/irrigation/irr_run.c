@@ -247,6 +247,7 @@ irr_set_demand(size_t cur_cell)
     }
 
     wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0;
+    wu_hist[cur_cell][WU_IRRIGATION].gw_fraction = 0.0;
     wu_hist[cur_cell][WU_IRRIGATION].demand = total_demand / 
                 wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction /
                 MM_PER_M * local_domain.locations[cur_cell].area; 
@@ -307,7 +308,7 @@ irr_get_withdrawn(size_t cur_cell)
         // Calculate available as fraction of requirement
         fraction =  total_available / total_requirement;        
         if(fraction > 1.0){
-            if(abs(fraction - 1.0) > DBL_EPSILON){
+            if (fabs(fraction - 1.0) > DBL_EPSILON) {
                 log_err("Fraction is > 1.0 [%.3f]?", fraction);
             }
             fraction = 1.0;

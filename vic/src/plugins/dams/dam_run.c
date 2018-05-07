@@ -229,7 +229,7 @@ dam_discharge_correction(double prev_op_volume, double next_op_volume, double ma
     discharge_correction = 
             (volume - calc_volume) / (global_param.dt * 
             global_param.model_steps_per_day * DAYS_PER_WEEK);
-    if(abs(discharge_correction) > max_correction){
+    if(fabs(discharge_correction) > max_correction){
         if(discharge_correction > 0){
             discharge_correction = 
                     max_correction;
