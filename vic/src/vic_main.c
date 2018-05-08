@@ -147,6 +147,9 @@ main(int    argc,
         if(options.WATER_USE){
             wu_forcing();
         }
+        if(options.EFR){
+            efr_forcing();
+        }
         timer_stop(&(global_timers[TIMER_VIC_FORCE]));
 
         // run vic over the domain

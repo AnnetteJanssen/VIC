@@ -25,9 +25,9 @@ get_wu_forcing_files_info(size_t sector)
     // read time info from netcdf file
     get_nc_field_double(&(filenames.water_use_forcing[sector]), "time", &start, &count,
                         nc_times);
-    get_nc_var_attr(&(filenames.forcing[sector]), "time", "units",
+    get_nc_var_attr(&(filenames.water_use_forcing[sector]), "time", "units",
                     &nc_unit_chars);
-    get_nc_var_attr(&(filenames.forcing[sector]), "time", "calendar",
+    get_nc_var_attr(&(filenames.water_use_forcing[sector]), "time", "calendar",
                     &calendar_char);
 
     // parse the calendar string and check to make sure it matches the global clock
@@ -87,11 +87,11 @@ get_wu_forcing_files_info(size_t sector)
 
     // check that this forcing file will work
     if (force_step_per_day !=
-        global_param.snow_steps_per_day) {
-        log_err("Water use forcing file timestep must match the snow model timestep.  "
-                "Snow model timesteps per day is set to %zu and the forcing "
+        global_param.force_steps_per_day[0]) {
+        log_err("Water use forcing file timestep must match the force model timestep.  "
+                "Force model timesteps per day is set to %zu and the water use forcing "
                 "file timestep is set to %zu",
-                global_param.snow_steps_per_day,
+                global_param.force_steps_per_day[0],
                 force_step_per_day);
     }
     if (calendar != global_param.calendar) {

@@ -31,7 +31,6 @@ typedef struct {
 typedef struct {
     double storage;
     double *discharge;
-    double *nat_discharge;
 } rout_var_struct;
 
 void get_basins_routing(basin_struct *basins);

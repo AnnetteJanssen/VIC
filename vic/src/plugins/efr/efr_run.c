@@ -3,7 +3,7 @@
 #include "efr.h"
 
 double
-calc_efr(double ay_flow, double discharge)
+calc_efr_vfm(double ay_flow, double discharge)
 {
     /* Variable Monthly Flow (VMF) method (Pastor et al., 2014) */
     if(ay_flow > 0){
@@ -23,52 +23,76 @@ calc_efr(double ay_flow, double discharge)
 }
 
 void
+calc_efrs_vfm(double ay_flow, double *discharges, size_t length, double *efrs)
+{
+    size_t i;
+    
+    for (i = 0; i < length; i++) {
+        efrs[i] = calc_efr_vfm(ay_flow, discharges[i]);
+    }
+}
+
+void 
+efr_run_vfm(size_t cur_cell)
+{
+    extern efr_var_struct *efr_var;
+    extern efr_hist_struct *efr_hist;
+    extern gw_con_struct *gw_con;
+    extern all_vars_struct *all_vars;
+    extern veg_con_map_struct *veg_con_map;
+    extern elev_con_map_struct *elev_con_map;
+    extern option_struct options;
+    
+    size_t i;
+    size_t j;
+    size_t l;
+    
+    double baseflow;
+    
+    efr_var[cur_cell].requirement_flow = 
+            calc_efr_vfm(efr_hist[cur_cell].ay_discharge,
+                         efr_hist[cur_cell].discharge);
+    
+    l = options.Nlayer - 1;
+    for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+        for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+            baseflow = calc_efr_vfm(efr_hist[cur_cell].ay_baseflow,
+                                    efr_hist[cur_cell].baseflow);
+            
+            if (options.GROUNDWATER) {
+                // Based on groundwater baseflow formulation
+                efr_var[cur_cell].requirement_moist[i][j] = 
+                        log(baseflow / gw_con[cur_cell].Qb_max) /
+                        gw_con[cur_cell].Qb_expt +
+                        gw_con[cur_cell].Za_max;
+            }
+            else {
+                // Based on VIC baseflow formulation
+                
+                // For now assume that baseflow increases linear to max
+                // (instead of exponential as in non-linear baseflow)
+                // TODO: reverse engineer baseflow function in VIC
+
+                efr_var[cur_cell].requirement_moist[i][j] =
+                        (baseflow / all_vars[cur_cell].cell[i][j].baseflow) *
+                        all_vars[cur_cell].cell[i][j].layer[l].moist;
+            }
+        }
+    }
+}
+
+void
 efr_run(size_t cur_cell)
 {
-    extern dmy_struct *dmy;
-    extern size_t current;
-    extern efr_var_struct *efr_var;
-    extern rout_var_struct *rout_var;
+    extern option_struct options;
     
-    size_t years_running;
-    
-    if(current > 0 && dmy[current].month != dmy[current-1].month){
-        efr_var[cur_cell].months_running++;
-        if(efr_var[cur_cell].months_running > 
-                EFR_HIST_YEARS * MONTHS_PER_YEAR){
-            efr_var[cur_cell].months_running =
-                    EFR_HIST_YEARS * MONTHS_PER_YEAR;
-        }
-        
-        years_running = (size_t)(efr_var[cur_cell].months_running / 
-                MONTHS_PER_YEAR);
-        if(years_running > EFR_HIST_YEARS){
-            years_running = EFR_HIST_YEARS;
-        }
-        
-        // Shift array
-        efr_var[cur_cell].history_flow[EFR_HIST_YEARS * MONTHS_PER_YEAR - 1] = 0.0;
-        cshift(efr_var[cur_cell].history_flow, EFR_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
-        
-        // Store monthly average
-        efr_var[cur_cell].history_flow[0] =
-                efr_var[cur_cell].total_flow / 
-                efr_var[cur_cell].total_steps;
-        efr_var[cur_cell].total_flow = 0.0;
-        efr_var[cur_cell].total_steps = 0;        
-        
-        // Calculate multi-yearly averages
-        efr_var[cur_cell].ay_flow = 
-                array_average(efr_var[cur_cell].history_flow,
-                years_running, MONTHS_PER_YEAR, 0, 0);
-        efr_var[cur_cell].am_flow = 
-                array_average(efr_var[cur_cell].history_flow,
-                years_running, 1, 0, MONTHS_PER_YEAR - 1);
+    if (options.EFR_METHOD == EFR_METHOD_VFM) {
+        efr_run_vfm(cur_cell);
+    } 
+    else if (options.EFR_METHOD == EFR_METHOD_7Q10) {
+        log_err("EFR_METHOD 7Q10 not yet implemented...");
+    } 
+    else {
+        log_err("Unknown EFR_METHOD");
     }
-    
-    efr_var[cur_cell].total_flow += rout_var[cur_cell].nat_discharge[0];
-    efr_var[cur_cell].total_steps++;
-    
-    efr_var[cur_cell].requirement = calc_efr(efr_var[cur_cell].ay_flow, 
-            rout_var[cur_cell].nat_discharge[0]);
 }

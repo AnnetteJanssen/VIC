@@ -1,23 +1,35 @@
 #ifndef EFR_H
 #define EFR_H
 
-#define EFR_HIST_YEARS 3
+#define EFR_HIST_YEARS 1
 #define EFR_LOW_FLOW_FRAC 0.4
 #define EFR_LOW_DEMAND_FRAC 0.6
 #define EFR_HIGH_FLOW_FRAC 0.8
 #define EFR_HIGH_DEMAND_FRAC 0.3
 
+enum {
+    EFR_METHOD_VFM,
+    EFR_METHOD_7Q10,
+    EFR_NMETHODS
+};
+
 typedef struct {
-    double ay_flow;
-    double am_flow;
-    double history_flow[EFR_HIST_YEARS * MONTHS_PER_YEAR];
+    double *ay_discharge;
+    double *ay_baseflow;
+    double *discharge;
+    double *baseflow;
+} efr_force_struct;
 
-    double requirement;
+typedef struct {
+    double ay_discharge;
+    double ay_baseflow;
+    double discharge;
+    double baseflow;
+} efr_hist_struct;
 
-    double total_flow;
-    size_t total_steps;
-
-    size_t months_running;
+typedef struct {
+    double requirement_flow;
+    double **requirement_moist;
 } efr_var_struct;
 
 bool efr_get_global_parameters(char *cmdstr);
@@ -26,11 +38,14 @@ void efr_set_output_meta_data_info(void);
 void efr_set_state_meta_data_info(void);
 void efr_alloc(void);
 void initialize_efr_local_structures(void);
+void efr_forcing(void);
 void efr_run(size_t cur_cell);
 void efr_put_data(void);
 void efr_finalize(void);
 void efr_add_types(void);
 
 efr_var_struct *efr_var;
+efr_hist_struct *efr_hist;
+efr_force_struct *efr_force;
 
 #endif /* EFR_H */

@@ -360,7 +360,7 @@ dam_total(size_t cur_cell, size_t cur_dam)
     size_t k;
     
     dam_var[cur_cell][cur_dam].total_flow += 
-            rout_var[cur_cell].nat_discharge[0];
+            rout_var[cur_cell].discharge[0];
     
     if(options.IRRIGATION){
         for(i = 0; i < dam_con[cur_cell][cur_dam].nservice; i++){
@@ -522,9 +522,9 @@ dam_run(size_t cur_cell)
             // Consider EFR
             if(options.EFR){
                 if(dam_var[cur_cell][i].discharge <
-                        efr_var[cur_cell].requirement){
+                        efr_var[cur_cell].requirement_flow){
                     dam_var[cur_cell][i].discharge =
-                        efr_var[cur_cell].requirement;
+                        efr_var[cur_cell].requirement_flow;
                 }
             }  
             

@@ -710,6 +710,8 @@ typedef struct {
     char water_use_forcing_pfx[WU_NSECTORS][MAXSTRING];
     nameid_struct irrigation;
     nameid_struct dams;
+    nameid_struct efr_forcing;
+    char efr_forcing_pfx[MAXSTRING];
 } filenames_struct;
 
 double air_density(double t, double p);
