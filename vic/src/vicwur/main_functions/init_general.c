@@ -1030,8 +1030,8 @@ init_general(void)
                 sprint_location(locstr, &(local_domain.locations[i]));
                 log_warn("average band elevation %f not equal to grid_cell "
                          "average elevation %f; setting grid cell elevation "
-                         "to average band elevation.\n%s",
-                         mean, soil_con[i].elevation, locstr);
+                         "to average band elevation.",
+                         mean, soil_con[i].elevation);
                 soil_con[i].elevation = (double)mean;
             }
             // Tfactor: calculate the temperature factor

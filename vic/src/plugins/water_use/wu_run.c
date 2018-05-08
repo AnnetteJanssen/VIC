@@ -59,7 +59,7 @@ wu_run(size_t cur_cell)
             moist = malloc(veg_con_map[cur_cell].nv_active * sizeof(*moist));
             check_alloc_status(moist, "Memory allocation error.");
             for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
-                moist[i] = malloc(veg_con_map[cur_cell].nv_active * sizeof(*moist[i]));
+                moist[i] = malloc(elev_con_map[cur_cell].ne_active * sizeof(*moist[i]));
                 check_alloc_status(moist[i], "Memory allocation error.");
             }
         }
@@ -121,12 +121,12 @@ wu_run(size_t cur_cell)
             withdrawn_sec[i] += withdrawn;
             withdrawn_local[0] += withdrawn;
         }
-    }
     
-    fraction = withdrawn_local[0] / available_local[0];
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+        fraction = withdrawn_local[0] / available_local[0];
+        if(fraction > 1){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
+                    log_err("fraction > 1.0 [%.3f]?", fraction);
+            }
         }
     }
     
@@ -173,39 +173,39 @@ wu_run(size_t cur_cell)
             available_local[1] = available_local[1] / MM_PER_M * 
                     local_domain.locations[i].area;
         }
-    }
     
-    // Get groundwater demand
-    demand = 0.0;
-    for(i = 0; i < WU_NSECTORS; i++){
-        demand += wu_hist[cur_cell][i].demand * 
-                wu_hist[cur_cell][i].gw_fraction;
-    }
-    
-    // Calculate groundwater withdrawal
-    if(available_local[1] > 0 && demand > 0){
-        // Calculate fraction
-        fraction = available_local[1] / demand;
-        if(fraction >= 1){
-            fraction = 1.0;
-            satisfaction_local[1] = true;
+        // Get groundwater demand
+        demand = 0.0;
+        for(i = 0; i < WU_NSECTORS; i++){
+            demand += wu_hist[cur_cell][i].demand * 
+                    wu_hist[cur_cell][i].gw_fraction;
         }
 
-        for(i = 0; i < WU_NSECTORS; i++){
-            withdrawn = wu_hist[cur_cell][i].demand *
-                    wu_hist[cur_cell][i].gw_fraction *
-                    fraction;
-            
-            wu_var[cur_cell][i].demand -= withdrawn;
-            withdrawn_sec[i] += withdrawn;
-            withdrawn_local[1] += withdrawn;
-        }
-    }
-    
-    fraction = withdrawn_local[1] / available_local[1];
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+        // Calculate groundwater withdrawal
+        if(available_local[1] > 0 && demand > 0){
+            // Calculate fraction
+            fraction = available_local[1] / demand;
+            if(fraction >= 1){
+                fraction = 1.0;
+                satisfaction_local[1] = true;
+            }
+
+            for(i = 0; i < WU_NSECTORS; i++){
+                withdrawn = wu_hist[cur_cell][i].demand *
+                        wu_hist[cur_cell][i].gw_fraction *
+                        fraction;
+
+                wu_var[cur_cell][i].demand -= withdrawn;
+                withdrawn_sec[i] += withdrawn;
+                withdrawn_local[1] += withdrawn;
+            }
+
+            fraction = withdrawn_local[1] / available_local[1];
+            if(fraction > 1){
+                if(fabs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+            }
         }
     }
     
@@ -218,7 +218,7 @@ wu_run(size_t cur_cell)
     /**********************************************************************
     * 3. Remote abstractions
     **********************************************************************/
-    if(options.WU_REMOTE && satisfaction){
+    if(options.WU_REMOTE && !satisfaction){
         
         // Get availability
         available_remote = 0.0;
@@ -259,13 +259,13 @@ wu_run(size_t cur_cell)
             } else {
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
-        }
-    }
     
-    fraction = withdrawn_remote / available_remote;
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+            fraction = withdrawn_remote / available_remote;
+            if(fraction > 1.0){
+                if(fabs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+            }
         }
     }
     
@@ -312,19 +312,19 @@ wu_run(size_t cur_cell)
             } else {
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
-        }
-    }
     
-    fraction = withdrawn_local[0] / available_local[0];
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
-        }
-    }    
-    fraction = withdrawn_local[1] / available_local[1];
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+            fraction = withdrawn_local[0] / available_local[0];
+            if(fraction > 1){
+                if(fabs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+            }    
+            fraction = withdrawn_local[1] / available_local[1];
+            if(fraction > 1){
+                if(fabs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+            }
         }
     }
     
@@ -369,13 +369,13 @@ wu_run(size_t cur_cell)
             } else {
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
-        }
-    }
     
-    fraction = withdrawn_dam / available_dam;
-    if(fraction > 1){
-        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+            fraction = withdrawn_dam / available_dam;
+            if(fraction > 1){
+                if(fabs(fraction - 1.0) > DBL_EPSILON){
+                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                }
+            }
         }
     }
     
