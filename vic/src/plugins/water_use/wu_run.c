@@ -21,6 +21,7 @@ wu_run(size_t cur_cell)
     double ice;    
     
     double fraction;
+    double fraction2;
     double demand;
     double returned;
     
@@ -274,8 +275,8 @@ wu_run(size_t cur_cell)
     if(options.WU_GW && !satisfaction){ 
         
         // Get availability
-        available_subs = available_local[0] + available_local[1] -
-                         withdrawn_local[0] - withdrawn_local[1];
+        available_subs = (available_local[0] - withdrawn_local[0])  + 
+                (available_local[1] - withdrawn_local[1]);
         
         // Get demand
         demand = 0.0;
@@ -294,6 +295,9 @@ wu_run(size_t cur_cell)
                     satisfaction = true;
                 }
                 
+                fraction2 = (available_local[0] - withdrawn_local[0]) /
+                             available_subs;
+                
                 // Calculate withdrawal
                 for(i = 0; i < WU_NSECTORS; i++){
                     withdrawn = wu_var[cur_cell][i].demand * fraction;
@@ -302,13 +306,8 @@ wu_run(size_t cur_cell)
                     withdrawn_sec[i] += withdrawn;
                     
                     // Dived substitute irrigation over surface- and groundwater
-                    if (available_local[0] - withdrawn_local[0] > 
-                            available_local[1] - withdrawn_local[1]) {
-                        withdrawn_local[0] += withdrawn;
-                    }
-                    else {                        
-                        withdrawn_local[1] += withdrawn;
-                    }
+                    withdrawn_local[0] += withdrawn * fraction2;                 
+                    withdrawn_local[1] += withdrawn * (1 - fraction2);
                 }
             } else {
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
