@@ -43,6 +43,7 @@ efr_run_vfm(size_t cur_cell)
     extern elev_con_map_struct *elev_con_map;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
+    extern global_param_struct global_param;
     extern option_struct options;
     
     double frac;
@@ -58,6 +59,7 @@ efr_run_vfm(size_t cur_cell)
     double rel_liq;
     double res_moist;
     double max_moist;
+    double dsmax;
     double bflow;
     
     efr_var[cur_cell].requirement_discharge = 
@@ -86,6 +88,7 @@ efr_run_vfm(size_t cur_cell)
                     soil_con[cur_cell].depth[l] * 
                     MM_PER_M;
         max_moist = soil_con[cur_cell].max_moist[l];
+        dsmax = soil_con[cur_cell].Dsmax / global_param.model_steps_per_day;
 
         for (frac = 1.0; frac >= 0.0; frac -= EFR_FRAC_STEP){
             calculated_baseflow = 0.0;
@@ -101,10 +104,21 @@ efr_run_vfm(size_t cur_cell)
                                 soil_con[cur_cell].frost_fract[k];
                     }
                     liq = moist - ice;
+                    liq *= frac;
 
                     rel_liq = (liq - res_moist) / (max_moist - res_moist);
-                    bflow = rel_liq * soil_con[cur_cell].Dsmax * 
-                            soil_con[cur_cell].Ds / soil_con[cur_cell].Ws;
+                    bflow = rel_liq * dsmax * soil_con[cur_cell].Ds / 
+                            soil_con[cur_cell].Ws;
+                    
+                    if (rel_liq > soil_con->Ws) {
+                        bflow += dsmax * (1 - soil_con->Ds / soil_con->Ws) * 
+                            pow((rel_liq - soil_con->Ws) / (1 - soil_con->Ws), 
+                                    soil_con->c);
+                    }
+                    
+                    if(bflow < 0){
+                        bflow = 0.0;
+                    }
 
                     calculated_baseflow += bflow * 
                                            veg_con[cur_cell][i].Cv * 
@@ -121,7 +135,11 @@ efr_run_vfm(size_t cur_cell)
                 break;
             }
         }
-    
+        
+        if(frac < 0){
+            frac = 0.0;
+        }
+        
         for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
             for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
                 moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
