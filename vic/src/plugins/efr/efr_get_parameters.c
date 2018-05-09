@@ -52,9 +52,9 @@ get_efr_forcing_files_info()
             forcemonth != global_param.forcemonth[0] ||
             forceday != global_param.forceday[0] ||
             forcesecond != global_param.forcesec[0]){
-        log_err("Water use forcing file time must match the forcing file time.  "
+        log_err("Efr forcing file time must match the forcing file time.  "
                 "Forcing file time is set to %04hu-%02hu-%02hu : %hu "
-                "[year-month-day : seconds] and the water use forcing "
+                "[year-month-day : seconds] and the efr forcing "
                 "file time is set to  %04hu-%02hu-%02hu : %hu "
                 "[year-month-day : seconds]",
                 global_param.forceyear[0],
@@ -124,7 +124,7 @@ efr_get_global_parameters(char *cmdstr)
         options.EFR = str_to_bool(flgstr);
     }
     else if (strcasecmp("EFR_FORCING_FILE", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", filenames.efr_forcing.nc_filename);
+        sscanf(cmdstr, "%*s %s", filenames.efr_forcing_pfx);
     }
     else if (strcasecmp("EFR_METHOD", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", method);

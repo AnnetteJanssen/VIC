@@ -69,7 +69,7 @@ wu_forcing(void)
             // Get forcing data
             for (j = 0; j < NF; j++) {
                 d3start[0] = global_param.forceskip[0] +
-                             global_param.forceoffset[0] + j;
+                             global_param.forceoffset[0] + j - 1;
 
                 get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
                     "consumption_fraction", d3start, d3count, dvar);

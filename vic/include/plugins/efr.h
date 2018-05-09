@@ -2,10 +2,11 @@
 #define EFR_H
 
 #define EFR_HIST_YEARS 1
-#define EFR_LOW_FLOW_FRAC 0.4
-#define EFR_LOW_DEMAND_FRAC 0.6
-#define EFR_HIGH_FLOW_FRAC 0.8
-#define EFR_HIGH_DEMAND_FRAC 0.3
+#define EFR_FRAC_STEP 0.05
+#define VFM_LOW_FLOW_FRAC 0.4
+#define VFM_LOW_DEMAND_FRAC 0.6
+#define VFM_HIGH_FLOW_FRAC 0.8
+#define VFM_HIGH_DEMAND_FRAC 0.3
 
 enum {
     EFR_METHOD_VFM,
@@ -28,7 +29,8 @@ typedef struct {
 } efr_hist_struct;
 
 typedef struct {
-    double requirement_flow;
+    double requirement_discharge;
+    double requirement_baseflow;
     double **requirement_moist;
 } efr_var_struct;
 

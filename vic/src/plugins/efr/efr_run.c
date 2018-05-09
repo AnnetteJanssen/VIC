@@ -7,15 +7,15 @@ calc_efr_vfm(double ay_flow, double discharge)
 {
     /* Variable Monthly Flow (VMF) method (Pastor et al., 2014) */
     if(ay_flow > 0){
-        if(discharge < ay_flow * EFR_LOW_FLOW_FRAC){
-            return  discharge * EFR_LOW_DEMAND_FRAC;
-        }else if(discharge > ay_flow * EFR_HIGH_FLOW_FRAC){
-            return discharge * EFR_HIGH_DEMAND_FRAC;
+        if(discharge < ay_flow * VFM_LOW_FLOW_FRAC){
+            return  discharge * VFM_LOW_DEMAND_FRAC;
+        }else if(discharge > ay_flow * VFM_HIGH_FLOW_FRAC){
+            return discharge * VFM_HIGH_DEMAND_FRAC;
         }else{
             return discharge * linear_interp(discharge,
-                    ay_flow * EFR_LOW_FLOW_FRAC,
-                    ay_flow * EFR_HIGH_FLOW_FRAC,
-                    EFR_LOW_DEMAND_FRAC, EFR_HIGH_DEMAND_FRAC);
+                    ay_flow * VFM_LOW_FLOW_FRAC,
+                    ay_flow * VFM_HIGH_FLOW_FRAC,
+                    VFM_LOW_DEMAND_FRAC, VFM_HIGH_DEMAND_FRAC);
         }    
     }else{
         return 0.0;
@@ -41,41 +41,100 @@ efr_run_vfm(size_t cur_cell)
     extern all_vars_struct *all_vars;
     extern veg_con_map_struct *veg_con_map;
     extern elev_con_map_struct *elev_con_map;
+    extern soil_con_struct *soil_con;
+    extern veg_con_struct **veg_con;
     extern option_struct options;
     
+    double frac;
     size_t i;
     size_t j;
     size_t l;
+    size_t k;
     
-    double baseflow;
+    double calculated_baseflow;
+    double moist;
+    double liq;
+    double ice;
+    double rel_liq;
+    double res_moist;
+    double max_moist;
+    double bflow;
     
-    efr_var[cur_cell].requirement_flow = 
+    efr_var[cur_cell].requirement_discharge = 
             calc_efr_vfm(efr_hist[cur_cell].ay_discharge,
                          efr_hist[cur_cell].discharge);
     
-    l = options.Nlayer - 1;
-    for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-        for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-            baseflow = calc_efr_vfm(efr_hist[cur_cell].ay_baseflow,
-                                    efr_hist[cur_cell].baseflow);
-            
-            if (options.GROUNDWATER) {
+    efr_var[cur_cell].requirement_baseflow = 
+            calc_efr_vfm(efr_hist[cur_cell].ay_baseflow,
+                         efr_hist[cur_cell].baseflow);
+                
+    if (options.GROUNDWATER) {
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
                 // Based on groundwater baseflow formulation
                 efr_var[cur_cell].requirement_moist[i][j] = 
-                        log(baseflow / gw_con[cur_cell].Qb_max) /
+                        log(efr_var[cur_cell].requirement_baseflow / 
+                            gw_con[cur_cell].Qb_max) /
                         gw_con[cur_cell].Qb_expt +
                         gw_con[cur_cell].Za_max;
             }
-            else {
-                // Based on VIC baseflow formulation
-                
-                // For now assume that baseflow increases linear to max
-                // (instead of exponential as in non-linear baseflow)
-                // TODO: reverse engineer baseflow function in VIC
+        }
+    }
+    else {
+        l = options.Nlayer - 1;
+        res_moist = soil_con[cur_cell].resid_moist[l] * 
+                    soil_con[cur_cell].depth[l] * 
+                    MM_PER_M;
+        max_moist = soil_con[cur_cell].max_moist[l];
 
-                efr_var[cur_cell].requirement_moist[i][j] =
-                        (baseflow / all_vars[cur_cell].cell[i][j].baseflow) *
-                        all_vars[cur_cell].cell[i][j].layer[l].moist;
+        for (frac = 1.0; frac >= 0.0; frac -= EFR_FRAC_STEP){
+            calculated_baseflow = 0.0;
+
+            for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+                for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                    // Based on VIC baseflow formulation
+                    moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
+
+                    ice = 0.0;
+                    for (k = 0; k < options.Nfrost; k++){
+                        ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
+                                soil_con[cur_cell].frost_fract[k];
+                    }
+                    liq = moist - ice;
+
+                    rel_liq = (liq - res_moist) / (max_moist - res_moist);
+                    bflow = rel_liq * soil_con[cur_cell].Dsmax * 
+                            soil_con[cur_cell].Ds / soil_con[cur_cell].Ws;
+
+                    calculated_baseflow += bflow * 
+                                           veg_con[cur_cell][i].Cv * 
+                                           soil_con[cur_cell].AreaFract[j];
+                }
+            }
+
+            if(calculated_baseflow < efr_var[cur_cell].requirement_baseflow){
+                frac += EFR_FRAC_STEP;
+                if(frac > 1.0){
+                    frac = 1.0;
+                }
+
+                break;
+            }
+        }
+    
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
+
+                ice = 0.0;
+                for (k = 0; k < options.Nfrost; k++){
+                    ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
+                            soil_con[cur_cell].frost_fract[k];
+                }
+                liq = moist - ice;
+                
+                efr_var[cur_cell].requirement_moist[i][j] = liq * frac;
+                        
             }
         }
     }

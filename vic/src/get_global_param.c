@@ -554,25 +554,6 @@ get_global_param(FILE *gp)
     /******************************************
        Check for undefined required parameters
     ******************************************/
-    if (options.DAMS) {
-        dam_validate_global_parameters();
-    }
-    if (options.ROUTING) {
-        rout_validate_global_parameters();
-    }
-    if (options.EFR) {
-        efr_validate_global_parameters();
-    }
-    if (options.WATER_USE) {
-        wu_validate_global_parameters();
-    }
-    if (options.IRRIGATION) {
-        irr_validate_global_parameters();
-    }
-    if (options.GROUNDWATER) {
-        gw_validate_global_parameters();
-    }
-
     // Validate model time step
     if (global_param.model_steps_per_day == 0) {
         log_err("Model time steps per day has not been defined.  Make sure "
@@ -1021,6 +1002,25 @@ get_global_param(FILE *gp)
     // Default file formats (if unset)
     if (options.SAVE_STATE && options.STATE_FORMAT == UNSET_FILE_FORMAT) {
         options.STATE_FORMAT = NETCDF4_CLASSIC;
+    }
+    
+    if (options.DAMS) {
+        dam_validate_global_parameters();
+    }
+    if (options.ROUTING) {
+        rout_validate_global_parameters();
+    }
+    if (options.EFR) {
+        efr_validate_global_parameters();
+    }
+    if (options.WATER_USE) {
+        wu_validate_global_parameters();
+    }
+    if (options.IRRIGATION) {
+        irr_validate_global_parameters();
+    }
+    if (options.GROUNDWATER) {
+        gw_validate_global_parameters();
     }
 
     /*********************************

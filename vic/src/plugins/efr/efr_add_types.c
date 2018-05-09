@@ -37,7 +37,8 @@ efr_add_types(void)
     extern int   N_OUTVAR_TYPES_ALL;
 
     // add outvar_types
-    outvar_types = list_prepend(outvar_types, "OUT_EFR_REQUIREMENT");
+    outvar_types = list_prepend(outvar_types, "OUT_EFR_DIS_REQ");
+    outvar_types = list_prepend(outvar_types, "OUT_EFR_BASE_REQ");
 
     outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
     N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;

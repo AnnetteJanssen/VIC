@@ -18,6 +18,8 @@ efr_forcing(void)
     
     double *dvar;
     
+    size_t  d2count[2];
+    size_t  d2start[2];
     size_t  d3count[3];
     size_t  d3start[3];
     
@@ -39,7 +41,8 @@ efr_forcing(void)
                             filenames.efr_forcing.nc_filename);
         }
     // Open forcing file if it is a new year
-    }else if (current > 0 && dmy[current].year != dmy[current - 1].year) {
+    }
+    else if (current > 0 && dmy[current].year != dmy[current - 1].year) {
         if (mpi_rank == VIC_MPI_ROOT) {            
             // close previous forcing file
             status = nc_close(filenames.efr_forcing.nc_id);
@@ -61,21 +64,26 @@ efr_forcing(void)
     d3count[0] = 1;
     d3count[1] = global_domain.n_ny;
     d3count[2] = global_domain.n_nx;
+    
+    d2start[0] = 0;
+    d2start[1] = 0;
+    d2count[0] = global_domain.n_ny;
+    d2count[1] = global_domain.n_nx;
 
     // Get forcing data
     for (j = 0; j < NF; j++) {
         d3start[0] = global_param.forceskip[0] +
-                     global_param.forceoffset[0] + j;
+                     global_param.forceoffset[0] + j - 1;
 
         get_scatter_nc_field_double(&(filenames.efr_forcing), 
-            "ay_discharge", d3start, d3count, dvar);
+            "ay_discharge", d2start, d2count, dvar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
             efr_force[i].ay_discharge[j] = dvar[i];
         }
 
         get_scatter_nc_field_double(&(filenames.efr_forcing), 
-            "ay_baseflow", d3start, d3count, dvar);
+            "ay_baseflow", d2start, d2count, dvar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
             efr_force[i].ay_baseflow[j] = dvar[i];

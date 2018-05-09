@@ -38,7 +38,8 @@ initialize_efr_var(efr_var_struct *efr_var, size_t nveg, size_t nelev)
         }
     }
     
-    efr_var->requirement_flow = 0.0;
+    efr_var->requirement_discharge = 0.0;
+    efr_var->requirement_baseflow = 0.0;
 }
 
 void

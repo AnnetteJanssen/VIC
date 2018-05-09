@@ -119,7 +119,7 @@ dam_get_operation_flo(double ay_flow,
     size_t i;    
     
     // Set operational discharge
-    for(amplitude = EFR_HIGH_DEMAND_FRAC; amplitude < 1; amplitude += DAM_AMP_STEP){
+    for(amplitude = VFM_HIGH_DEMAND_FRAC; amplitude < 1; amplitude += DAM_AMP_STEP){
         dam_calc_year_discharge(ay_flow, am_flow, amplitude, 0.0, op_discharge);
         
         volume_needed = 0.0;
@@ -522,9 +522,9 @@ dam_run(size_t cur_cell)
             // Consider EFR
             if(options.EFR){
                 if(dam_var[cur_cell][i].discharge <
-                        efr_var[cur_cell].requirement_flow){
+                        efr_var[cur_cell].requirement_discharge){
                     dam_var[cur_cell][i].discharge =
-                        efr_var[cur_cell].requirement_flow;
+                        efr_var[cur_cell].requirement_discharge;
                 }
             }  
             
