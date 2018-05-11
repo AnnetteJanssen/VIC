@@ -103,7 +103,7 @@ wu_run(size_t cur_cell)
     * 1. Local surface water abstractions
     **********************************************************************/
     // Get surface water availability
-    available_local[0] += rout_var[cur_cell].discharge[0] * global_param.dt; 
+    available_local[0] = rout_var[cur_cell].discharge[0] * global_param.dt; 
     
     if(options.EFR){
         available_local[0] -= efr_var[cur_cell].requirement_discharge 
