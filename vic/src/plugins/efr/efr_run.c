@@ -74,6 +74,7 @@ efr_run_vfm(size_t cur_cell)
         for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
             for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
                 // Based on groundwater baseflow formulation
+                // TODO: change!
                 efr_var[cur_cell].requirement_moist[i][j] = 
                         log(efr_var[cur_cell].requirement_baseflow / 
                             gw_con[cur_cell].Qb_max) /
@@ -104,9 +105,8 @@ efr_run_vfm(size_t cur_cell)
                                 soil_con[cur_cell].frost_fract[k];
                     }
                     liq = moist - ice;
-                    liq *= frac;
 
-                    rel_liq = (liq - res_moist) / (max_moist - res_moist);
+                    rel_liq = (liq * frac - res_moist) / (max_moist - res_moist);
                     bflow = rel_liq * dsmax * soil_con[cur_cell].Ds / 
                             soil_con[cur_cell].Ws;
                     

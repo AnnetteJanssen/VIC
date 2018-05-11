@@ -15,8 +15,10 @@ wu_run(size_t cur_cell)
     extern elev_con_map_struct *elev_con_map;
     extern veg_con_map_struct *veg_con_map;
     extern veg_con_struct **veg_con;
+    extern efr_var_struct *efr_var;
     
-    double **moist;
+    double liq;
+    double moist;
     double resid_moist;
     double ice;    
     
@@ -28,9 +30,12 @@ wu_run(size_t cur_cell)
     bool satisfaction;
     bool satisfaction_local[2]; /* [0] surface water [1] groundwater */
     
+    double **available_moist;
     double available_local[2];  /* [0] surface water [1] groundwater */
     double available_subs;
+    double *available_receiving;
     double available_remote;
+    double *available_servicing;
     double available_dam;
     
     double withdrawn;
@@ -56,13 +61,21 @@ wu_run(size_t cur_cell)
     // Allocate    
     if (options.WU_GW) {
         if(!options.GROUNDWATER){
-            moist = malloc(veg_con_map[cur_cell].nv_active * sizeof(*moist));
-            check_alloc_status(moist, "Memory allocation error.");
+            available_moist = malloc(veg_con_map[cur_cell].nv_active * sizeof(*available_moist));
+            check_alloc_status(available_moist, "Memory allocation error.");
             for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
-                moist[i] = malloc(elev_con_map[cur_cell].ne_active * sizeof(*moist[i]));
-                check_alloc_status(moist[i], "Memory allocation error.");
+                available_moist[i] = malloc(elev_con_map[cur_cell].ne_active * sizeof(*available_moist[i]));
+                check_alloc_status(available_moist[i], "Memory allocation error.");
             }
         }
+    }
+    if (options.WU_REMOTE) {
+        available_receiving = malloc(wu_con[cur_cell].nreceiving * sizeof(*available_receiving));
+        check_alloc_status(available_receiving, "Memory allocation error.");
+    }
+    if (options.WU_DAM) {
+        available_servicing = malloc(wu_con[cur_cell].nservice * sizeof(*available_servicing));
+        check_alloc_status(available_servicing, "Memory allocation error.");
     }
     
     // Initialize withdrawal since this determines the abstraction
@@ -90,10 +103,14 @@ wu_run(size_t cur_cell)
     * 1. Local surface water abstractions
     **********************************************************************/
     // Get surface water availability
-    available_local[0] = 0.0;
-    for(i = 0; i < options.RIRF_NSTEPS; i++){
-        available_local[0] += rout_var[cur_cell].discharge[i] * 
-            global_param.dt;
+    available_local[0] += rout_var[cur_cell].discharge[0] * global_param.dt; 
+    
+    if(options.EFR){
+        available_local[0] -= efr_var[cur_cell].requirement_discharge 
+                * global_param.dt;
+        if(available_local[0] < 0.0){
+            available_local[0] = 0.0;
+        }
     }
     
     // Get surface water demand
@@ -105,28 +122,36 @@ wu_run(size_t cur_cell)
     
     // Calculate surface water withdrawal
     if(available_local[0] > 0 && demand > 0){
-        // Calculate fraction
-        fraction = available_local[0] / demand;
-        if(fraction >= 1){
-            fraction = 1.0;
-            satisfaction_local[0] = true;
-        }
-
-        for(i = 0; i < WU_NSECTORS; i++){
-            withdrawn = wu_hist[cur_cell][i].demand *
-                    (1 - wu_hist[cur_cell][i].gw_fraction) *
-                    fraction;
-
-            wu_var[cur_cell][i].demand -= withdrawn;            
-            withdrawn_sec[i] += withdrawn;
-            withdrawn_local[0] += withdrawn;
-        }
-    
-        fraction = withdrawn_local[0] / available_local[0];
-        if(fraction > 1){
-            if(fabs(fraction - 1.0) > DBL_EPSILON){
-                    log_err("fraction > 1.0 [%.3f]?", fraction);
+        if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+            // Calculate fraction
+            fraction = available_local[0] / demand;
+            if(fraction >= 1){
+                fraction = 1.0;
+                satisfaction_local[0] = true;
             }
+
+            // Withdrawal as fraction of demand
+            for(i = 0; i < WU_NSECTORS; i++){
+                withdrawn = wu_hist[cur_cell][i].demand *
+                        (1 - wu_hist[cur_cell][i].gw_fraction) *
+                        fraction;
+
+                wu_var[cur_cell][i].demand -= withdrawn;            
+                withdrawn_sec[i] += withdrawn;
+                withdrawn_local[0] += withdrawn;
+            }
+        }
+        else {
+            log_err("WU_STRATEGY PRIORITY has not been implemented yet");
+        }
+
+        // Calculate fraction
+        fraction = withdrawn_local[0] / available_local[0];
+        if(fraction > 1.0){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
+                log_err("fraction > 1.0 [%.3f]?", fraction);
+            }
+            withdrawn_local[0] = available_local[0];
         }
     }
     
@@ -148,30 +173,32 @@ wu_run(size_t cur_cell)
 
             for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
                 for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
-                    moist[i][j] = cell[i][j].layer[l].moist;
+                    moist = cell[i][j].layer[l].moist;
 
-                    if(moist[i][j] > resid_moist){
-                        ice = 0.0;            
-                        for(k = 0; k < options.Nfrost; k++){
-                            ice += cell[i][j].layer[l].ice[k] *
-                                   soil_con[cur_cell].frost_fract[k];
-                        }
-
-                        moist[i][j] = min(moist[i][j] - ice, 
-                                          moist[i][j] - resid_moist);
+                    ice = 0.0;            
+                    for(k = 0; k < options.Nfrost; k++){
+                        ice += cell[i][j].layer[l].ice[k] *
+                               soil_con[cur_cell].frost_fract[k];
                     }
-                    else {
-                        moist[i][j] = 0.0;
+                    liq = moist - ice;
+                    
+                    available_moist[i][j] = liq;                    
+                    if(options.EFR){
+                        available_moist[i][j] -= efr_var[cur_cell].requirement_moist[i][j];
                     }
-
-                    available_local[1] += moist[i][j]  * 
-                                          soil_con[cur_cell].AreaFract[j] * 
-                                          veg_con[cur_cell][i].Cv;
+                    
+                    available_moist[i][j] = min(available_moist[i][j], moist - resid_moist);
+                    if(available_moist[i][j] < 0.0){
+                        available_moist[i][j] = 0.0;
+                    }
+                    
+                    available_moist[i][j] *= (local_domain.locations[i].area * 
+                                        soil_con[cur_cell].AreaFract[j] * 
+                                        veg_con[cur_cell][i].Cv) / 
+                                        MM_PER_M;                    
+                    available_local[1] += available_moist[i][j];
                 }
             }
-            
-            available_local[1] = available_local[1] / MM_PER_M * 
-                    local_domain.locations[i].area;
         }
     
         // Get groundwater demand
@@ -183,28 +210,35 @@ wu_run(size_t cur_cell)
 
         // Calculate groundwater withdrawal
         if(available_local[1] > 0 && demand > 0){
-            // Calculate fraction
-            fraction = available_local[1] / demand;
-            if(fraction >= 1){
-                fraction = 1.0;
-                satisfaction_local[1] = true;
+            if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+                // Calculate fraction
+                fraction = available_local[1] / demand;
+                if(fraction >= 1){
+                    fraction = 1.0;
+                    satisfaction_local[1] = true;
+                }
+                
+                // Withdrawal as fraction of demand
+                for(i = 0; i < WU_NSECTORS; i++){
+                    withdrawn = wu_hist[cur_cell][i].demand *
+                            wu_hist[cur_cell][i].gw_fraction *
+                            fraction;
+
+                    wu_var[cur_cell][i].demand -= withdrawn;
+                    withdrawn_sec[i] += withdrawn;
+                    withdrawn_local[1] += withdrawn;
+                }
             }
-
-            for(i = 0; i < WU_NSECTORS; i++){
-                withdrawn = wu_hist[cur_cell][i].demand *
-                        wu_hist[cur_cell][i].gw_fraction *
-                        fraction;
-
-                wu_var[cur_cell][i].demand -= withdrawn;
-                withdrawn_sec[i] += withdrawn;
-                withdrawn_local[1] += withdrawn;
+            else {
+                log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
 
             fraction = withdrawn_local[1] / available_local[1];
-            if(fraction > 1){
+            if(fraction > 1.0){
                 if(fabs(fraction - 1.0) > DBL_EPSILON){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                    log_err("fraction > 1.0 [%.3f]?", fraction);
                 }
+                withdrawn_local[1] = available_local[1];
             }
         }
     }
@@ -225,10 +259,18 @@ wu_run(size_t cur_cell)
         for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
             rec_cell = wu_con[cur_cell].receiving[i];
                  
-            for(j = 0; j < options.RIRF_NSTEPS; j++){
-                available_remote += rout_var[rec_cell].discharge[j] * 
-                        global_param.dt;
+            available_receiving[i] = rout_var[rec_cell].discharge[0] * 
+                    global_param.dt;
+            
+            if(options.EFR){
+                available_receiving[i] -= efr_var[rec_cell].requirement_discharge 
+                        * global_param.dt;
+                if(available_receiving[i] < 0.0){
+                    available_receiving[i] = 0.0;
+                }
             }
+            
+            available_remote += available_receiving[i];
         }
 
         // Get demand
@@ -265,6 +307,7 @@ wu_run(size_t cur_cell)
                 if(fabs(fraction - 1.0) > DBL_EPSILON){
                         log_err("fraction > 1.0 [%.3f]?", fraction);
                 }
+                withdrawn_remote = available_remote;
             }
         }
     }
@@ -318,12 +361,14 @@ wu_run(size_t cur_cell)
                 if(fabs(fraction - 1.0) > DBL_EPSILON){
                         log_err("fraction > 1.0 [%.3f]?", fraction);
                 }
+                withdrawn_local[0] = available_local[0];
             }    
             fraction = withdrawn_local[1] / available_local[1];
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON){
                         log_err("fraction > 1.0 [%.3f]?", fraction);
                 }
+                withdrawn_local[1] = available_local[1];
             }
         }
     }
@@ -338,8 +383,9 @@ wu_run(size_t cur_cell)
         for(i = 0; i < wu_con[cur_cell].nservice; i++){
             ser_cell = wu_con[cur_cell].service[i];
             ser_idx = wu_con[cur_cell].service_idx[i];
-                             
-            available_dam += dam_var[ser_cell][ser_idx].volume;
+            
+            available_servicing[i] = dam_var[ser_cell][ser_idx].volume;
+            available_dam += available_servicing[i];
         }
 
         // Get demand
@@ -375,6 +421,7 @@ wu_run(size_t cur_cell)
                 if(fabs(fraction - 1.0) > DBL_EPSILON){
                         log_err("fraction > 1.0 [%.3f]?", fraction);
                 }
+                withdrawn_dam = available_dam;
             }
         }
     }
@@ -397,32 +444,19 @@ wu_run(size_t cur_cell)
     /**********************************************************************
     * 5. Actual withdrawal
     **********************************************************************/
-    // Calculate reduction and return flow        
-    if (withdrawn_local[0] > 0.0) {        
-        // Calculate fraction
-        fraction = (withdrawn_local[0] - returned) / available_local[0];
-        if(fraction > 1.0){
-            fraction = 1.0;
-        }
-
+    // Calculate reduction and return flow  
+    if (withdrawn_local[0] > 0.0) {
         // Modify discharge
-        for(i = 0; i < options.RIRF_NSTEPS; i++){
-            rout_var[cur_cell].discharge[i] *= 1 - fraction;
+        withdrawn = withdrawn_local[0] - returned;
+        withdrawn /= global_param.dt;
+        
+        rout_var[cur_cell].discharge[0] -= withdrawn;
+        if(rout_var[cur_cell].discharge[0] < 0.0){
+            rout_var[cur_cell].discharge[0] = 0.0;
         }
     }
         
-    if (withdrawn_local[1] > 0.0) {        
-        // Calculate fraction
-        fraction = withdrawn_local[1] / available_local[1];
-        if(fraction > 1.0){
-            fraction = 1.0;
-        }
-        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-                moist[i][j] *= fraction;                    
-            }
-        }
-
+    if (withdrawn_local[1] > 0.0) {
         // Modify groundwater
         if (options.GROUNDWATER) {
             log_err("GROUNDWATER WATER USE is not yet implemented for GROUNDWATER");
@@ -430,52 +464,55 @@ wu_run(size_t cur_cell)
         else {
             for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
                 for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-                    // Calculate fraction
-                    fraction = (cell[i][j].layer[l].moist - moist[i][j]) / 
-                            resid_moist;                        
-                    if(fraction < 1.0 && moist[i][j] > 0){
-                        if(fabs(fraction - 1.0) > DBL_EPSILON){
-                            log_err("fraction < 1.0 [%.3f]?", fraction);
+                    if(available_moist[i][j] > 0.0){
+                        withdrawn = withdrawn_local[1] * 
+                                    (available_moist[i][j] / available_local[1]);
+                        withdrawn *= MM_PER_M /
+                                    (local_domain.locations[i].area *
+                                    soil_con[cur_cell].AreaFract[j] *
+                                    veg_con[cur_cell][i].Cv);
+                        
+                        cell[i][j].layer[l].moist -= withdrawn;
+                        if(cell[i][j].layer[l].moist < resid_moist){
+                            cell[i][j].layer[l].moist = resid_moist;
                         }
-                        fraction = 1.0;
                     }
-
-                    cell[i][j].layer[l].moist = resid_moist * fraction;
                 }    
             }
         }
     }
     
-    if(withdrawn_remote > 0){        
-        // Calculate fraction
-        fraction = withdrawn_remote / available_remote;
-        if(fraction > 1.0){
-            fraction = 1.0;
-        }
-        
+    if(withdrawn_remote > 0){
         // Modify discharge
         for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
             rec_cell = wu_con[cur_cell].receiving[i];
             
-            for(j = 0; j < options.RIRF_NSTEPS; j++){
-                rout_var[rec_cell].discharge[j] *= 1 - fraction;
+            if (available_receiving[i] > 0) {
+                withdrawn = withdrawn_remote *
+                            (available_receiving[i] / available_remote);
+                withdrawn /= global_param.dt;
+
+                rout_var[rec_cell].discharge[0] -= withdrawn;
+                if(rout_var[rec_cell].discharge[0] < 0.0){
+                    rout_var[rec_cell].discharge[0] = 0.0;
+                }
             }
         }
     }
     
-    if(withdrawn_dam > 0){        
-        // Calculate fraction
-        fraction = withdrawn_dam / available_dam;
-        if(fraction > 1.0){
-            fraction = 1.0;
-        }
-        
+    if(withdrawn_dam > 0){
         // Modify volume
         for(i = 0; i < wu_con[cur_cell].nservice; i++){
             ser_cell = wu_con[cur_cell].service[i];
             ser_idx = wu_con[cur_cell].service_idx[i];
             
-            dam_var[ser_cell][ser_idx].volume *= 1 - fraction;
+            withdrawn = withdrawn_dam *
+                        (available_servicing[i] / available_dam);
+            
+            dam_var[ser_cell][ser_idx].volume -= withdrawn;
+            if(dam_var[ser_cell][ser_idx].volume < 0.0){
+                dam_var[ser_cell][ser_idx].volume = 0.0;
+            }
         }
     }
     
@@ -485,9 +522,15 @@ wu_run(size_t cur_cell)
     if (options.WU_GW) {
         if (!options.GROUNDWATER) {
             for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-                free(moist[i]);
+                free(available_moist[i]);
             }
-            free(moist);
+            free(available_moist);
         }
+    }
+    if (options.WU_REMOTE) {
+        free(available_receiving);
+    }
+    if (options.WU_DAM) {
+        free(available_servicing);
     }
 }
