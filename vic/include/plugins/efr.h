@@ -15,22 +15,16 @@ enum {
 };
 
 typedef struct {
-    double *ay_discharge;
-    double *ay_baseflow;
-    double *discharge;
-    double *baseflow;
+    double *requirement_discharge;
+    double *requirement_baseflow;
 } efr_force_struct;
-
-typedef struct {
-    double ay_discharge;
-    double ay_baseflow;
-    double discharge;
-    double baseflow;
-} efr_hist_struct;
 
 typedef struct {
     double requirement_discharge;
     double requirement_baseflow;
+} efr_hist_struct;
+
+typedef struct {
     double **requirement_moist;
 } efr_var_struct;
 

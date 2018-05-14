@@ -400,7 +400,7 @@ dam_run(size_t cur_cell)
     extern option_struct options;
     extern dam_var_struct **dam_var;
     extern rout_var_struct *rout_var;
-    extern efr_var_struct *efr_var;
+    extern efr_hist_struct *efr_hist;
     extern dam_con_map_struct *dam_con_map;
     extern dam_con_struct **dam_con;
     
@@ -522,9 +522,9 @@ dam_run(size_t cur_cell)
             // Consider EFR
             if(options.EFR){
                 if(dam_var[cur_cell][i].discharge <
-                        efr_var[cur_cell].requirement_discharge){
+                        efr_hist[cur_cell].requirement_discharge){
                     dam_var[cur_cell][i].discharge =
-                        efr_var[cur_cell].requirement_discharge;
+                        efr_hist[cur_cell].requirement_discharge;
                 }
             }  
             

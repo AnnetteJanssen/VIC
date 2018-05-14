@@ -16,6 +16,7 @@ wu_run(size_t cur_cell)
     extern veg_con_map_struct *veg_con_map;
     extern veg_con_struct **veg_con;
     extern efr_var_struct *efr_var;
+    extern efr_hist_struct *efr_hist;
     
     double liq;
     double moist;
@@ -106,7 +107,7 @@ wu_run(size_t cur_cell)
     available_local[0] = rout_var[cur_cell].discharge[0] * global_param.dt; 
     
     if(options.EFR){
-        available_local[0] -= efr_var[cur_cell].requirement_discharge 
+        available_local[0] -= efr_hist[cur_cell].requirement_discharge 
                 * global_param.dt;
         if(available_local[0] < 0.0){
             available_local[0] = 0.0;
@@ -263,7 +264,7 @@ wu_run(size_t cur_cell)
                     global_param.dt;
             
             if(options.EFR){
-                available_receiving[i] -= efr_var[rec_cell].requirement_discharge 
+                available_receiving[i] -= efr_hist[rec_cell].requirement_discharge 
                         * global_param.dt;
                 if(available_receiving[i] < 0.0){
                     available_receiving[i] = 0.0;

@@ -61,14 +61,6 @@ efr_run_vfm(size_t cur_cell)
     double max_moist;
     double dsmax;
     double bflow;
-    
-    efr_var[cur_cell].requirement_discharge = 
-            calc_efr_vfm(efr_hist[cur_cell].ay_discharge,
-                         efr_hist[cur_cell].discharge);
-    
-    efr_var[cur_cell].requirement_baseflow = 
-            calc_efr_vfm(efr_hist[cur_cell].ay_baseflow,
-                         efr_hist[cur_cell].baseflow);
                 
     if (options.GROUNDWATER) {
         for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
@@ -76,7 +68,7 @@ efr_run_vfm(size_t cur_cell)
                 // Based on groundwater baseflow formulation
                 // TODO: change!
                 efr_var[cur_cell].requirement_moist[i][j] = 
-                        log(efr_var[cur_cell].requirement_baseflow / 
+                        log(efr_hist[cur_cell].requirement_baseflow / 
                             gw_con[cur_cell].Qb_max) /
                         gw_con[cur_cell].Qb_expt +
                         gw_con[cur_cell].Za_max;
@@ -126,7 +118,7 @@ efr_run_vfm(size_t cur_cell)
                 }
             }
 
-            if(calculated_baseflow < efr_var[cur_cell].requirement_baseflow){
+            if(calculated_baseflow < efr_hist[cur_cell].requirement_baseflow){
                 frac += EFR_FRAC_STEP;
                 if(frac > 1.0){
                     frac = 1.0;

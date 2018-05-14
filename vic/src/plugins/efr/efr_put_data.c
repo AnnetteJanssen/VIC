@@ -4,7 +4,7 @@ void
 efr_put_data(void)
 {
     extern domain_struct   local_domain;
-    extern efr_var_struct *efr_var;
+    extern efr_hist_struct *efr_hist;
     extern double       ***out_data;
     extern node           *outvar_types;
 
@@ -17,7 +17,7 @@ efr_put_data(void)
     OUT_EFR_BASE_REQ = list_search_id(outvar_types, "OUT_EFR_BASE_REQ");
 
     for (i = 0; i < local_domain.ncells_active; i++) {
-        out_data[i][OUT_EFR_DIS_REQ][0] = efr_var[i].requirement_discharge;
-        out_data[i][OUT_EFR_BASE_REQ][0] = efr_var[i].requirement_baseflow;
+        out_data[i][OUT_EFR_DIS_REQ][0] = efr_hist[i].requirement_discharge;
+        out_data[i][OUT_EFR_BASE_REQ][0] = efr_hist[i].requirement_baseflow;
     }
 }

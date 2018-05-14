@@ -10,20 +10,16 @@ initialize_efr_force(efr_force_struct *efr_force)
     size_t i;
     
     for(i = 0; i < NF; i++){
-        efr_force->ay_discharge[i] = 0.0;
-        efr_force->ay_baseflow[i] = 0.0;
-        efr_force->baseflow[i] = 0.0;
-        efr_force->discharge[i] = 0.0;
+        efr_force->requirement_baseflow[i] = 0.0;
+        efr_force->requirement_discharge[i] = 0.0;
     }
 }
 
 void
 initialize_efr_hist(efr_hist_struct *efr_hist)
 {
-    efr_hist->ay_discharge = 0.0;
-    efr_hist->ay_baseflow = 0.0;
-    efr_hist->baseflow = 0.0;
-    efr_hist->discharge = 0.0;
+    efr_hist->requirement_baseflow = 0.0;
+    efr_hist->requirement_discharge = 0.0;
 }
 
 void
@@ -37,9 +33,6 @@ initialize_efr_var(efr_var_struct *efr_var, size_t nveg, size_t nelev)
             efr_var->requirement_moist[i][j] = 0.0;
         }
     }
-    
-    efr_var->requirement_discharge = 0.0;
-    efr_var->requirement_baseflow = 0.0;
 }
 
 void

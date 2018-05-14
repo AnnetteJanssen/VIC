@@ -25,17 +25,11 @@ efr_alloc(void)
     
     for (i = 0; i < local_domain.ncells_active; i++) {
         
-        efr_force[i].ay_baseflow = malloc(NF * sizeof(*efr_force[i].ay_baseflow));
-        check_alloc_status(efr_force[i].ay_baseflow, "Memory allocation error");
+        efr_force[i].requirement_baseflow = malloc(NF * sizeof(*efr_force[i].requirement_baseflow));
+        check_alloc_status(efr_force[i].requirement_baseflow, "Memory allocation error");
         
-        efr_force[i].ay_discharge = malloc(NF * sizeof(*efr_force[i].ay_discharge));
-        check_alloc_status(efr_force[i].ay_discharge, "Memory allocation error");
-        
-        efr_force[i].baseflow = malloc(NF * sizeof(*efr_force[i].baseflow));
-        check_alloc_status(efr_force[i].baseflow, "Memory allocation error");
-        
-        efr_force[i].discharge = malloc(NF * sizeof(*efr_force[i].discharge));
-        check_alloc_status(efr_force[i].discharge, "Memory allocation error");
+        efr_force[i].requirement_discharge = malloc(NF * sizeof(*efr_force[i].requirement_discharge));
+        check_alloc_status(efr_force[i].requirement_discharge, "Memory allocation error");
         
         efr_var[i].requirement_moist = malloc(veg_con_map[i].nv_active * sizeof(*efr_var[i].requirement_moist));
         check_alloc_status(efr_var[i].requirement_moist, "Memory allocation error");
@@ -65,10 +59,8 @@ efr_finalize(void)
             free(efr_var[i].requirement_moist[j]);
         }
         free(efr_var[i].requirement_moist);
-        free(efr_force[i].ay_baseflow);
-        free(efr_force[i].ay_discharge);
-        free(efr_force[i].baseflow);
-        free(efr_force[i].discharge);
+        free(efr_force[i].requirement_baseflow);
+        free(efr_force[i].requirement_discharge);
     }
     free(efr_var);
     free(efr_hist);
