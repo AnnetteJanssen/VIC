@@ -8,12 +8,6 @@
 #define VFM_HIGH_FLOW_FRAC 0.8
 #define VFM_HIGH_DEMAND_FRAC 0.3
 
-enum {
-    EFR_METHOD_VFM,
-    EFR_METHOD_7Q10,
-    EFR_NMETHODS
-};
-
 typedef struct {
     double *requirement_discharge;
     double *requirement_baseflow;

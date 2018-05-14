@@ -126,18 +126,6 @@ efr_get_global_parameters(char *cmdstr)
     else if (strcasecmp("EFR_FORCING_FILE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.efr_forcing_pfx);
     }
-    else if (strcasecmp("EFR_METHOD", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", method);
-        
-        if(strcasecmp("VFM", method) == 0){
-            options.EFR_METHOD = EFR_METHOD_VFM;
-        }else if(strcasecmp("7Q10", method) == 0){
-            options.EFR_METHOD = EFR_METHOD_7Q10;
-        }else{
-            log_err("EFR_METHOD should be VFM or 7Q10; "
-                    "%s is unknown", method);
-        }
-    }
     else {
         return false;
     }

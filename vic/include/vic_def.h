@@ -368,8 +368,6 @@ typedef struct {
     size_t NIRRSEASONS;
     bool IRR_POTENTIAL;
     bool IRR_POND;
-    // EFR options
-    int EFR_METHOD;
     // Dam options
     size_t MAXSERVICE;
     size_t MAXDAMS;

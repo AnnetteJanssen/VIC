@@ -33,7 +33,7 @@ calc_efrs_vfm(double ay_flow, double *discharges, size_t length, double *efrs)
 }
 
 void 
-efr_run_vfm(size_t cur_cell)
+efr_run(size_t cur_cell)
 {
     extern efr_var_struct *efr_var;
     extern efr_hist_struct *efr_hist;
@@ -147,21 +147,5 @@ efr_run_vfm(size_t cur_cell)
                         
             }
         }
-    }
-}
-
-void
-efr_run(size_t cur_cell)
-{
-    extern option_struct options;
-    
-    if (options.EFR_METHOD == EFR_METHOD_VFM) {
-        efr_run_vfm(cur_cell);
-    } 
-    else if (options.EFR_METHOD == EFR_METHOD_7Q10) {
-        log_err("EFR_METHOD 7Q10 not yet implemented...");
-    } 
-    else {
-        log_err("Unknown EFR_METHOD");
     }
 }
