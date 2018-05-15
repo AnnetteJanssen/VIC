@@ -37,18 +37,11 @@ get_global_param(FILE *gp)
     extern option_struct       options;
     extern global_param_struct global_param;
     extern filenames_struct    filenames;
-    extern size_t              NF, NR;
 
     char                       cmdstr[MAXSTRING];
     char                       optstr[MAXSTRING];
     char                       flgstr[MAXSTRING];
     char                       flgstr2[MAXSTRING];
-    int                        status;
-    unsigned int               tmpstartdate;
-    unsigned int               tmpenddate;
-    unsigned short int         lastday[MONTHS_PER_YEAR];
-
-    size_t                     i;
 
     /** Read through global control file to find parameters **/
 
@@ -550,7 +543,24 @@ get_global_param(FILE *gp)
         }
         fgets(cmdstr, MAXSTRING, gp);
     }
+}
 
+void
+validate_global_param(void)
+{
+    extern option_struct       options;
+    extern global_param_struct global_param;
+    extern filenames_struct    filenames;
+    extern size_t              NF, NR;
+
+    char                       flgstr2[MAXSTRING];
+    int                        status;
+    unsigned int               tmpstartdate;
+    unsigned int               tmpenddate;
+    unsigned short int         lastday[MONTHS_PER_YEAR];
+
+    size_t                     i;
+    
     /******************************************
        Check for undefined required parameters
     ******************************************/

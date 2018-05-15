@@ -1,7 +1,7 @@
 /******************************************************************************
  * @section DESCRIPTION
  *
- * Finalize VIC run by freeing memory and closing open files.
+ * This routine handles the startup tasks.
  *
  * @section LICENSE
  *
@@ -27,36 +27,26 @@
 #include <vic.h>
 
 /******************************************************************************
- * @brief    Initialize model parameters
+ * @brief    Wrapper function for VIC domain validation tasks.
  *****************************************************************************/
 void
-vic_finalize(void)
+validate_domain_general(void)
 {
-    extern option_struct options;
+    int                        status;
+    extern filenames_struct    filenames;
+    
+    // open parameter file
+    status = nc_open(filenames.params.nc_filename, NC_NOWRITE,
+                     &(filenames.params.nc_id));
+    check_nc_status(status, "Error opening %s",
+                    filenames.params.nc_filename);
 
-    // Free memory for all plugins
-    if (options.ROUTING_RVIC) {
-        routing_rvic_finalize();
-    }
-    if (options.GROUNDWATER) {
-        gw_finalize();
-    }
-    if (options.ROUTING) {
-        rout_finalize();
-    }
-    if (options.DAMS) {
-        dam_finalize();
-    }
-    if (options.IRRIGATION) {
-        irr_finalize();
-    }
-    if (options.EFR) {
-        efr_finalize();
-    }
-    if (options.WATER_USE) {
-        wu_finalize();
-    }
+    // check whether lat and lon coordinates in the parameter file match those
+    // in the domain file
+    compare_ncdomain_with_global_domain(&filenames.params);
 
-    // Free memory for all non specific VIC structures
-    finalize_general();
+    // close parameter file
+    status = nc_close(filenames.params.nc_id);
+    check_nc_status(status, "Error closing %s",
+                    filenames.params.nc_filename);
 }

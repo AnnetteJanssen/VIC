@@ -34,7 +34,7 @@ veg_lib_struct *vic_run_veg_lib;
 *               energy and water balance models, as well as frozen soils.
 ******************************************************************************/
 int
-vic_run(force_data_struct   *force,
+run_general(force_data_struct   *force,
         all_vars_struct     *all_vars,
         dmy_struct          *dmy,
         global_param_struct *gp,

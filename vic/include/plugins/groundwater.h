@@ -21,6 +21,7 @@ typedef struct {
 
 bool gw_get_global_parameters(char *cmdstr);
 void gw_start(void);
+void gw_validate_domain(void);
 void gw_validate_global_parameters(void);
 void gw_alloc(void);
 void initialize_gw_local_structures(void);

@@ -50,6 +50,7 @@ typedef struct {
 bool wu_get_global_parameters(char *cmdstr);
 void wu_validate_global_parameters(void);
 void wu_start(void);
+void wu_validate_domain(void);
 void wu_alloc(void);
 void wu_late_alloc(void);
 void initialize_wu_local_structures(void);
