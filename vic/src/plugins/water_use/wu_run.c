@@ -84,11 +84,23 @@ wu_run(size_t cur_cell)
         withdrawn_sec[i] = 0.0; 
     }
     for(i = 0; i < 2; i++){
-        withdrawn_local[i] = 0.0;        
-        satisfaction_local[i] = false;
+        withdrawn_local[i] = 0.0;      
     }    
     withdrawn_remote = 0.0;
     withdrawn_dam = 0.0;
+    
+    // Initialize satisfaction
+    for(i = 0; i < 2; i++){      
+        satisfaction_local[i] = false;
+    }
+    satisfaction = false;
+    
+    // Initialize groundwater
+    if (!options.WU_GW) {
+        for(i = 0; i < WU_NSECTORS; i++){
+            wu_hist[cur_cell][i].gw_fraction = 0.0;
+        }
+    }
     
     // Reset values
     for(i = 0; i < WU_NSECTORS; i++){
@@ -102,18 +114,7 @@ wu_run(size_t cur_cell)
     
     /**********************************************************************
     * 1. Local surface water abstractions
-    **********************************************************************/
-    // Get surface water availability
-    available_local[0] = rout_var[cur_cell].discharge[0] * global_param.dt; 
-    
-    if(options.EFR){
-        available_local[0] -= efr_hist[cur_cell].requirement_discharge 
-                * global_param.dt;
-        if(available_local[0] < 0.0){
-            available_local[0] = 0.0;
-        }
-    }
-    
+    **********************************************************************/    
     // Get surface water demand
     demand = 0.0;
     for(i = 0; i < WU_NSECTORS; i++){
@@ -121,8 +122,22 @@ wu_run(size_t cur_cell)
                 (1 - wu_hist[cur_cell][i].gw_fraction);
     }
     
+    // Get surface water availability
+    available_local[0] = 0.0;
+    if (demand > 0) {
+        available_local[0] = rout_var[cur_cell].discharge[0] * global_param.dt; 
+
+        if(options.EFR){
+            available_local[0] -= efr_hist[cur_cell].requirement_discharge 
+                    * global_param.dt;
+            if(available_local[0] < 0.0){
+                available_local[0] = 0.0;
+            }
+        }
+    }
+    
     // Calculate surface water withdrawal
-    if(available_local[0] > 0 && demand > 0){
+    if(available_local[0] > 0){
         if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
             // Calculate fraction
             fraction = available_local[0] / demand;
@@ -158,11 +173,17 @@ wu_run(size_t cur_cell)
     
     /**********************************************************************
     * 2. Local groundwater abstractions
-    **********************************************************************/    
-    // Get groundwater availability
-    if (options.WU_GW) {
-        available_local[1] = 0.0;
+    **********************************************************************/
+    // Get groundwater demand
+    demand = 0.0;
+    for(i = 0; i < WU_NSECTORS; i++){
+        demand += wu_hist[cur_cell][i].demand * 
+                wu_hist[cur_cell][i].gw_fraction;
+    }
     
+    // Get groundwater availability
+    available_local[1] = 0.0;
+    if (demand > 0) {
         if(options.GROUNDWATER){
             log_err("GROUNDWATER WATER USE is not yet implemented for GROUNDWATER");
         }
@@ -182,17 +203,17 @@ wu_run(size_t cur_cell)
                                soil_con[cur_cell].frost_fract[k];
                     }
                     liq = moist - ice;
-                    
+
                     available_moist[i][j] = liq;                    
                     if(options.EFR){
                         available_moist[i][j] -= efr_var[cur_cell].requirement_moist[i][j];
                     }
-                    
+
                     available_moist[i][j] = min(available_moist[i][j], moist - resid_moist);
                     if(available_moist[i][j] < 0.0){
                         available_moist[i][j] = 0.0;
                     }
-                    
+
                     available_moist[i][j] *= (local_domain.locations[i].area * 
                                         soil_con[cur_cell].AreaFract[j] * 
                                         veg_con[cur_cell][i].Cv) / 
@@ -201,50 +222,43 @@ wu_run(size_t cur_cell)
                 }
             }
         }
-    
-        // Get groundwater demand
-        demand = 0.0;
-        for(i = 0; i < WU_NSECTORS; i++){
-            demand += wu_hist[cur_cell][i].demand * 
-                    wu_hist[cur_cell][i].gw_fraction;
+    }
+
+    // Calculate groundwater withdrawal
+    if(available_local[1] > 0){
+        if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
+            // Calculate fraction
+            fraction = available_local[1] / demand;
+            if(fraction >= 1){
+                fraction = 1.0;
+                satisfaction_local[1] = true;
+            }
+
+            // Withdrawal as fraction of demand
+            for(i = 0; i < WU_NSECTORS; i++){
+                withdrawn = wu_hist[cur_cell][i].demand *
+                        wu_hist[cur_cell][i].gw_fraction *
+                        fraction;
+
+                wu_var[cur_cell][i].demand -= withdrawn;
+                withdrawn_sec[i] += withdrawn;
+                withdrawn_local[1] += withdrawn;
+            }
+        }
+        else {
+            log_err("WU_STRATEGY PRIORITY has not been implemented yet");
         }
 
-        // Calculate groundwater withdrawal
-        if(available_local[1] > 0 && demand > 0){
-            if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
-                // Calculate fraction
-                fraction = available_local[1] / demand;
-                if(fraction >= 1){
-                    fraction = 1.0;
-                    satisfaction_local[1] = true;
-                }
-                
-                // Withdrawal as fraction of demand
-                for(i = 0; i < WU_NSECTORS; i++){
-                    withdrawn = wu_hist[cur_cell][i].demand *
-                            wu_hist[cur_cell][i].gw_fraction *
-                            fraction;
-
-                    wu_var[cur_cell][i].demand -= withdrawn;
-                    withdrawn_sec[i] += withdrawn;
-                    withdrawn_local[1] += withdrawn;
-                }
+        fraction = withdrawn_local[1] / available_local[1];
+        if(fraction > 1.0){
+            if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
+                log_err("fraction > 1.0 [%.3f]?", fraction);
             }
-            else {
-                log_err("WU_STRATEGY PRIORITY has not been implemented yet");
-            }
-
-            fraction = withdrawn_local[1] / available_local[1];
-            if(fraction > 1.0){
-                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                    log_err("fraction > 1.0 [%.3f]?", fraction);
-                }
-                withdrawn_local[1] = available_local[1];
-            }
+            withdrawn_local[1] = available_local[1];
         }
     }
     
-    // Total satisfaction
+    // Local satisfaction
     satisfaction = false;
     if(satisfaction_local[0] && satisfaction_local[1]){
         satisfaction = true;
@@ -254,34 +268,35 @@ wu_run(size_t cur_cell)
     * 3. Remote abstractions
     **********************************************************************/
     if(options.WU_REMOTE && !satisfaction){
-        
-        // Get availability
-        available_remote = 0.0;
-        for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
-            rec_cell = wu_con[cur_cell].receiving[i];
-                 
-            available_receiving[i] = rout_var[rec_cell].discharge[0] * 
-                    global_param.dt;
-            
-            if(options.EFR){
-                available_receiving[i] -= efr_hist[rec_cell].requirement_discharge 
-                        * global_param.dt;
-                if(available_receiving[i] < 0.0){
-                    available_receiving[i] = 0.0;
-                }
-            }
-            
-            available_remote += available_receiving[i];
-        }
-
         // Get demand
         demand = 0.0;
         for(i = 0; i < WU_NSECTORS; i++){
             demand += wu_var[cur_cell][i].demand;
         }
+        
+        // Get availability
+        available_remote = 0.0;
+        if (demand > 0) {
+            for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
+                rec_cell = wu_con[cur_cell].receiving[i];
+
+                available_receiving[i] = rout_var[rec_cell].discharge[0] * 
+                        global_param.dt;
+
+                if(options.EFR){
+                    available_receiving[i] -= efr_hist[rec_cell].requirement_discharge 
+                            * global_param.dt;
+                    if(available_receiving[i] < 0.0){
+                        available_receiving[i] = 0.0;
+                    }
+                }
+
+                available_remote += available_receiving[i];
+            }
+        }
     
         // Calculate withdrawal
-        if(available_remote > 0 && demand > 0){
+        if(available_remote > 0){
             if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
                 
                 // Calculate fraction
@@ -316,20 +331,22 @@ wu_run(size_t cur_cell)
     /**********************************************************************
     * 4. Substitute abstractions
     **********************************************************************/
-    if(options.WU_GW && !satisfaction){ 
-        
-        // Get availability
-        available_subs = (available_local[0] - withdrawn_local[0])  + 
-                (available_local[1] - withdrawn_local[1]);
-        
+    if(options.WU_GW && !satisfaction){
         // Get demand
         demand = 0.0;
         for(i = 0; i < WU_NSECTORS; i++){
             demand += wu_var[cur_cell][i].demand;
         }
+        
+        available_subs = 0.0;
+        if (demand > 0) {
+            // Get availability
+            available_subs = (available_local[0] - withdrawn_local[0])  + 
+                    (available_local[1] - withdrawn_local[1]);
+        }
     
         // Calculate withdrawal
-        if(available_subs > 0 && demand > 0){
+        if(available_subs > 0){
             if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
                 
                 // Calculate fraction
@@ -378,25 +395,26 @@ wu_run(size_t cur_cell)
     * 5. Dam abstractions
     **********************************************************************/
     if(options.WU_DAM && !satisfaction){
-        
-        // Get availability
-        available_dam = 0.0;
-        for(i = 0; i < wu_con[cur_cell].nservice; i++){
-            ser_cell = wu_con[cur_cell].service[i];
-            ser_idx = wu_con[cur_cell].service_idx[i];
-            
-            available_servicing[i] = dam_var[ser_cell][ser_idx].volume;
-            available_dam += available_servicing[i];
-        }
-
         // Get demand
         demand = 0.0;
         for(i = 0; i < WU_NSECTORS; i++){
             demand += wu_var[cur_cell][i].demand;
         }
+        
+        // Get availability
+        available_dam = 0.0;
+        if(demand > 0) {
+            for(i = 0; i < wu_con[cur_cell].nservice; i++){
+                ser_cell = wu_con[cur_cell].service[i];
+                ser_idx = wu_con[cur_cell].service_idx[i];
+
+                available_servicing[i] = dam_var[ser_cell][ser_idx].volume;
+                available_dam += available_servicing[i];
+            }
+        }
     
         // Calculate withdrawal
-        if(available_dam > 0 && demand > 0){
+        if(available_dam > 0){
             if(options.WU_STRATEGY == WU_STRATEGY_EQUAL){
                 
                 // Calculate fraction

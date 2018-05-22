@@ -26,6 +26,8 @@ initialize_irr_con(irr_con_struct *irr_con)
         irr_con->season_start[i] = 0.0;
         irr_con->season_end[i] = 0.0;
     }
+    irr_con->WUE = 0.0;
+    irr_con->gw_fraction = 0.0;
 }
 
 void

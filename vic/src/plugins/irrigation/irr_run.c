@@ -224,6 +224,7 @@ irr_set_demand(size_t cur_cell)
 {
     extern domain_struct local_domain;
     extern irr_con_map_struct *irr_con_map;
+    extern irr_con_struct **irr_con;
     extern elev_con_map_struct *elev_con_map;
     extern wu_hist_struct **wu_hist;
     extern soil_con_struct *soil_con;
@@ -246,8 +247,8 @@ irr_set_demand(size_t cur_cell)
         }
     }
 
-    wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0;
-    wu_hist[cur_cell][WU_IRRIGATION].gw_fraction = 0.0;
+    wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = irr_con[cur_cell][0].WUE;
+    wu_hist[cur_cell][WU_IRRIGATION].gw_fraction = irr_con[cur_cell][0].gw_fraction;
     wu_hist[cur_cell][WU_IRRIGATION].demand = total_demand / 
                 wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction /
                 MM_PER_M * local_domain.locations[cur_cell].area; 

@@ -28,6 +28,9 @@ typedef struct {
     double *season_start;
     double *season_end;
     double season_offset;
+    
+    double WUE;
+    double gw_fraction;
 } irr_con_struct;
 
 typedef struct {
