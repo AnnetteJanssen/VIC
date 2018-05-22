@@ -86,6 +86,9 @@ vic_domain(void)
         if (options.WATER_USE) {
             wu_validate_domain();
         }
+        if (options.EFR) {
+            efr_validate_domain();
+        }
         
         // open parameter file
         status = nc_open(filenames.params.nc_filename, NC_NOWRITE,

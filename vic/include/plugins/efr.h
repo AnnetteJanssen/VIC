@@ -24,6 +24,7 @@ typedef struct {
 
 bool efr_get_global_parameters(char *cmdstr);
 void efr_validate_global_parameters(void);
+void efr_validate_domain(void);
 void efr_set_output_meta_data_info(void);
 void efr_set_state_meta_data_info(void);
 void efr_alloc(void);
