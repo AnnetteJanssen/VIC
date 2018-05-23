@@ -165,7 +165,7 @@ wu_run(size_t cur_cell)
         fraction = withdrawn_local[0] / available_local[0];
         if(fraction > 1.0){
             if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+                log_err("fraction > 1.0 [%.16f]?", fraction);
             }
             withdrawn_local[0] = available_local[0];
         }
@@ -252,7 +252,7 @@ wu_run(size_t cur_cell)
         fraction = withdrawn_local[1] / available_local[1];
         if(fraction > 1.0){
             if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                log_err("fraction > 1.0 [%.3f]?", fraction);
+                log_err("fraction > 1.0 [%.16f]?", fraction);
             }
             withdrawn_local[1] = available_local[1];
         }
@@ -321,7 +321,7 @@ wu_run(size_t cur_cell)
             fraction = withdrawn_remote / available_remote;
             if(fraction > 1.0){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                        log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_remote = available_remote;
             }
@@ -377,14 +377,14 @@ wu_run(size_t cur_cell)
             fraction = withdrawn_local[0] / available_local[0];
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS * 2){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                        log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_local[0] = available_local[0];
             }    
             fraction = withdrawn_local[1] / available_local[1];
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS * 2){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                        log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_local[1] = available_local[1];
             }
@@ -438,7 +438,7 @@ wu_run(size_t cur_cell)
             fraction = withdrawn_dam / available_dam;
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                        log_err("fraction > 1.0 [%.3f]?", fraction);
+                        log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_dam = available_dam;
             }

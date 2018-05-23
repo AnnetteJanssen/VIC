@@ -63,3 +63,28 @@ start_general(void)
                         filenames.params.nc_filename);
     }
 }
+
+/******************************************************************************
+ * @brief    Wrapper function for VIC domain validation tasks.
+ *****************************************************************************/
+void
+validate_domain(void)
+{
+    int                        status;
+    extern filenames_struct    filenames;
+    
+    // open parameter file
+    status = nc_open(filenames.params.nc_filename, NC_NOWRITE,
+                     &(filenames.params.nc_id));
+    check_nc_status(status, "Error opening %s",
+                    filenames.params.nc_filename);
+
+    // check whether lat and lon coordinates in the parameter file match those
+    // in the domain file
+    compare_ncdomain_with_global_domain(&filenames.params);
+
+    // close parameter file
+    status = nc_close(filenames.params.nc_id);
+    check_nc_status(status, "Error closing %s",
+                    filenames.params.nc_filename);
+}

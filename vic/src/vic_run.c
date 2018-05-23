@@ -75,7 +75,7 @@ vic_run(dmy_struct *dmy_current)
 
         timer_start(&timer);
         if (options.GROUNDWATER) {
-            run_general_gw(&(force[i]), &(all_vars[i]), gw_var[i],
+            run_gw_general(&(force[i]), &(all_vars[i]), gw_var[i],
                        dmy_current, &global_param,
                        &lake_con, &(soil_con[i]), veg_con[i], veg_lib[i],
                        &(gw_con[i]));

@@ -55,12 +55,14 @@ vic_start(void)
         filep.globalparam = open_file(filenames.global, "r");
         get_global_param(filep.globalparam);
         fclose(filep.globalparam);
+        validate_global_param();
         
         // Read the model constants
         if (strcasecmp(filenames.constants, "MISSING")) {
             filep.constants = open_file(filenames.constants, "r");
             get_parameters(filep.constants);
             fclose(filep.constants);
+            validate_parameters();
         }
         
         // Start all non specific VIC structures
@@ -82,10 +84,6 @@ vic_start(void)
         if (options.WATER_USE) {
             wu_start();
         }
-
-        // Check that model parameters are valid
-        validate_global_param();
-        validate_parameters();
     }
 
     // broadcast option, filenames, global_param and param structures

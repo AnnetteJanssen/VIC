@@ -962,7 +962,7 @@ void start_general(void);
 
 // domain
 void vic_domain(void);
-void validate_domain_general(void);
+void validate_domain(void);
 
 // allocation
 void vic_alloc(void);
