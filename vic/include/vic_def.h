@@ -201,10 +201,6 @@ enum
  *****************************************************************************/
 enum {
     WU_IRRIGATION,
-    WU_DOMESTIC,
-    WU_INDUSTRIAL,
-    WU_ENERGY,
-    WU_LIVESTOCK,
     WU_NSECTORS
 };
 

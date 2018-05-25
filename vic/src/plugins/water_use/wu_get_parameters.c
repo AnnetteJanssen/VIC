@@ -110,14 +110,6 @@ wu_get_sector_id(char *flgstr)
 {    
     if(strcasecmp("IRR", flgstr) == 0){
         return WU_IRRIGATION;
-    }else if(strcasecmp("DOM", flgstr) == 0){
-        return WU_DOMESTIC;
-    }else if(strcasecmp("IND", flgstr) == 0){
-        return WU_INDUSTRIAL;
-    }else if(strcasecmp("ENE", flgstr) == 0){
-        return WU_ENERGY;
-    }else if(strcasecmp("LIV", flgstr) == 0){
-        return WU_LIVESTOCK;
     }else{
         log_err("WU_SECTOR SECTOR should be IRR(IGATION), DOM(ESTIC),"
                 "IND(USTRIAL), ENE(RGY), LIV(ESTOCK) or ENV(IRONMENTAL); %s is unknown", flgstr);
