@@ -249,6 +249,7 @@ wu_run(size_t cur_cell)
             log_err("WU_STRATEGY PRIORITY has not been implemented yet");
         }
 
+        // Check if withdrawal exceeds availability
         fraction = withdrawn_local[1] / available_local[1];
         if(fraction > 1.0){
             if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
@@ -318,6 +319,7 @@ wu_run(size_t cur_cell)
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
     
+            // Check if withdrawal exceeds availability
             fraction = withdrawn_remote / available_remote;
             if(fraction > 1.0){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
@@ -374,16 +376,17 @@ wu_run(size_t cur_cell)
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
     
+            // Check if withdrawal exceeds availability
             fraction = withdrawn_local[0] / available_local[0];
             if(fraction > 1){
-                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS * 2){
+                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
                         log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_local[0] = available_local[0];
             }    
             fraction = withdrawn_local[1] / available_local[1];
             if(fraction > 1){
-                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS * 2){
+                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
                     log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_local[1] = available_local[1];
@@ -435,6 +438,7 @@ wu_run(size_t cur_cell)
                 log_err("WU_STRATEGY PRIORITY has not been implemented yet");
             }
     
+            // Check if withdrawal exceeds availability
             fraction = withdrawn_dam / available_dam;
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
@@ -453,7 +457,7 @@ wu_run(size_t cur_cell)
     for(i = 0; i < WU_NSECTORS; i++){
         wu_var[cur_cell][i].withdrawn = withdrawn_sec[i];
         
-        // Check if withdrawal does not exceed demand
+        // Check if withdrawal exceeds demand
         fraction = wu_var[cur_cell][i].withdrawn / wu_hist[cur_cell][i].demand;
         if(fraction > 1){
             if(fabs(fraction - 1.0) > DBL_EPSILON){
