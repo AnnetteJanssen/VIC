@@ -321,7 +321,7 @@ wu_run(size_t cur_cell)
             fraction = withdrawn_remote / available_remote;
             if(fraction > 1.0){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                        log_err("fraction > 1.0 [%.16f]?", fraction);
+                    log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_remote = available_remote;
             }
@@ -384,7 +384,7 @@ wu_run(size_t cur_cell)
             fraction = withdrawn_local[1] / available_local[1];
             if(fraction > 1){
                 if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS * 2){
-                        log_err("fraction > 1.0 [%.16f]?", fraction);
+                    log_err("fraction > 1.0 [%.16f]?", fraction);
                 }
                 withdrawn_local[1] = available_local[1];
             }
@@ -452,6 +452,15 @@ wu_run(size_t cur_cell)
     returned = 0.0;
     for(i = 0; i < WU_NSECTORS; i++){
         wu_var[cur_cell][i].withdrawn = withdrawn_sec[i];
+        
+        // Check if withdrawal does not exceed demand
+        fraction = wu_var[cur_cell][i].withdrawn / wu_hist[cur_cell][i].demand;
+        if(fraction > 1){
+            if(fabs(fraction - 1.0) > DBL_EPSILON){
+                log_err("fraction > 1.0 [%.16f]?", fraction);
+            }
+        }
+            
         wu_var[cur_cell][i].consumed = wu_var[cur_cell][i].withdrawn * 
                 wu_hist[cur_cell][i].consumption_fraction;
         wu_var[cur_cell][i].returned = wu_var[cur_cell][i].withdrawn * 

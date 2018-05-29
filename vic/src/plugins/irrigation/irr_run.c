@@ -309,14 +309,7 @@ irr_get_withdrawn(size_t cur_cell)
         // Received water for irrigation
         
         // Calculate available as fraction of requirement
-        fraction =  total_available / total_requirement;        
-        if(fraction > 1.0){
-            if (fabs(fraction - 1.0) > DBL_EPSILON && 
-                    total_requirement > DBL_EPSILON) {
-                log_err("Fraction is > 1.0 [%.16f]?", fraction);
-            }
-            fraction = 1.0;
-        }
+        fraction =  total_available / total_requirement;
     
         for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
             cur_veg = irr_con[cur_cell][i].veg_index;
