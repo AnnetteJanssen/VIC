@@ -29,7 +29,7 @@ typedef struct {
 } rout_con_struct;
 
 typedef struct {
-    double storage;
+    double moist;
     double *discharge;
 } rout_var_struct;
 

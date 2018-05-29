@@ -17,7 +17,7 @@ rout_put_data(void)
     OUT_STREAM_MOIST = list_search_id(outvar_types, "OUT_STREAM_MOIST");
 
     for (i = 0; i < local_domain.ncells_active; i++) {
-        out_data[i][OUT_STREAM_MOIST][0] = rout_var[i].storage;
+        out_data[i][OUT_STREAM_MOIST][0] = rout_var[i].moist;
         out_data[i][OUT_DISCHARGE][0] = rout_var[i].discharge[0];
     }
 }

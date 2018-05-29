@@ -112,7 +112,7 @@ rout_gl_run()
         for (j = 0; j < options.RIRF_NSTEPS; j++) {
             dis_local[i][j] = rout_var[i].discharge[j];
         }
-        store_local[i] = rout_var[i].storage;
+        store_local[i] = rout_var[i].moist;
     }
 
     // Gather
@@ -166,7 +166,7 @@ rout_gl_run()
         for (j = 0; j < options.RIRF_NSTEPS; j++) {
             rout_var[i].discharge[j] = dis_local[i][j];
         }
-        rout_var[i].storage = store_local[i];
+        rout_var[i].moist = store_local[i];
     }
 
     // Free
@@ -238,12 +238,11 @@ rout_run(size_t cur_cell)
         rout_var[cur_cell].discharge[0] = 0.0;
     }
     
-    rout_var[cur_cell].storage += (inflow + runoff) *
-                                  global_param.dt /
-                                  local_domain.locations[cur_cell].area *
-                                  MM_PER_M;
-    rout_var[cur_cell].storage -= (rout_var[cur_cell].discharge[0]) *
-                                  global_param.dt /
-                                  local_domain.locations[cur_cell].area *
-                                  MM_PER_M;
+    rout_var[cur_cell].moist = 0.0;
+    for(i = 0; i < rout_con[cur_cell].river_irf; i++){
+        rout_var[cur_cell].moist += rout_var[cur_cell].discharge *
+                                      global_param.dt /
+                                      local_domain.locations[cur_cell].area *
+                                      MM_PER_M;
+    }
 }
