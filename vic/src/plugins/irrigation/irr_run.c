@@ -197,7 +197,7 @@ irr_run(size_t cur_cell)
             }
             
             if(irr_var[cur_cell][i][j].requirement < 0.0){
-                log_err("Irrigation requirement < 0.0 [%.3f]?",
+                log_err("Irrigation requirement < 0.0 [%.16f]?",
                         irr_var[cur_cell][i][j].requirement);
             }
             
@@ -313,7 +313,7 @@ irr_get_withdrawn(size_t cur_cell)
         if(fraction > 1.0){
             if (fabs(fraction - 1.0) > DBL_EPSILON && 
                     total_requirement > DBL_EPSILON) {
-                log_err("Fraction is > 1.0 [%.3f]?", fraction);
+                log_err("Fraction is > 1.0 [%.16f]?", fraction);
             }
             fraction = 1.0;
         }
