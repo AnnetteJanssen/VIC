@@ -239,8 +239,8 @@ rout_run(size_t cur_cell)
     }
     
     rout_var[cur_cell].moist = 0.0;
-    for(i = 0; i < rout_con[cur_cell].river_irf; i++){
-        rout_var[cur_cell].moist += rout_var[cur_cell].discharge *
+    for(i = 0; i < options.RIRF_NSTEPS; i++){
+        rout_var[cur_cell].moist += rout_var[cur_cell].discharge[i] *
                                       global_param.dt /
                                       local_domain.locations[cur_cell].area *
                                       MM_PER_M;
