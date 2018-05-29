@@ -92,10 +92,7 @@ main(int    argc,
 
     // Initialize MPI - note: logging not yet initialized
     status = MPI_Init(&argc, &argv);
-    if (status != MPI_SUCCESS) {
-        fprintf(stderr, "MPI error in main(): %d\n", status);
-        exit(EXIT_FAILURE);
-    }
+    check_mpi_status(status, "MPI error.");
 
     // Initialize Log Destination
     initialize_log();
@@ -110,6 +107,9 @@ main(int    argc,
 
     // read global parameters
     vic_start();
+    
+    // decompose domains
+    vic_domain();
 
     // allocate memory
     vic_alloc();
@@ -124,11 +124,13 @@ main(int    argc,
     vic_init_output(&(dmy[0]));
 
     // Initialization is complete, print settings
-    log_info(
-        "Initialization is complete, print global param, parameters and options structures");
-    print_global_param(&global_param);
-    print_option(&options);
-    print_parameters(&param);
+    if (mpi_rank == VIC_MPI_ROOT) {
+        log_info(
+            "Initialization is complete; print global param, parameters and options structures");
+        print_global_param(&global_param);
+        print_option(&options);
+        print_parameters(&param);
+    }
 
     // stop init timer
     timer_stop(&(global_timers[TIMER_VIC_INIT]));
@@ -144,13 +146,10 @@ main(int    argc,
         // read forcing data
         timer_continue(&(global_timers[TIMER_VIC_FORCE]));
         vic_force();
-        if(options.WATER_USE){
-            wu_forcing();
-        }
         timer_stop(&(global_timers[TIMER_VIC_FORCE]));
 
         // run vic over the domain
-        vic_image_run(&(dmy[current]));
+        vic_run(&(dmy[current]));
 
         // Write history files
         timer_continue(&(global_timers[TIMER_VIC_WRITE]));
@@ -159,9 +158,7 @@ main(int    argc,
 
         // Write state file
         if (check_save_state_flag(current, &dmy_state)) {
-            debug("writing state file for timestep %zu", current);
             vic_store(&dmy_state, state_filename);
-            debug("finished storing state file: %s", state_filename)
         }
     }
     // stop vic run timer
@@ -174,9 +171,7 @@ main(int    argc,
 
     // finalize MPI
     status = MPI_Finalize();
-    if (status != MPI_SUCCESS) {
-        log_err("MPI error: %d", status);
-    }
+    check_mpi_status(status, "MPI error.");
 
     log_info("Completed running VIC %s", VIC_DRIVER);
 

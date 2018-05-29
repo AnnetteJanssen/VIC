@@ -201,10 +201,6 @@ enum
  *****************************************************************************/
 enum {
     WU_IRRIGATION,
-    WU_DOMESTIC,
-    WU_INDUSTRIAL,
-    WU_ENERGY,
-    WU_LIVESTOCK,
     WU_NSECTORS
 };
 
@@ -368,7 +364,6 @@ typedef struct {
     size_t NIRRSEASONS;
     bool IRR_POTENTIAL;
     bool IRR_POND;
-    // EFR options
     // Dam options
     size_t MAXSERVICE;
     size_t MAXDAMS;

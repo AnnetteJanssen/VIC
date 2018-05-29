@@ -3,19 +3,19 @@
 #include "efr.h"
 
 double
-calc_efr(double ay_flow, double discharge)
+calc_efr_vfm(double ay_flow, double discharge)
 {
     /* Variable Monthly Flow (VMF) method (Pastor et al., 2014) */
     if(ay_flow > 0){
-        if(discharge < ay_flow * EFR_LOW_FLOW_FRAC){
-            return  discharge * EFR_LOW_DEMAND_FRAC;
-        }else if(discharge > ay_flow * EFR_HIGH_FLOW_FRAC){
-            return discharge * EFR_HIGH_DEMAND_FRAC;
+        if(discharge < ay_flow * VFM_LOW_FLOW_FRAC){
+            return  discharge * VFM_LOW_DEMAND_FRAC;
+        }else if(discharge > ay_flow * VFM_HIGH_FLOW_FRAC){
+            return discharge * VFM_HIGH_DEMAND_FRAC;
         }else{
             return discharge * linear_interp(discharge,
-                    ay_flow * EFR_LOW_FLOW_FRAC,
-                    ay_flow * EFR_HIGH_FLOW_FRAC,
-                    EFR_LOW_DEMAND_FRAC, EFR_HIGH_DEMAND_FRAC);
+                    ay_flow * VFM_LOW_FLOW_FRAC,
+                    ay_flow * VFM_HIGH_FLOW_FRAC,
+                    VFM_LOW_DEMAND_FRAC, VFM_HIGH_DEMAND_FRAC);
         }    
     }else{
         return 0.0;
@@ -23,52 +23,129 @@ calc_efr(double ay_flow, double discharge)
 }
 
 void
+calc_efrs_vfm(double ay_flow, double *discharges, size_t length, double *efrs)
+{
+    size_t i;
+    
+    for (i = 0; i < length; i++) {
+        efrs[i] = calc_efr_vfm(ay_flow, discharges[i]);
+    }
+}
+
+void 
 efr_run(size_t cur_cell)
 {
-    extern dmy_struct *dmy;
-    extern size_t current;
     extern efr_var_struct *efr_var;
-    extern rout_var_struct *rout_var;
+    extern efr_hist_struct *efr_hist;
+    extern gw_con_struct *gw_con;
+    extern all_vars_struct *all_vars;
+    extern veg_con_map_struct *veg_con_map;
+    extern elev_con_map_struct *elev_con_map;
+    extern soil_con_struct *soil_con;
+    extern veg_con_struct **veg_con;
+    extern global_param_struct global_param;
+    extern option_struct options;
     
-    size_t years_running;
+    double frac;
+    size_t i;
+    size_t j;
+    size_t l;
+    size_t k;
     
-    if(current > 0 && dmy[current].month != dmy[current-1].month){
-        efr_var[cur_cell].months_running++;
-        if(efr_var[cur_cell].months_running > 
-                EFR_HIST_YEARS * MONTHS_PER_YEAR){
-            efr_var[cur_cell].months_running =
-                    EFR_HIST_YEARS * MONTHS_PER_YEAR;
+    double calculated_baseflow;
+    double moist;
+    double liq;
+    double ice;
+    double rel_liq;
+    double res_moist;
+    double max_moist;
+    double dsmax;
+    double bflow;
+                
+    if (options.GROUNDWATER) {
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                // Based on groundwater baseflow formulation
+                // TODO: change!
+                efr_var[cur_cell].requirement_moist[i][j] = 
+                        log(efr_hist[cur_cell].requirement_baseflow / 
+                            gw_con[cur_cell].Qb_max) /
+                        gw_con[cur_cell].Qb_expt +
+                        gw_con[cur_cell].Za_max;
+            }
         }
-        
-        years_running = (size_t)(efr_var[cur_cell].months_running / 
-                MONTHS_PER_YEAR);
-        if(years_running > EFR_HIST_YEARS){
-            years_running = EFR_HIST_YEARS;
-        }
-        
-        // Shift array
-        efr_var[cur_cell].history_flow[EFR_HIST_YEARS * MONTHS_PER_YEAR - 1] = 0.0;
-        cshift(efr_var[cur_cell].history_flow, EFR_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
-        
-        // Store monthly average
-        efr_var[cur_cell].history_flow[0] =
-                efr_var[cur_cell].total_flow / 
-                efr_var[cur_cell].total_steps;
-        efr_var[cur_cell].total_flow = 0.0;
-        efr_var[cur_cell].total_steps = 0;        
-        
-        // Calculate multi-yearly averages
-        efr_var[cur_cell].ay_flow = 
-                array_average(efr_var[cur_cell].history_flow,
-                years_running, MONTHS_PER_YEAR, 0, 0);
-        efr_var[cur_cell].am_flow = 
-                array_average(efr_var[cur_cell].history_flow,
-                years_running, 1, 0, MONTHS_PER_YEAR - 1);
     }
-    
-    efr_var[cur_cell].total_flow += rout_var[cur_cell].nat_discharge[0];
-    efr_var[cur_cell].total_steps++;
-    
-    efr_var[cur_cell].requirement = calc_efr(efr_var[cur_cell].ay_flow, 
-            rout_var[cur_cell].nat_discharge[0]);
+    else {
+        l = options.Nlayer - 1;
+        res_moist = soil_con[cur_cell].resid_moist[l] * 
+                    soil_con[cur_cell].depth[l] * 
+                    MM_PER_M;
+        max_moist = soil_con[cur_cell].max_moist[l];
+        dsmax = soil_con[cur_cell].Dsmax / global_param.model_steps_per_day;
+
+        for (frac = 1.0; frac >= 0.0; frac -= EFR_FRAC_STEP){
+            calculated_baseflow = 0.0;
+
+            for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+                for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                    // Based on VIC baseflow formulation
+                    moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
+
+                    ice = 0.0;
+                    for (k = 0; k < options.Nfrost; k++){
+                        ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
+                                soil_con[cur_cell].frost_fract[k];
+                    }
+                    liq = moist - ice;
+
+                    rel_liq = (liq * frac - res_moist) / (max_moist - res_moist);
+                    bflow = rel_liq * dsmax * soil_con[cur_cell].Ds / 
+                            soil_con[cur_cell].Ws;
+                    
+                    if (rel_liq > soil_con->Ws) {
+                        bflow += dsmax * (1 - soil_con->Ds / soil_con->Ws) * 
+                            pow((rel_liq - soil_con->Ws) / (1 - soil_con->Ws), 
+                                    soil_con->c);
+                    }
+                    
+                    if(bflow < 0){
+                        bflow = 0.0;
+                    }
+
+                    calculated_baseflow += bflow * 
+                                           veg_con[cur_cell][i].Cv * 
+                                           soil_con[cur_cell].AreaFract[j];
+                }
+            }
+
+            if(calculated_baseflow < efr_hist[cur_cell].requirement_baseflow){
+                frac += EFR_FRAC_STEP;
+                if(frac > 1.0){
+                    frac = 1.0;
+                }
+
+                break;
+            }
+        }
+        
+        if(frac < 0){
+            frac = 0.0;
+        }
+        
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
+
+                ice = 0.0;
+                for (k = 0; k < options.Nfrost; k++){
+                    ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
+                            soil_con[cur_cell].frost_fract[k];
+                }
+                liq = moist - ice;
+                
+                efr_var[cur_cell].requirement_moist[i][j] = liq * frac;
+                        
+            }
+        }
+    }
 }

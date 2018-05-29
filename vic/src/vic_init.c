@@ -36,7 +36,8 @@ vic_init(void)
 
     // Initialize all non specific VIC structures
     init_general();
-    // Initialize routing
+    
+    // Initialize all plugins
     if (options.ROUTING_RVIC) {
         routing_rvic_init();
     }

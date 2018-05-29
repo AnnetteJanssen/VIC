@@ -60,6 +60,8 @@ initialize_filenames()
     }
     strcpy(filenames.irrigation.nc_filename, "MISSING");
     strcpy(filenames.dams.nc_filename, "MISSING");
+    strcpy(filenames.efr_forcing_pfx, "MISSING");
+    strcpy(filenames.efr_forcing.nc_filename, "MISSING");
 }
 
 /******************************************************************************

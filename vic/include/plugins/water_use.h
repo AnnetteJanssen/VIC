@@ -31,11 +31,13 @@ typedef struct {
 typedef struct {
     double *demand;
     double *consumption_fraction;
+    double *gw_fraction;
 } wu_force_struct;
 
 typedef struct{
     double demand;
     double consumption_fraction;
+    double gw_fraction;
 } wu_hist_struct;
 
 typedef struct {
@@ -48,6 +50,7 @@ typedef struct {
 bool wu_get_global_parameters(char *cmdstr);
 void wu_validate_global_parameters(void);
 void wu_start(void);
+void wu_validate_domain(void);
 void wu_alloc(void);
 void wu_late_alloc(void);
 void initialize_wu_local_structures(void);

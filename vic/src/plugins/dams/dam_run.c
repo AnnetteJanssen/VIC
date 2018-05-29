@@ -119,7 +119,7 @@ dam_get_operation_flo(double ay_flow,
     size_t i;    
     
     // Set operational discharge
-    for(amplitude = EFR_HIGH_DEMAND_FRAC; amplitude < 1; amplitude += DAM_AMP_STEP){
+    for(amplitude = VFM_HIGH_DEMAND_FRAC; amplitude < 1; amplitude += DAM_AMP_STEP){
         dam_calc_year_discharge(ay_flow, am_flow, amplitude, 0.0, op_discharge);
         
         volume_needed = 0.0;
@@ -360,7 +360,7 @@ dam_total(size_t cur_cell, size_t cur_dam)
     size_t k;
     
     dam_var[cur_cell][cur_dam].total_flow += 
-            rout_var[cur_cell].nat_discharge[0];
+            rout_var[cur_cell].discharge[0];
     
     if(options.IRRIGATION){
         for(i = 0; i < dam_con[cur_cell][cur_dam].nservice; i++){
@@ -400,7 +400,7 @@ dam_run(size_t cur_cell)
     extern option_struct options;
     extern dam_var_struct **dam_var;
     extern rout_var_struct *rout_var;
-    extern efr_var_struct *efr_var;
+    extern efr_hist_struct *efr_hist;
     extern dam_con_map_struct *dam_con_map;
     extern dam_con_struct **dam_con;
     
@@ -522,9 +522,9 @@ dam_run(size_t cur_cell)
             // Consider EFR
             if(options.EFR){
                 if(dam_var[cur_cell][i].discharge <
-                        efr_var[cur_cell].requirement){
+                        efr_hist[cur_cell].requirement_discharge){
                     dam_var[cur_cell][i].discharge =
-                        efr_var[cur_cell].requirement;
+                        efr_hist[cur_cell].requirement_discharge;
                 }
             }  
             

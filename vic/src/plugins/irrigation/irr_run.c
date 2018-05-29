@@ -224,32 +224,36 @@ irr_set_demand(size_t cur_cell)
 {
     extern domain_struct local_domain;
     extern irr_con_map_struct *irr_con_map;
+    extern irr_con_struct **irr_con;
     extern elev_con_map_struct *elev_con_map;
     extern wu_hist_struct **wu_hist;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
     
-    double total_demand;
+    double demand;
     size_t cur_veg;
     
     size_t i;
     size_t j;
     
-    total_demand = 0.0;            
+    demand = 0.0;            
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
 
         for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
-            total_demand += irr_var[cur_cell][i][j].requirement *
+            demand += irr_var[cur_cell][i][j].requirement *
                     soil_con[cur_cell].AreaFract[j] * 
                     veg_con[cur_cell][cur_veg].Cv;
         }
     }
-
-    wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = 1.0;
-    wu_hist[cur_cell][WU_IRRIGATION].demand = total_demand / 
+    wu_hist[cur_cell][WU_IRRIGATION].demand = demand / 
                 wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction /
-                MM_PER_M * local_domain.locations[cur_cell].area; 
+                MM_PER_M * local_domain.locations[cur_cell].area;
+    
+    if (demand > 0) {
+        wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = irr_con[cur_cell][0].WUE;
+        wu_hist[cur_cell][WU_IRRIGATION].gw_fraction = irr_con[cur_cell][0].gw_fraction;
+    }
 }
 
 void

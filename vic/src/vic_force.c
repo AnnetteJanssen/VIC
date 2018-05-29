@@ -1,7 +1,7 @@
 /******************************************************************************
  * @section DESCRIPTION
  *
- * Save model state.
+ * Read atmospheric forcing data.
  *
  * @section LICENSE
  *
@@ -25,21 +25,23 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
- * @brief    Save model state.
+ * @brief    Read atmospheric forcing data.
  *****************************************************************************/
 void
-efr_add_types(void)
+vic_force(void)
 {
-    extern node *outvar_types;
-    extern int   N_OUTVAR_TYPES_ALL;
-
-    // add outvar_types
-    outvar_types = list_prepend(outvar_types, "OUT_EFR_DIS_REQ");
-    outvar_types = list_prepend(outvar_types, "OUT_EFR_BASE_REQ");
-
-    outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
-    N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;
+    extern option_struct options;
+    
+    // Force all non specific VIC structures
+    force_general();
+    
+    // Force all plugins
+    if(options.WATER_USE){
+        wu_forcing();
+    }
+    if(options.EFR){
+        efr_forcing();
+    }
 }

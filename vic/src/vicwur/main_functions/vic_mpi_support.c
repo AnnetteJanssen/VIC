@@ -313,7 +313,7 @@ create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in filenames_struct
-    nitems = 7;
+    nitems = 8;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -332,7 +332,7 @@ create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     // reset i
     i = 0;
 
-    // char met_forcing_pfx[MAX_FORCE_FILES][MAXSTRING];
+    // char f_path_pfx[MAX_FORCE_FILES][MAXSTRING];
     offsets[i] = offsetof(filenames_struct, f_path_pfx);
     blocklengths[i] *= N_FORCING_TYPES;
     mpi_types[i++] = MPI_CHAR;
@@ -357,8 +357,13 @@ create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(filenames_struct, log_path);
     mpi_types[i++] = MPI_CHAR;
 
-    // char water_use_forcing_pfx[MAXSTRING];
+    // char water_use_forcing_pfx[WU_NSECTORS][MAXSTRING];
     offsets[i] = offsetof(filenames_struct, water_use_forcing_pfx);
+    blocklengths[i] *= WU_NSECTORS;
+    mpi_types[i++] = MPI_CHAR;
+
+    // char efr_forcing_pfx[MAXSTRING];
+    offsets[i] = offsetof(filenames_struct, efr_forcing_pfx);
     mpi_types[i++] = MPI_CHAR;
 
     // make sure that the we have the right number of elements
@@ -787,7 +792,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool WU_DAM;
     offsets[i] = offsetof(option_struct, WU_DAM);
     mpi_types[i++] = MPI_C_BOOL;
-    // int MAXRECEIVING;
+    // size_t MAXRECEIVING;
     offsets[i] = offsetof(option_struct, MAXRECEIVING);
     mpi_types[i++] = MPI_AINT;
     // int WU_INPUT_LOCATION[WU_NSECTORS];
@@ -806,10 +811,10 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     blocklengths[i] = WU_NSECTORS;
     mpi_types[i++] = MPI_INT;
 
-    // int NIRRTYPES;
+    // size_t NIRRTYPES;
     offsets[i] = offsetof(option_struct, NIRRTYPES);
     mpi_types[i++] = MPI_AINT;
-    // int NIRRSEASONS;
+    // size_t NIRRSEASONS;
     offsets[i] = offsetof(option_struct, NIRRSEASONS);
     mpi_types[i++] = MPI_AINT;
     // bool IRR_POTENTIAL;
@@ -818,11 +823,11 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool IRR_POND;
     offsets[i] = offsetof(option_struct, IRR_POND);
     mpi_types[i++] = MPI_C_BOOL;
-
-    // int MAXSERVICE;
+    
+    // size_t MAXSERVICE;
     offsets[i] = offsetof(option_struct, MAXSERVICE);
     mpi_types[i++] = MPI_AINT;
-    // int MAXDAMS;
+    // size_t MAXDAMS;
     offsets[i] = offsetof(option_struct, MAXDAMS);
     mpi_types[i++] = MPI_AINT;
 

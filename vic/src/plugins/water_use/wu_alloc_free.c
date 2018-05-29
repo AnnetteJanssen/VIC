@@ -119,6 +119,9 @@ wu_alloc(void)
             wu_force[i][j].consumption_fraction = malloc(NF * sizeof(*wu_force[i][j].consumption_fraction));
             check_alloc_status(wu_force[i][j].consumption_fraction,"Memory allocation error");
             
+            wu_force[i][j].gw_fraction = malloc(NF * sizeof(*wu_force[i][j].gw_fraction));
+            check_alloc_status(wu_force[i][j].gw_fraction,"Memory allocation error");
+            
             wu_force[i][j].demand = malloc(NF * sizeof(*wu_force[i][j].demand));
             check_alloc_status(wu_force[i][j].demand,"Memory allocation error");
         }  
@@ -163,6 +166,7 @@ wu_finalize(void)
     for(i=0; i<local_domain.ncells_active; i++){
         for(j = 0; j < WU_NSECTORS; j++){    
             free(wu_force[i][j].consumption_fraction);
+            free(wu_force[i][j].gw_fraction);
             free(wu_force[i][j].demand);
         }
         free(wu_force[i]);

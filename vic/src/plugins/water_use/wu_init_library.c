@@ -20,6 +20,7 @@ initialize_wu_hist(wu_hist_struct *wu_hist)
     
     for(i = 0; i < WU_NSECTORS; i++){
         wu_hist[i].consumption_fraction = 0.0; 
+        wu_hist[i].gw_fraction = 0.0; 
         wu_hist[i].demand = 0.0;
     }
 }

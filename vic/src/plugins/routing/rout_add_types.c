@@ -38,7 +38,6 @@ rout_add_types(void)
 
     // add outvar_types
     outvar_types = list_prepend(outvar_types, "OUT_DISCHARGE");
-    outvar_types = list_prepend(outvar_types, "OUT_NAT_DISCHARGE");
     outvar_types = list_prepend(outvar_types, "OUT_STREAM_MOIST");
 
     outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);

@@ -35,24 +35,8 @@ rout_set_output_meta_data_info(void)
                                        "OUT_STREAM_MOIST")].description,
            "stream storage");
 
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_NAT_DISCHARGE")].varname,
-           "OUT_NAT_DISCHARGE");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_NAT_DISCHARGE")].long_name,
-           "natural_discharge");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_NAT_DISCHARGE")].standard_name,
-           "natural_discharge");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_NAT_DISCHARGE")].units, "m3/s");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_NAT_DISCHARGE")].description,
-           "natural_discharge");
-
     out_metadata[list_search_id(outvar_types, "OUT_STREAM_MOIST")].nelem = 1;
     out_metadata[list_search_id(outvar_types, "OUT_DISCHARGE")].nelem = 1;
-    out_metadata[list_search_id(outvar_types, "OUT_NAT_DISCHARGE")].nelem = 1;
 }
 
 void

@@ -41,10 +41,6 @@ rout_alloc(void)
         rout_var[i].discharge =
             malloc(options.RIRF_NSTEPS * sizeof(*rout_var[i].discharge));
         check_alloc_status(rout_var[i].discharge, "Memory allocation error");
-
-        rout_var[i].nat_discharge =
-            malloc(options.RIRF_NSTEPS * sizeof(*rout_var[i].nat_discharge));
-        check_alloc_status(rout_var[i].nat_discharge, "Memory allocation error");
     }
 }
 
@@ -63,7 +59,6 @@ rout_finalize(void)
         free(rout_con[i].grid_irf);
         free(rout_con[i].upstream);
         free(rout_var[i].discharge);
-        free(rout_var[i].nat_discharge);
     }
     free(rout_var);
     free(rout_con);

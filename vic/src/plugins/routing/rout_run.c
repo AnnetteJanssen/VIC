@@ -18,7 +18,6 @@ rout_gl_run()
     double                   **rirf_global;
     double                    *run_global;
     double                   **dis_global;
-    double                   **ndis_global;
     double                    *store_global;
 
     size_t                    *nup_local;
@@ -27,12 +26,10 @@ rout_gl_run()
     double                   **rirf_local;
     double                    *run_local;
     double                   **dis_local;
-    double                   **ndis_local;
     double                    *store_local;
 
     size_t                     cur_cell;
     double                     inflow;
-    double                     nat_inflow;
     double                     runoff;
 
     size_t                     i;
@@ -40,9 +37,7 @@ rout_gl_run()
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_var[i].discharge[0] = 0.0;
-        rout_var[i].nat_discharge[0] = 0.0;
         cshift(rout_var[i].discharge, options.RIRF_NSTEPS, 1, 0, 1);
-        cshift(rout_var[i].nat_discharge, options.RIRF_NSTEPS, 1, 0, 1);
     }
 
     // Alloc
@@ -58,8 +53,6 @@ rout_gl_run()
     check_alloc_status(run_global, "Memory allocation error");
     dis_global = malloc(global_domain.ncells_active * sizeof(*dis_global));
     check_alloc_status(dis_global, "Memory allocation error");
-    ndis_global = malloc(global_domain.ncells_active * sizeof(*ndis_global));
-    check_alloc_status(ndis_global, "Memory allocation error");
     store_global = malloc(global_domain.ncells_active * sizeof(*store_global));
     check_alloc_status(store_global, "Memory allocation error");
 
@@ -72,8 +65,6 @@ rout_gl_run()
         check_alloc_status(rirf_global[i], "Memory allocation error");
         dis_global[i] = malloc(options.RIRF_NSTEPS * sizeof(*dis_global[i]));
         check_alloc_status(dis_global[i], "Memory allocation error");
-        ndis_global[i] = malloc(options.RIRF_NSTEPS * sizeof(*ndis_global[i]));
-        check_alloc_status(ndis_global[i], "Memory allocation error");
     }
 
     nup_local = malloc(local_domain.ncells_active * sizeof(*nup_local));
@@ -88,8 +79,6 @@ rout_gl_run()
     check_alloc_status(run_local, "Memory allocation error");
     dis_local = malloc(local_domain.ncells_active * sizeof(*dis_local));
     check_alloc_status(dis_local, "Memory allocation error");
-    ndis_local = malloc(local_domain.ncells_active * sizeof(*ndis_local));
-    check_alloc_status(ndis_local, "Memory allocation error");
     store_local = malloc(local_domain.ncells_active * sizeof(*store_local));
     check_alloc_status(store_local, "Memory allocation error");
 
@@ -102,8 +91,6 @@ rout_gl_run()
         check_alloc_status(rirf_local[i], "Memory allocation error");
         dis_local[i] = malloc(options.RIRF_NSTEPS * sizeof(*dis_local[i]));
         check_alloc_status(dis_local[i], "Memory allocation error");
-        ndis_local[i] = malloc(options.RIRF_NSTEPS * sizeof(*ndis_local[i]));
-        check_alloc_status(ndis_local[i], "Memory allocation error");
     }
 
     // Get
@@ -125,9 +112,6 @@ rout_gl_run()
         for (j = 0; j < options.RIRF_NSTEPS; j++) {
             dis_local[i][j] = rout_var[i].discharge[j];
         }
-        for (j = 0; j < options.RIRF_NSTEPS; j++) {
-            ndis_local[i][j] = rout_var[i].nat_discharge[j];
-        }
         store_local[i] = rout_var[i].storage;
     }
 
@@ -138,7 +122,6 @@ rout_gl_run()
     gather_double_2d(rirf_global, rirf_local, options.RIRF_NSTEPS);
     gather_double(run_global, run_local);
     gather_double_2d(dis_global, dis_local, options.RIRF_NSTEPS);
-    gather_double_2d(ndis_global, ndis_local, options.RIRF_NSTEPS);
     gather_double(store_global, store_local);
 
     // Calculate
@@ -151,11 +134,6 @@ rout_gl_run()
                 inflow += dis_global[up_global[cur_cell][j]][0];
             }
 
-            nat_inflow = 0;
-            for (j = 0; j < nup_global[cur_cell]; j++) {
-                nat_inflow += ndis_global[up_global[cur_cell][j]][0];
-            }
-
             runoff = 0;
             runoff += run_global[cur_cell];
 
@@ -163,16 +141,9 @@ rout_gl_run()
                  options.RIRF_NSTEPS);
             rout(runoff, girf_global[cur_cell], dis_global[cur_cell],
                  options.GIRF_NSTEPS);
-            rout(nat_inflow, rirf_global[cur_cell], ndis_global[cur_cell],
-                 options.RIRF_NSTEPS);
-            rout(runoff, girf_global[cur_cell], ndis_global[cur_cell],
-                 options.GIRF_NSTEPS);
 
             if (dis_global[cur_cell][0] < 0) {
                 dis_global[cur_cell][0] = 0.0;
-            }
-            if (ndis_global[cur_cell][0] < 0) {
-                ndis_global[cur_cell][0] = 0.0;
             }
 
             store_global[cur_cell] += (inflow + runoff) *
@@ -188,16 +159,12 @@ rout_gl_run()
 
     // Scatter discharge
     scatter_double_2d(dis_global, dis_local, options.RIRF_NSTEPS);
-    scatter_double_2d(ndis_global, ndis_local, options.RIRF_NSTEPS);
     scatter_double(store_global, store_local);
 
     // Set discharge
     for (i = 0; i < local_domain.ncells_active; i++) {
         for (j = 0; j < options.RIRF_NSTEPS; j++) {
             rout_var[i].discharge[j] = dis_local[i][j];
-        }
-        for (j = 0; j < options.RIRF_NSTEPS; j++) {
-            rout_var[i].nat_discharge[j] = ndis_local[i][j];
         }
         rout_var[i].storage = store_local[i];
     }
@@ -208,7 +175,6 @@ rout_gl_run()
         free(girf_global[i]);
         free(rirf_global[i]);
         free(dis_global[i]);
-        free(ndis_global[i]);
     }
     free(nup_global);
     free(up_global);
@@ -216,7 +182,6 @@ rout_gl_run()
     free(rirf_global);
     free(run_global);
     free(dis_global);
-    free(ndis_global);
     free(store_global);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
@@ -224,7 +189,6 @@ rout_gl_run()
         free(girf_local[i]);
         free(rirf_local[i]);
         free(dis_local[i]);
-        free(ndis_local[i]);
     }
     free(nup_local);
     free(up_local);
@@ -232,7 +196,6 @@ rout_gl_run()
     free(rirf_local);
     free(run_local);
     free(dis_local);
-    free(ndis_local);
     free(store_local);
 }
 
@@ -247,24 +210,16 @@ rout_run(size_t cur_cell)
     extern double           ***out_data;
 
     double                     inflow;
-    double                     nat_inflow;
     double                     runoff;
 
     size_t                     i;
 
     rout_var[cur_cell].discharge[0] = 0.0;
-    rout_var[cur_cell].nat_discharge[0] = 0.0;
     cshift(rout_var[cur_cell].discharge, options.RIRF_NSTEPS, 1, 0, 1);
-    cshift(rout_var[cur_cell].nat_discharge, options.RIRF_NSTEPS, 1, 0, 1);
 
     inflow = 0;
     for (i = 0; i < rout_con[cur_cell].Nupstream; i++) {
         inflow += rout_var[rout_con[cur_cell].upstream[i]].discharge[0];
-    }
-
-    nat_inflow = 0;
-    for (i = 0; i < rout_con[cur_cell].Nupstream; i++) {
-        nat_inflow += rout_var[rout_con[cur_cell].upstream[i]].nat_discharge[0];
     }
 
     runoff = 0;
@@ -278,19 +233,11 @@ rout_run(size_t cur_cell)
          options.RIRF_NSTEPS);
     rout(runoff, rout_con[cur_cell].grid_irf, rout_var[cur_cell].discharge,
          options.GIRF_NSTEPS);
-    rout(nat_inflow, rout_con[cur_cell].river_irf,
-         rout_var[cur_cell].nat_discharge,
-         options.RIRF_NSTEPS);
-    rout(runoff, rout_con[cur_cell].grid_irf, rout_var[cur_cell].nat_discharge,
-         options.GIRF_NSTEPS);
 
     if (rout_var[cur_cell].discharge[0] < 0) {
         rout_var[cur_cell].discharge[0] = 0.0;
     }
-    if (rout_var[cur_cell].nat_discharge[0] < 0) {
-        rout_var[cur_cell].nat_discharge[0] = 0.0;
-    }
-
+    
     rout_var[cur_cell].storage += (inflow + runoff) *
                                   global_param.dt /
                                   local_domain.locations[cur_cell].area *
