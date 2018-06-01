@@ -20,12 +20,11 @@ typedef struct {
 } basin_struct;
 
 typedef struct {
-    int direction;
     size_t downstream;
     size_t Nupstream;
     size_t *upstream;
-    double *river_irf;
-    double *grid_irf;
+    double *inflow_uh;
+    double *runoff_uh;
 } rout_con_struct;
 
 typedef struct {

@@ -1,32 +1,77 @@
 #include <vic.h>
 
 void
-get_basins_routing(basin_struct *basins)
-{
+set_basins_downstream(size_t *downstream_basin){
     extern domain_struct    global_domain;
     extern filenames_struct filenames;
 
-    int                    *direction = NULL;
-    size_t                 *river = NULL;
-
-    size_t                  Nriver;
-    int                     cur_direction;
-
-    size_t                  cur_cell;
-    size_t                  next_cell;
+    int                    *id;
+    int                    *downstream;
+    
+    bool                    found;
 
     size_t                  i;
     size_t                  j;
+
     size_t                  d2count[2];
     size_t                  d2start[2];
+
+    downstream = malloc(global_domain.ncells_active * sizeof(*downstream));
+    check_alloc_status(downstream, "Memory allocation error.");
+    id = malloc(global_domain.ncells_active * sizeof(*id));
+    check_alloc_status(id, "Memory allocation error.");
 
     d2start[0] = 0;
     d2start[1] = 0;
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx;
 
-    direction = malloc(global_domain.ncells_active * sizeof(*direction));
-    check_alloc_status(direction, "Memory allocation error.");
+    get_active_nc_field_int(&(filenames.routing), "downstream_id", 
+                             d2start, d2count, id);
+    
+    get_active_nc_field_int(&(filenames.routing), "downstream", 
+                             d2start, d2count, downstream);
+    
+    for (i = 0; i < global_domain.ncells_active; i++) {
+        found = false;
+        
+        for (j = 0; j < global_domain.ncells_active; j++) {
+            if (downstream[i] == id[j]) {
+                downstream_basin[i] = j;
+                found = true;
+            }
+        }
+        
+        if(!found){
+            log_warn("No downstream cell was found; "
+                    "Probably the ID was outside of the mask or "
+                    "the ID was not set;"
+                    "Setting cell as outflow point");
+            downstream_basin[i] = i;
+        }
+    }
+
+    free(downstream);
+    free(id);
+}
+
+void
+get_basins_routing(basin_struct *basins)
+{
+    extern domain_struct    global_domain;
+
+    size_t                 *downstream;
+    size_t                 *river;
+    size_t                  Nriver;
+
+    size_t                  cur_cell;
+    size_t                  next_cell;
+
+    size_t                  i;
+    size_t                  j;
+
+    downstream = malloc(global_domain.ncells_active * sizeof(*downstream));
+    check_alloc_status(downstream, "Memory allocation error.");
     river = malloc(global_domain.ncells_active * sizeof(*river));
     check_alloc_status(river, "Memory allocation error.");
 
@@ -34,14 +79,7 @@ get_basins_routing(basin_struct *basins)
         malloc(global_domain.ncells_active * sizeof(*basins->basin_map));
     check_alloc_status(basins->basin_map, "Memory allocation error.");
 
-    for (i = 0; i < global_domain.ncells_active; i++) {
-        direction[i] = MISSING_USI;
-        basins->basin_map[i] = MISSING_USI;
-    }
-
-    get_active_nc_field_int(&filenames.routing, "flow_direction", d2start,
-                            d2count,
-                            direction);
+    set_basins_downstream(downstream);
 
     basins->Nbasin = 0;
     Nriver = 0;
@@ -50,7 +88,7 @@ get_basins_routing(basin_struct *basins)
         cur_cell = next_cell = i;
 
         while (true) {
-            cur_direction = direction[cur_cell];
+            
             river[Nriver] = cur_cell;
             Nriver++;
 
@@ -61,13 +99,12 @@ get_basins_routing(basin_struct *basins)
                 break;
             }
 
-            next_cell = get_downstream_global(cur_cell, cur_direction);
+            next_cell = downstream[cur_cell];
 
             if (next_cell == cur_cell) {
                 for (j = 0; j < Nriver; j++) {
                     basins->basin_map[river[j]] = basins->Nbasin;
                 }
-
                 basins->Nbasin++;
                 break;
             }
@@ -118,7 +155,6 @@ get_basins_routing(basin_struct *basins)
         basins->Ncells[basins->basin_map[i]]++;
     }
 
-    free(direction);
     free(river);
 }
 
@@ -128,7 +164,7 @@ get_basins_file(basin_struct *basins)
     extern domain_struct    global_domain;
     extern filenames_struct filenames;
 
-    int                    *basin_list = NULL;
+    int                    *basin_list;
     bool                    duplicate;
 
     size_t                  d2count[2];

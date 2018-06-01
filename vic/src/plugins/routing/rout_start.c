@@ -14,9 +14,9 @@ rout_start(void)
     check_nc_status(status, "Error opening %s",
                     filenames.routing.nc_filename);
 
-    options.RIRF_NSTEPS = get_nc_dimension(&(filenames.routing),
+    options.IUH_NSTEPS = get_nc_dimension(&(filenames.routing),
                                            "rirf_nsteps");
-    options.GIRF_NSTEPS = get_nc_dimension(&(filenames.routing),
+    options.RUH_NSTEPS = get_nc_dimension(&(filenames.routing),
                                            "girf_nsteps");
 
     // close routing parameter file

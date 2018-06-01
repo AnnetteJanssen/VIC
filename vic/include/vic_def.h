@@ -348,8 +348,8 @@ typedef struct {
     bool GW_INIT_FROM_FILE;
     // Routing options
     int ROUTING_TYPE;
-    size_t RIRF_NSTEPS;
-    size_t GIRF_NSTEPS;
+    size_t IUH_NSTEPS;
+    size_t RUH_NSTEPS;
     // Water use options
     bool WU_REMOTE;
     bool WU_GW;

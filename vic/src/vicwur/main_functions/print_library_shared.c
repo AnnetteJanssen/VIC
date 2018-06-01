@@ -540,8 +540,8 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tGW_INIT_FROM_FILE    : %s\n",
             option->GW_INIT_FROM_FILE ? "true" : "false");
     fprintf(LOG_DEST, "\tROUTING_TYPE         : %d\n", option->ROUTING_TYPE);
-    fprintf(LOG_DEST, "\tRIRF_NSTEPS          : %zu\n", option->RIRF_NSTEPS);
-    fprintf(LOG_DEST, "\tGIRF_NSTEPS          : %zu\n", option->GIRF_NSTEPS);
+    fprintf(LOG_DEST, "\tRIRF_NSTEPS          : %zu\n", option->IUH_NSTEPS);
+    fprintf(LOG_DEST, "\tGIRF_NSTEPS          : %zu\n", option->RUH_NSTEPS);
     fprintf(LOG_DEST, "\tWU_REMOTE            : %s\n",
             option->WU_REMOTE ? "true" : "false");
     fprintf(LOG_DEST, "\tWU_GW                : %s\n",

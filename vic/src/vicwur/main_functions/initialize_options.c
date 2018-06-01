@@ -112,8 +112,8 @@ initialize_options()
     options.GW_INIT_FROM_FILE = false;
     // Routing options
     options.ROUTING_TYPE = ROUTING_FALSE;
-    options.RIRF_NSTEPS = 0;
-    options.GIRF_NSTEPS = 0;
+    options.IUH_NSTEPS = 0;
+    options.RUH_NSTEPS = 0;
     // Water use options
     options.WU_REMOTE = false;
     options.WU_GW = false;

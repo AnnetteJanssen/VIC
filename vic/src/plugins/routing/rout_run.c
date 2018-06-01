@@ -37,7 +37,7 @@ rout_gl_run()
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_var[i].discharge[0] = 0.0;
-        cshift(rout_var[i].discharge, options.RIRF_NSTEPS, 1, 0, 1);
+        cshift(rout_var[i].discharge, options.IUH_NSTEPS, 1, 0, 1);
     }
 
     // Alloc
@@ -59,11 +59,11 @@ rout_gl_run()
     for (i = 0; i < global_domain.ncells_active; i++) {
         up_global[i] = malloc(MAX_UPSTREAM * sizeof(*up_global[i]));
         check_alloc_status(up_global[i], "Memory allocation error");
-        girf_global[i] = malloc(options.GIRF_NSTEPS * sizeof(*girf_global[i]));
+        girf_global[i] = malloc(options.RUH_NSTEPS * sizeof(*girf_global[i]));
         check_alloc_status(girf_global[i], "Memory allocation error");
-        rirf_global[i] = malloc(options.RIRF_NSTEPS * sizeof(*rirf_global[i]));
+        rirf_global[i] = malloc(options.IUH_NSTEPS * sizeof(*rirf_global[i]));
         check_alloc_status(rirf_global[i], "Memory allocation error");
-        dis_global[i] = malloc(options.RIRF_NSTEPS * sizeof(*dis_global[i]));
+        dis_global[i] = malloc(options.IUH_NSTEPS * sizeof(*dis_global[i]));
         check_alloc_status(dis_global[i], "Memory allocation error");
     }
 
@@ -85,11 +85,11 @@ rout_gl_run()
     for (i = 0; i < local_domain.ncells_active; i++) {
         up_local[i] = malloc(MAX_UPSTREAM * sizeof(*up_local[i]));
         check_alloc_status(up_local[i], "Memory allocation error");
-        girf_local[i] = malloc(options.GIRF_NSTEPS * sizeof(*girf_local[i]));
+        girf_local[i] = malloc(options.RUH_NSTEPS * sizeof(*girf_local[i]));
         check_alloc_status(girf_local[i], "Memory allocation error");
-        rirf_local[i] = malloc(options.RIRF_NSTEPS * sizeof(*rirf_local[i]));
+        rirf_local[i] = malloc(options.IUH_NSTEPS * sizeof(*rirf_local[i]));
         check_alloc_status(rirf_local[i], "Memory allocation error");
-        dis_local[i] = malloc(options.RIRF_NSTEPS * sizeof(*dis_local[i]));
+        dis_local[i] = malloc(options.IUH_NSTEPS * sizeof(*dis_local[i]));
         check_alloc_status(dis_local[i], "Memory allocation error");
     }
 
@@ -99,17 +99,17 @@ rout_gl_run()
         for (j = 0; j < rout_con[i].Nupstream; j++) {
             up_local[i][j] = rout_con[i].upstream[j];
         }
-        for (j = 0; j < options.GIRF_NSTEPS; j++) {
-            girf_local[i][j] = rout_con[i].grid_irf[j];
+        for (j = 0; j < options.RUH_NSTEPS; j++) {
+            girf_local[i][j] = rout_con[i].runoff_uh[j];
         }
-        for (j = 0; j < options.RIRF_NSTEPS; j++) {
-            rirf_local[i][j] = rout_con[i].river_irf[j];
+        for (j = 0; j < options.IUH_NSTEPS; j++) {
+            rirf_local[i][j] = rout_con[i].inflow_uh[j];
         }
         run_local[i] =
             (out_data[i][OUT_RUNOFF][0] + out_data[i][OUT_BASEFLOW][0]) /
             MM_PER_M * local_domain.locations[i].area /
             global_param.dt;
-        for (j = 0; j < options.RIRF_NSTEPS; j++) {
+        for (j = 0; j < options.IUH_NSTEPS; j++) {
             dis_local[i][j] = rout_var[i].discharge[j];
         }
         store_local[i] = rout_var[i].moist;
@@ -118,10 +118,10 @@ rout_gl_run()
     // Gather
     gather_sizet(nup_global, nup_local);
     gather_sizet_2d(up_global, up_local, MAX_UPSTREAM);
-    gather_double_2d(girf_global, girf_local, options.GIRF_NSTEPS);
-    gather_double_2d(rirf_global, rirf_local, options.RIRF_NSTEPS);
+    gather_double_2d(girf_global, girf_local, options.RUH_NSTEPS);
+    gather_double_2d(rirf_global, rirf_local, options.IUH_NSTEPS);
     gather_double(run_global, run_local);
-    gather_double_2d(dis_global, dis_local, options.RIRF_NSTEPS);
+    gather_double_2d(dis_global, dis_local, options.IUH_NSTEPS);
     gather_double(store_global, store_local);
 
     // Calculate
@@ -138,9 +138,9 @@ rout_gl_run()
             runoff += run_global[cur_cell];
 
             rout(inflow, rirf_global[cur_cell], dis_global[cur_cell],
-                 options.RIRF_NSTEPS);
+                 options.IUH_NSTEPS);
             rout(runoff, girf_global[cur_cell], dis_global[cur_cell],
-                 options.GIRF_NSTEPS);
+                 options.RUH_NSTEPS);
 
             if (dis_global[cur_cell][0] < 0) {
                 dis_global[cur_cell][0] = 0.0;
@@ -158,12 +158,12 @@ rout_gl_run()
     }
 
     // Scatter discharge
-    scatter_double_2d(dis_global, dis_local, options.RIRF_NSTEPS);
+    scatter_double_2d(dis_global, dis_local, options.IUH_NSTEPS);
     scatter_double(store_global, store_local);
 
     // Set discharge
     for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < options.RIRF_NSTEPS; j++) {
+        for (j = 0; j < options.IUH_NSTEPS; j++) {
             rout_var[i].discharge[j] = dis_local[i][j];
         }
         rout_var[i].moist = store_local[i];
@@ -215,7 +215,7 @@ rout_run(size_t cur_cell)
     size_t                     i;
 
     rout_var[cur_cell].discharge[0] = 0.0;
-    cshift(rout_var[cur_cell].discharge, options.RIRF_NSTEPS, 1, 0, 1);
+    cshift(rout_var[cur_cell].discharge, options.IUH_NSTEPS, 1, 0, 1);
 
     inflow = 0;
     for (i = 0; i < rout_con[cur_cell].Nupstream; i++) {
@@ -229,17 +229,17 @@ rout_run(size_t cur_cell)
         MM_PER_M * local_domain.locations[cur_cell].area /
         global_param.dt;
 
-    rout(inflow, rout_con[cur_cell].river_irf, rout_var[cur_cell].discharge,
-         options.RIRF_NSTEPS);
-    rout(runoff, rout_con[cur_cell].grid_irf, rout_var[cur_cell].discharge,
-         options.GIRF_NSTEPS);
+    rout(inflow, rout_con[cur_cell].inflow_uh, rout_var[cur_cell].discharge,
+         options.IUH_NSTEPS);
+    rout(runoff, rout_con[cur_cell].runoff_uh, rout_var[cur_cell].discharge,
+         options.RUH_NSTEPS);
 
     if (rout_var[cur_cell].discharge[0] < 0) {
         rout_var[cur_cell].discharge[0] = 0.0;
     }
     
     rout_var[cur_cell].moist = 0.0;
-    for(i = 0; i < options.RIRF_NSTEPS; i++){
+    for(i = 0; i < options.IUH_NSTEPS; i++){
         rout_var[cur_cell].moist += rout_var[cur_cell].discharge[i] *
                                       global_param.dt /
                                       local_domain.locations[cur_cell].area *

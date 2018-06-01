@@ -777,10 +777,10 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(option_struct, ROUTING_TYPE);
     mpi_types[i++] = MPI_INT;
     // size_t RIRF_NSTEPS;
-    offsets[i] = offsetof(option_struct, RIRF_NSTEPS);
+    offsets[i] = offsetof(option_struct, IUH_NSTEPS);
     mpi_types[i++] = MPI_AINT;
     // size_t GIRF_NSTEPS;
-    offsets[i] = offsetof(option_struct, GIRF_NSTEPS);
+    offsets[i] = offsetof(option_struct, RUH_NSTEPS);
     mpi_types[i++] = MPI_AINT;
 
     // bool WU_REMOTE;
