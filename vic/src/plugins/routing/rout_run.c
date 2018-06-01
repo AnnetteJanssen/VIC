@@ -14,16 +14,16 @@ rout_gl_run()
 
     size_t                    *nup_global;
     size_t                   **up_global;
-    double                   **girf_global;
-    double                   **rirf_global;
+    double                   **ruh_global;
+    double                   **iuh_global;
     double                    *run_global;
     double                   **dis_global;
     double                    *store_global;
 
     size_t                    *nup_local;
     size_t                   **up_local;
-    double                   **girf_local;
-    double                   **rirf_local;
+    double                   **ruh_local;
+    double                   **iuh_local;
     double                    *run_local;
     double                   **dis_local;
     double                    *store_local;
@@ -45,10 +45,10 @@ rout_gl_run()
     check_alloc_status(nup_global, "Memory allocation error");
     up_global = malloc(global_domain.ncells_active * sizeof(*up_global));
     check_alloc_status(up_global, "Memory allocation error");
-    girf_global = malloc(global_domain.ncells_active * sizeof(*girf_global));
-    check_alloc_status(girf_global, "Memory allocation error");
-    rirf_global = malloc(global_domain.ncells_active * sizeof(*rirf_global));
-    check_alloc_status(rirf_global, "Memory allocation error");
+    ruh_global = malloc(global_domain.ncells_active * sizeof(*ruh_global));
+    check_alloc_status(ruh_global, "Memory allocation error");
+    iuh_global = malloc(global_domain.ncells_active * sizeof(*iuh_global));
+    check_alloc_status(iuh_global, "Memory allocation error");
     run_global = malloc(global_domain.ncells_active * sizeof(*run_global));
     check_alloc_status(run_global, "Memory allocation error");
     dis_global = malloc(global_domain.ncells_active * sizeof(*dis_global));
@@ -59,10 +59,10 @@ rout_gl_run()
     for (i = 0; i < global_domain.ncells_active; i++) {
         up_global[i] = malloc(MAX_UPSTREAM * sizeof(*up_global[i]));
         check_alloc_status(up_global[i], "Memory allocation error");
-        girf_global[i] = malloc(options.RUH_NSTEPS * sizeof(*girf_global[i]));
-        check_alloc_status(girf_global[i], "Memory allocation error");
-        rirf_global[i] = malloc(options.IUH_NSTEPS * sizeof(*rirf_global[i]));
-        check_alloc_status(rirf_global[i], "Memory allocation error");
+        ruh_global[i] = malloc(options.RUH_NSTEPS * sizeof(*ruh_global[i]));
+        check_alloc_status(ruh_global[i], "Memory allocation error");
+        iuh_global[i] = malloc(options.IUH_NSTEPS * sizeof(*iuh_global[i]));
+        check_alloc_status(iuh_global[i], "Memory allocation error");
         dis_global[i] = malloc(options.IUH_NSTEPS * sizeof(*dis_global[i]));
         check_alloc_status(dis_global[i], "Memory allocation error");
     }
@@ -71,10 +71,10 @@ rout_gl_run()
     check_alloc_status(nup_local, "Memory allocation error");
     up_local = malloc(local_domain.ncells_active * sizeof(*up_local));
     check_alloc_status(up_local, "Memory allocation error");
-    girf_local = malloc(local_domain.ncells_active * sizeof(*girf_local));
-    check_alloc_status(girf_local, "Memory allocation error");
-    rirf_local = malloc(local_domain.ncells_active * sizeof(*rirf_local));
-    check_alloc_status(rirf_local, "Memory allocation error");
+    ruh_local = malloc(local_domain.ncells_active * sizeof(*ruh_local));
+    check_alloc_status(ruh_local, "Memory allocation error");
+    iuh_local = malloc(local_domain.ncells_active * sizeof(*iuh_local));
+    check_alloc_status(iuh_local, "Memory allocation error");
     run_local = malloc(local_domain.ncells_active * sizeof(*run_local));
     check_alloc_status(run_local, "Memory allocation error");
     dis_local = malloc(local_domain.ncells_active * sizeof(*dis_local));
@@ -85,10 +85,10 @@ rout_gl_run()
     for (i = 0; i < local_domain.ncells_active; i++) {
         up_local[i] = malloc(MAX_UPSTREAM * sizeof(*up_local[i]));
         check_alloc_status(up_local[i], "Memory allocation error");
-        girf_local[i] = malloc(options.RUH_NSTEPS * sizeof(*girf_local[i]));
-        check_alloc_status(girf_local[i], "Memory allocation error");
-        rirf_local[i] = malloc(options.IUH_NSTEPS * sizeof(*rirf_local[i]));
-        check_alloc_status(rirf_local[i], "Memory allocation error");
+        ruh_local[i] = malloc(options.RUH_NSTEPS * sizeof(*ruh_local[i]));
+        check_alloc_status(ruh_local[i], "Memory allocation error");
+        iuh_local[i] = malloc(options.IUH_NSTEPS * sizeof(*iuh_local[i]));
+        check_alloc_status(iuh_local[i], "Memory allocation error");
         dis_local[i] = malloc(options.IUH_NSTEPS * sizeof(*dis_local[i]));
         check_alloc_status(dis_local[i], "Memory allocation error");
     }
@@ -100,10 +100,10 @@ rout_gl_run()
             up_local[i][j] = rout_con[i].upstream[j];
         }
         for (j = 0; j < options.RUH_NSTEPS; j++) {
-            girf_local[i][j] = rout_con[i].runoff_uh[j];
+            ruh_local[i][j] = rout_con[i].runoff_uh[j];
         }
         for (j = 0; j < options.IUH_NSTEPS; j++) {
-            rirf_local[i][j] = rout_con[i].inflow_uh[j];
+            iuh_local[i][j] = rout_con[i].inflow_uh[j];
         }
         run_local[i] =
             (out_data[i][OUT_RUNOFF][0] + out_data[i][OUT_BASEFLOW][0]) /
@@ -118,8 +118,8 @@ rout_gl_run()
     // Gather
     gather_sizet(nup_global, nup_local);
     gather_sizet_2d(up_global, up_local, MAX_UPSTREAM);
-    gather_double_2d(girf_global, girf_local, options.RUH_NSTEPS);
-    gather_double_2d(rirf_global, rirf_local, options.IUH_NSTEPS);
+    gather_double_2d(ruh_global, ruh_local, options.RUH_NSTEPS);
+    gather_double_2d(iuh_global, iuh_local, options.IUH_NSTEPS);
     gather_double(run_global, run_local);
     gather_double_2d(dis_global, dis_local, options.IUH_NSTEPS);
     gather_double(store_global, store_local);
@@ -137,9 +137,9 @@ rout_gl_run()
             runoff = 0;
             runoff += run_global[cur_cell];
 
-            rout(inflow, rirf_global[cur_cell], dis_global[cur_cell],
+            rout(inflow, iuh_global[cur_cell], dis_global[cur_cell],
                  options.IUH_NSTEPS);
-            rout(runoff, girf_global[cur_cell], dis_global[cur_cell],
+            rout(runoff, ruh_global[cur_cell], dis_global[cur_cell],
                  options.RUH_NSTEPS);
 
             if (dis_global[cur_cell][0] < 0) {
@@ -172,28 +172,28 @@ rout_gl_run()
     // Free
     for (i = 0; i < global_domain.ncells_active; i++) {
         free(up_global[i]);
-        free(girf_global[i]);
-        free(rirf_global[i]);
+        free(ruh_global[i]);
+        free(iuh_global[i]);
         free(dis_global[i]);
     }
     free(nup_global);
     free(up_global);
-    free(girf_global);
-    free(rirf_global);
+    free(ruh_global);
+    free(iuh_global);
     free(run_global);
     free(dis_global);
     free(store_global);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         free(up_local[i]);
-        free(girf_local[i]);
-        free(rirf_local[i]);
+        free(ruh_local[i]);
+        free(iuh_local[i]);
         free(dis_local[i]);
     }
     free(nup_local);
     free(up_local);
-    free(girf_local);
-    free(rirf_local);
+    free(ruh_local);
+    free(iuh_local);
     free(run_local);
     free(dis_local);
     free(store_local);

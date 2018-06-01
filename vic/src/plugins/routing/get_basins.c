@@ -78,7 +78,11 @@ get_basins_routing(basin_struct *basins)
     basins->basin_map =
         malloc(global_domain.ncells_active * sizeof(*basins->basin_map));
     check_alloc_status(basins->basin_map, "Memory allocation error.");
-
+    
+    for (i = 0; i < global_domain.ncells_active; i++) {
+        basins->basin_map[i] = MISSING_USI;
+    }
+    
     set_basins_downstream(downstream);
 
     basins->Nbasin = 0;

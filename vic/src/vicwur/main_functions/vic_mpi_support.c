@@ -776,10 +776,10 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // int ROUTING_TYPE;
     offsets[i] = offsetof(option_struct, ROUTING_TYPE);
     mpi_types[i++] = MPI_INT;
-    // size_t RIRF_NSTEPS;
+    // size_t IUH_NSTEPS;
     offsets[i] = offsetof(option_struct, IUH_NSTEPS);
     mpi_types[i++] = MPI_AINT;
-    // size_t GIRF_NSTEPS;
+    // size_t RUH_NSTEPS;
     offsets[i] = offsetof(option_struct, RUH_NSTEPS);
     mpi_types[i++] = MPI_AINT;
 
