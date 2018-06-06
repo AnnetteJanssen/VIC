@@ -40,7 +40,7 @@ rout_validate_global_parameters(void)
         options.ROUTING_TYPE = ROUTING_BASIN;
     }
     else if (mpi_decomposition == MPI_DECOMPOSITION_FILE) {
-        log_warn("MPI_DECOMPOSITION = FILE and ROUTING = TRUE; "
+        log_info("MPI_DECOMPOSITION = FILE and ROUTING = TRUE; "
                  "Make sure that the decomposition file follows the routing "
                  "flow paths, otherwise errors might occur.");
         options.ROUTING_TYPE = ROUTING_BASIN;

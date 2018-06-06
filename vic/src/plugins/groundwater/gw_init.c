@@ -25,33 +25,15 @@ gw_set_aquifer(void)
     d2count[1] = global_domain.n_nx;
 
     get_scatter_nc_field_double(&(filenames.groundwater),
-                                "Ka_expt", d2start, d2count, dvar);
+                                "expt", d2start, d2count, dvar);
     for (i = 0; i < local_domain.ncells_active; i++) {
-        gw_con[i].Ka_expt = dvar[i];
+        gw_con[i].expt = dvar[i];
     }
 
     get_scatter_nc_field_double(&(filenames.groundwater),
                                 "Sy", d2start, d2count, dvar);
     for (i = 0; i < local_domain.ncells_active; i++) {
         gw_con[i].Sy = dvar[i];
-    }
-
-    get_scatter_nc_field_double(&(filenames.groundwater),
-                                "Qb_max", d2start, d2count, dvar);
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        gw_con[i].Qb_max = dvar[i];
-    }
-
-    get_scatter_nc_field_double(&(filenames.groundwater),
-                                "Qb_expt", d2start, d2count, dvar);
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        gw_con[i].Qb_expt = dvar[i];
-    }
-
-    get_scatter_nc_field_double(&(filenames.groundwater),
-                                "Za_max", d2start, d2count, dvar);
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        gw_con[i].Za_max = dvar[i];
     }
 
     free(dvar);

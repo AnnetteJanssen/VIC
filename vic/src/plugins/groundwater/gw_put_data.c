@@ -27,8 +27,6 @@ gw_put_data(void)
                                                           "OUT_GW_WA");
     int                        OUT_GW_WT = list_search_id(outvar_types,
                                                           "OUT_GW_WT");
-    int                        OUT_GW_AVAIL = list_search_id(outvar_types,
-                                                             "OUT_GW_AVAIL");
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         for (j = 0; j < veg_con_map[i].nv_active; j++) {
@@ -45,8 +43,6 @@ gw_put_data(void)
                                              veg_frac * snow_frac;
                 out_data[i][OUT_GW_WT][0] += gw_var[i][j][k].Wt *
                                              veg_frac * snow_frac;
-                out_data[i][OUT_GW_AVAIL][0] += gw_var[i][j][k].available *
-                                                veg_frac * snow_frac;
             }
         }
     }
