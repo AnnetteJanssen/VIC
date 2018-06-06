@@ -1034,7 +1034,7 @@ init_general(void)
                     if (abs(sum - 1.0) > abs(elev_area_max)) {
                         elev_area_max = sum - 1.0;
                     }
-                    for (j = 0; j < options.ELEV_BAND; j++) {
+                    for (j = 0; j < elev_con_map[i].ne_active; j++) {
                         soil_con[i].AreaFract[j] /= sum;
                     }
                 }
@@ -1092,7 +1092,7 @@ init_general(void)
                 if (abs(sum - 1.0) > abs(elev_prec_max)) {
                     elev_prec_max = sum - 1.0;
                 }
-                for (j = 0; j < options.ELEV_BAND; j++) {
+                for (j = 0; j < elev_con_map[i].ne_active; j++) {
                     soil_con[i].Pfactor[j] /= sum;
                 }
             }
