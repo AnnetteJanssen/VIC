@@ -27,6 +27,14 @@ typedef struct {
     double *runoff_uh;
 } rout_con_struct;
 
+typedef struct{
+    double *discharge;
+} rout_force_struct;
+
+typedef struct {
+    double discharge;
+} rout_hist_struct;
+
 typedef struct {
     double moist;
     double *discharge;
@@ -59,5 +67,6 @@ size_t          *routing_order;
 
 rout_var_struct *rout_var;
 rout_con_struct *rout_con;
-
+rout_force_struct *rout_force;
+rout_hist_struct *rout_hist;
 #endif

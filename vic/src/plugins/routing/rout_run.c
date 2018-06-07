@@ -8,6 +8,7 @@ rout_gl_run()
     extern option_struct       options;
     extern rout_var_struct    *rout_var;
     extern rout_con_struct    *rout_con;
+    extern rout_hist_struct   *rout_hist;
     extern double           ***out_data;
     extern size_t             *routing_order;
     extern int                 mpi_rank;
@@ -18,6 +19,7 @@ rout_gl_run()
     double                   **iuh_global;
     double                    *run_global;
     double                   **dis_global;
+    double                    *hist_global;
     double                    *store_global;
 
     size_t                    *nup_local;
@@ -26,6 +28,7 @@ rout_gl_run()
     double                   **iuh_local;
     double                    *run_local;
     double                   **dis_local;
+    double                    *hist_local;
     double                    *store_local;
 
     size_t                     cur_cell;
@@ -34,7 +37,11 @@ rout_gl_run()
 
     size_t                     i;
     size_t                     j;
-
+    
+    if(options.ROUTING_FORCE){
+        log_err("ROUTING_FORCE has not yet been implemented for ROUTING_TYPE = GLOBAL")
+    }
+    
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_var[i].discharge[0] = 0.0;
         cshift(rout_var[i].discharge, options.IUH_NSTEPS, 1, 0, 1);
@@ -92,6 +99,13 @@ rout_gl_run()
         dis_local[i] = malloc(options.IUH_NSTEPS * sizeof(*dis_local[i]));
         check_alloc_status(dis_local[i], "Memory allocation error");
     }
+    
+    if (options.ROUTING_FORCE) {
+        hist_global = malloc(local_domain.ncells_active * sizeof(*hist_global));
+        check_alloc_status(hist_global, "Memory allocation error");
+        hist_local = malloc(local_domain.ncells_active * sizeof(*hist_local));
+        check_alloc_status(hist_local, "Memory allocation error");
+    }
 
     // Get
     for (i = 0; i < local_domain.ncells_active; i++) {
@@ -113,6 +127,10 @@ rout_gl_run()
             dis_local[i][j] = rout_var[i].discharge[j];
         }
         store_local[i] = rout_var[i].moist;
+        
+        if (options.ROUTING_FORCE) {
+            hist_local[i] = rout_hist[i].discharge;
+        }
     }
 
     // Gather
@@ -123,6 +141,10 @@ rout_gl_run()
     gather_double(run_global, run_local);
     gather_double_2d(dis_global, dis_local, options.IUH_NSTEPS);
     gather_double(store_global, store_local);
+    
+    if (options.ROUTING_FORCE) {
+        gather_double(hist_global, hist_local);
+    }
 
     // Calculate
     if (mpi_rank == VIC_MPI_ROOT) {
@@ -132,6 +154,10 @@ rout_gl_run()
             inflow = 0;
             for (j = 0; j < nup_global[cur_cell]; j++) {
                 inflow += dis_global[up_global[cur_cell][j]][0];
+            }
+                
+            if (options.ROUTING_FORCE) {
+                inflow += hist_global[i];
             }
 
             runoff = 0;
@@ -197,6 +223,11 @@ rout_gl_run()
     free(run_local);
     free(dis_local);
     free(store_local);
+    
+    if (options.ROUTING_FORCE){
+        free(hist_global);
+        free(hist_local);
+    }
 }
 
 void
@@ -207,6 +238,7 @@ rout_run(size_t cur_cell)
     extern option_struct       options;
     extern rout_var_struct    *rout_var;
     extern rout_con_struct    *rout_con;
+    extern rout_hist_struct    *rout_hist;
     extern double           ***out_data;
 
     double                     inflow;
@@ -220,6 +252,10 @@ rout_run(size_t cur_cell)
     inflow = 0;
     for (i = 0; i < rout_con[cur_cell].Nupstream; i++) {
         inflow += rout_var[rout_con[cur_cell].upstream[i]].discharge[0];
+    }    
+        
+    if(options.ROUTING_FORCE){
+        inflow += rout_hist[i].discharge;
     }
 
     runoff = 0;

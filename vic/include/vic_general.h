@@ -704,6 +704,8 @@ typedef struct {
     nameid_struct mpi;
     nameid_struct groundwater;
     nameid_struct routing;
+    nameid_struct routing_forcing;
+    char routing_forcing_pfx[MAXSTRING];
     nameid_struct rout_params;  /**< routing parameters file name and nc_id */
     nameid_struct water_use;
     nameid_struct water_use_forcing[WU_NSECTORS];
