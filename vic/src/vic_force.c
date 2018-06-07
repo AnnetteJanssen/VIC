@@ -44,4 +44,7 @@ vic_force(void)
     if(options.EFR){
         efr_forcing();
     }
+    if(options.ROUTING_FORCE){
+        rout_forcing();
+    }
 }

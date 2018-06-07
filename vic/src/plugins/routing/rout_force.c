@@ -68,10 +68,10 @@ rout_forcing(void)
         d3start[0] = global_param.forceskip[0] +
                      global_param.forceoffset[0] + j - 1;
 
-        get_scatter_nc_field_double(&(filenames.efr_forcing), 
+        get_scatter_nc_field_double(&(filenames.routing_forcing), 
             "discharge", d3start, d3count, dvar);
 
-        for (i = 0; i < local_domain.ncells_active; i++) {
+        for (i = 0; i < local_domain.ncells_active; i++) {            
             rout_force[i].discharge[j] = dvar[i];
         }
     }

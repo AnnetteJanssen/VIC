@@ -38,10 +38,6 @@ rout_gl_run()
     size_t                     i;
     size_t                     j;
     
-    if(options.ROUTING_FORCE){
-        log_err("ROUTING_FORCE has not yet been implemented for ROUTING_TYPE = GLOBAL")
-    }
-    
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_var[i].discharge[0] = 0.0;
         cshift(rout_var[i].discharge, options.IUH_NSTEPS, 1, 0, 1);
@@ -157,7 +153,7 @@ rout_gl_run()
             }
                 
             if (options.ROUTING_FORCE) {
-                inflow += hist_global[i];
+                inflow += hist_global[cur_cell];
             }
 
             runoff = 0;
@@ -255,7 +251,7 @@ rout_run(size_t cur_cell)
     }    
         
     if(options.ROUTING_FORCE){
-        inflow += rout_hist[i].discharge;
+        inflow += rout_hist[cur_cell].discharge;
     }
 
     runoff = 0;
