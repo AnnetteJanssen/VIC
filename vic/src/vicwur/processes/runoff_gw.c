@@ -112,6 +112,7 @@ runoff_gw(cell_data_struct  *cell,
     double                     Wa[MAX_FROST_AREAS];
     double                     Wt[MAX_FROST_AREAS];
 
+    log_info("Start runoff");
     /** Set Residual Moisture **/
     for (lindex = 0; lindex < options.Nlayer; lindex++) {
         resid_moist[lindex] = soil_con->resid_moist[lindex] *
@@ -636,5 +637,6 @@ runoff_gw(cell_data_struct  *cell,
             return (ERROR);
         }
     }
+    log_info("Done runoff");
     return (0);
 }
