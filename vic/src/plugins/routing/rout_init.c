@@ -128,6 +128,7 @@ rout_gl_set_downstream(void)
     int                    *downstream;
     int                    *down_global;
     int                    *down_local;
+    size_t                  rout_count;
     
     bool                    found;
 
@@ -173,12 +174,17 @@ rout_gl_set_downstream(void)
             }
 
             if(!found){
-                log_warn("No downstream cell was found; "
-                        "Probably the ID was outside of the mask or "
-                        "the ID was not set;"
-                        "Setting cell as outflow point");
+                rout_count++;
                 down_global[i] = i;
             }
+        }
+    
+        if(rout_count > 0){
+            log_warn("No downstream cell was found for %zu cells; "
+                    "Probably the ID was outside of the mask or "
+                    "the ID was not set; "
+                    "Setting cell as outflow point",
+                    rout_count);
         }
     }
     
