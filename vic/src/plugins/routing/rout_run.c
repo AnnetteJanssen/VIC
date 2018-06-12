@@ -136,8 +136,7 @@ rout_gl_run()
     gather_double_2d(iuh_global, iuh_local, options.IUH_NSTEPS);
     gather_double(run_global, run_local);
     gather_double_2d(dis_global, dis_local, options.IUH_NSTEPS);
-    gather_double(store_global, store_local);
-    
+    gather_double(store_global, store_local);    
     if (options.ROUTING_FORCE) {
         gather_double(hist_global, hist_local);
     }
@@ -163,19 +162,18 @@ rout_gl_run()
                  options.IUH_NSTEPS);
             rout(runoff, ruh_global[cur_cell], dis_global[cur_cell],
                  options.RUH_NSTEPS);
-
+            
             if (dis_global[cur_cell][0] < 0) {
                 dis_global[cur_cell][0] = 0.0;
             }
-
-            store_global[cur_cell] += (inflow + runoff) *
-                                      global_param.dt /
-                                      global_domain.locations[cur_cell].area *
-                                      MM_PER_M;
-            store_global[cur_cell] -= (dis_global[cur_cell][0]) *
-                                      global_param.dt /
-                                      global_domain.locations[cur_cell].area *
-                                      MM_PER_M;
+            
+            store_global[cur_cell] = 0.0;
+            for(j = 0; j < options.IUH_NSTEPS; j++){
+                store_global[cur_cell] += dis_global[cur_cell][j] *
+                                        global_param.dt /
+                                        local_domain.locations[cur_cell].area *
+                                        MM_PER_M;
+            }
         }
     }
 
