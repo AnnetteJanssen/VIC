@@ -111,8 +111,6 @@ gw_generate_default_state(void)
     size_t                     d2start[2];
     int                        status;
 
-    log_info("Start populate");
-    
     dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
     check_alloc_status(dvar, "Memory allocation error.");
 
@@ -162,7 +160,6 @@ gw_generate_default_state(void)
 
     // Free
     free(dvar);
-    log_info("Done populate");
 }
 
 void

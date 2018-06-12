@@ -37,9 +37,7 @@ rout_gl_run()
 
     size_t                     i;
     size_t                     j;
-    
-    log_info("Start rout_run");
-    
+        
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_var[i].discharge[0] = 0.0;
         cshift(rout_var[i].discharge, options.IUH_NSTEPS, 1, 0, 1);
@@ -99,7 +97,7 @@ rout_gl_run()
     }
     
     if (options.ROUTING_FORCE) {
-        hist_global = malloc(local_domain.ncells_active * sizeof(*hist_global));
+        hist_global = malloc(global_domain.ncells_active * sizeof(*hist_global));
         check_alloc_status(hist_global, "Memory allocation error");
         hist_local = malloc(local_domain.ncells_active * sizeof(*hist_local));
         check_alloc_status(hist_local, "Memory allocation error");
@@ -226,8 +224,6 @@ rout_gl_run()
         free(hist_global);
         free(hist_local);
     }
-    
-    log_info("Done rout_run");
 }
 
 void

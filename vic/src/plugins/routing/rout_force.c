@@ -93,5 +93,4 @@ rout_forcing(void)
     }
     
     free(dvar);
-    log_info("Done forcing");
 }
