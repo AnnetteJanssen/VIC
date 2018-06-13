@@ -19,15 +19,16 @@ gw_put_data(void)
     double                     veg_frac;
     double                     snow_frac;
 
-    int                        OUT_GW_ZWT = list_search_id(outvar_types,
-                                                           "OUT_GW_ZWT");
-    int                        OUT_GW_RECHARGE = list_search_id(
-        outvar_types, "OUT_GW_RECHARGE");
-    int                        OUT_GW_WA = list_search_id(outvar_types,
-                                                          "OUT_GW_WA");
-    int                        OUT_GW_WT = list_search_id(outvar_types,
-                                                          "OUT_GW_WT");
+    int                        OUT_GW_ZWT;
+    int                        OUT_GW_RECHARGE;
+    int                        OUT_GW_WA;
+    int                        OUT_GW_WT;
 
+    OUT_GW_ZWT = list_search_id(outvar_types, "OUT_GW_ZWT");
+    OUT_GW_RECHARGE = list_search_id(outvar_types, "OUT_GW_RECHARGE");
+    OUT_GW_WA = list_search_id(outvar_types, "OUT_GW_WA");
+    OUT_GW_WT = list_search_id(outvar_types, "OUT_GW_WT");
+    
     for (i = 0; i < local_domain.ncells_active; i++) {
         for (j = 0; j < veg_con_map[i].nv_active; j++) {
             veg_frac = veg_con[i][j].Cv;
