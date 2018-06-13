@@ -347,6 +347,7 @@ typedef struct {
     // Groundwater options
     bool GW_INIT_FROM_FILE;
     // Routing options
+    bool ROUTING_FORCE;
     int ROUTING_TYPE;
     size_t IUH_NSTEPS;
     size_t RUH_NSTEPS;

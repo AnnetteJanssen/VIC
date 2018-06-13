@@ -158,7 +158,8 @@ get_basins_routing(basin_struct *basins)
             i;
         basins->Ncells[basins->basin_map[i]]++;
     }
-
+    
+    free(downstream);
     free(river);
 }
 

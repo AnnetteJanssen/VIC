@@ -57,20 +57,6 @@ gw_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_GW_WT")].description,
            "Reference groundwater storage (aquifer and soil layers combined)");
 
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_GW_AVAIL")].varname, "OUT_GW_AVAIL");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_GW_AVAIL")].long_name,
-           "Available groundwater");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_GW_AVAIL")].standard_name,
-           "Available groundwater");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_GW_AVAIL")].units, "m");
-    strcpy(out_metadata[list_search_id(outvar_types,
-                                       "OUT_GW_AVAIL")].description,
-           "Available groundwater (between the water table and the bottem of the aquifer)");
-
     out_metadata[list_search_id(outvar_types, "OUT_GW_ZWT")].nelem = 1;
     out_metadata[list_search_id(outvar_types, "OUT_GW_RECHARGE")].nelem = 1;
     out_metadata[list_search_id(outvar_types, "OUT_GW_WA")].nelem = 1;

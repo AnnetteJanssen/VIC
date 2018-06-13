@@ -27,6 +27,14 @@ typedef struct {
     double *runoff_uh;
 } rout_con_struct;
 
+typedef struct{
+    double *discharge;
+} rout_force_struct;
+
+typedef struct {
+    double discharge;
+} rout_hist_struct;
+
 typedef struct {
     double moist;
     double *discharge;
@@ -45,6 +53,7 @@ void rout_gl_init(void);
 void rout_set_output_meta_data_info(void);
 void rout_set_state_meta_data_info(void);
 bool rout_history(int, unsigned int *);
+void rout_forcing(void);
 void rout_run(size_t cur_cell);
 void rout_gl_run(void);
 void rout_put_data(void);
@@ -59,5 +68,7 @@ size_t          *routing_order;
 
 rout_var_struct *rout_var;
 rout_con_struct *rout_con;
+rout_force_struct *rout_force;
+rout_hist_struct *rout_hist;
 
 #endif

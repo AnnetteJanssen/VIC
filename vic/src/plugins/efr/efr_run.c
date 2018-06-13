@@ -37,7 +37,6 @@ efr_run(size_t cur_cell)
 {
     extern efr_var_struct *efr_var;
     extern efr_hist_struct *efr_hist;
-    extern gw_con_struct *gw_con;
     extern all_vars_struct *all_vars;
     extern veg_con_map_struct *veg_con_map;
     extern elev_con_map_struct *elev_con_map;
@@ -63,17 +62,7 @@ efr_run(size_t cur_cell)
     double bflow;
                 
     if (options.GROUNDWATER) {
-        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-                // Based on groundwater baseflow formulation
-                // TODO: change!
-                efr_var[cur_cell].requirement_moist[i][j] = 
-                        log(efr_hist[cur_cell].requirement_baseflow / 
-                            gw_con[cur_cell].Qb_max) /
-                        gw_con[cur_cell].Qb_expt +
-                        gw_con[cur_cell].Za_max;
-            }
-        }
+        log_err("EFR not yet implemented for GROUNDWATER");
     }
     else {
         l = options.Nlayer - 1;

@@ -99,7 +99,7 @@ runoff_gw(cell_data_struct  *cell,
 
     // states
     int                        lwt;
-    double                     Qb_max;
+    double                     Dsmax;
     double                     delta_z;
 
     double                     Qb[MAX_LAYERS];
@@ -138,7 +138,6 @@ runoff_gw(cell_data_struct  *cell,
     }
 
     gw_var->recharge = 0.0;
-    gw_var->available = 0.0;
     gw_var->zwt = 0.0;
     gw_var->Wa = 0.0;
     gw_var->Wt = 0.0;
@@ -238,7 +237,7 @@ runoff_gw(cell_data_struct  *cell,
 
         dt_inflow = inflow / (double) runoff_steps_per_dt;
 
-        Qb_max = gw_con->Qb_max / global_param.runoff_steps_per_day;
+        Dsmax = soil_con->Dsmax / global_param.runoff_steps_per_day;
 
         for (time_step = 0; time_step < runoff_steps_per_dt; time_step++) {
             inflow = dt_inflow;
@@ -262,7 +261,7 @@ runoff_gw(cell_data_struct  *cell,
             /**************************************************
                Compute Baseflow
             **************************************************/
-            dt_baseflow = Qb_max * exp(-gw_con->Qb_expt * zwt[fidx]);
+            dt_baseflow = Dsmax * exp(-gw_con->expt * zwt[fidx]);
 
             for (lindex = 0; lindex < options.Nlayer; lindex++) {
                 Qb[lindex] = 0.0;
@@ -370,8 +369,8 @@ runoff_gw(cell_data_struct  *cell,
             lindex = options.Nlayer - 1;
             if (lwt == -1) {
                 Q12[lindex] = Q12[lindex] *
-                              (1 - exp(-gw_con->Ka_expt * delta_z)) /
-                              (gw_con->Ka_expt * delta_z);
+                              (1 - exp(-gw_con->expt * delta_z)) /
+                              (gw_con->expt * delta_z);
             }
             else {
                 Q12[lindex] = 0.;
@@ -476,19 +475,19 @@ runoff_gw(cell_data_struct  *cell,
                        dt_recharge - dt_baseflow;
 
             /** Calculate groundwater level **/
-            if (Wt[fidx] / gw_con->Sy / MM_PER_M < gw_con->Za_max -
+            if (Wt[fidx] / gw_con->Sy / MM_PER_M < GW_REF_DEPTH -
                 z[options.Nlayer - 1]) {
                 // New water level is below soil column
                 Wa[fidx] = Wt[fidx];
 
-                zwt[fidx] = gw_con->Za_max - Wt[fidx] / gw_con->Sy / MM_PER_M;
+                zwt[fidx] = GW_REF_DEPTH - Wt[fidx] / gw_con->Sy / MM_PER_M;
                 new_lwt = -1;
             }
             else {
                 // New water level is in soil column
                 Wa[fidx] =
-                    (gw_con->Za_max -
-                     z[options.Nlayer - 1]) * gw_con->Sy * MM_PER_M;
+                    (GW_REF_DEPTH - z[options.Nlayer - 1]) * 
+                     gw_con->Sy * MM_PER_M;
 
                 tmp_Wt = (Wt[fidx] - Wa[fidx]) / MM_PER_M;
                 for (lindex = options.Nlayer - 1; (int)lindex >= 0; lindex--) {
@@ -522,7 +521,7 @@ runoff_gw(cell_data_struct  *cell,
                         dt_exchange = Wt[fidx] - Wa[fidx];
                     }
                     else {
-                        dt_exchange = ((gw_con->Za_max - z[lindex]) *
+                        dt_exchange = ((GW_REF_DEPTH - z[lindex]) *
                                        gw_con->Sy * MM_PER_M) - Wt[fidx];
                     }
 
@@ -600,7 +599,6 @@ runoff_gw(cell_data_struct  *cell,
         gw_var->zwt += zwt[fidx] * frost_fract[fidx];
         gw_var->Wa += Wa[fidx] * frost_fract[fidx];
         gw_var->Wt += Wt[fidx] * frost_fract[fidx];
-        gw_var->available += (gw_con->Za_max - zwt[fidx]) * frost_fract[fidx];
     }
 
     /** Compute water table depth **/
