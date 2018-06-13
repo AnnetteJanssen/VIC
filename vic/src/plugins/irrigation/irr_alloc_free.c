@@ -25,7 +25,7 @@ irr_set_ni_active(void)
     check_alloc_status(ivar, "Memory allocation error.");
 
     get_scatter_nc_field_int(&(filenames.irrigation),
-                             "nirr", d2start, d2count, ivar);
+                             "Nirr", d2start, d2count, ivar);
     for (i = 0; i < local_domain.ncells_active; i++) {
         irr_con_map[i].ni_active = ivar[i];
     }
@@ -65,7 +65,7 @@ irr_set_mapping(void)
     // Gather irrigated vegetation classes
     if (mpi_rank == VIC_MPI_ROOT) {
         get_nc_field_int(&(filenames.irrigation),
-                         "irr_veg_class", &d1start, &d1count, ivar);
+                         "veg_class", &d1start, &d1count, ivar);
     }
 
     status = MPI_Bcast(ivar, options.NIRRTYPES, MPI_INT, VIC_MPI_ROOT,
@@ -130,7 +130,7 @@ irr_set_nseasons(void)
         d3start[0] = j;
 
         get_scatter_nc_field_int(&(filenames.irrigation),
-                                 "nseason", d3start, d3count, ivar);
+                                 "Nseason", d3start, d3count, ivar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
             if (irr_con_map[i].iidx[j] != NODATA_VEG) {

@@ -57,12 +57,6 @@ vic_start(void)
         fclose(filep.globalparam);
         validate_global_param();
         
-        // ONLY FOR CALIBRATION PURPOSES, FINAL CHECK OF THE OPTIONS
-        if(options.IRRIGATION || options.DAMS || options.WATER_USE || 
-                options.ROUTING_LOHMANN || options.ROUTING_RVIC){
-            log_err("WRONG OPTIONS FOR CALIBRATION, CHECK YOUR PARAMETER FILE");
-        }
-        
         // Read the model constants
         if (strcasecmp(filenames.constants, "MISSING")) {
             filep.constants = open_file(filenames.constants, "r");
@@ -75,17 +69,14 @@ vic_start(void)
         start_general();
         
         // Start all plugins
-        if (options.GROUNDWATER) {
-            gw_start();
+        if (options.IRRIGATION) {
+            irr_start();
         }
         if (options.ROUTING) {
             rout_start();
         }
         if (options.DAMS) {
             dam_start();
-        }
-        if (options.IRRIGATION) {
-            irr_start();
         }
         if (options.WATER_USE) {
             wu_start();

@@ -1,11 +1,6 @@
 #include <vic.h>
 
 void
-gw_start(void)
-{
-}
-
-void
 gw_validate_domain(void)
 {
     extern filenames_struct filenames;

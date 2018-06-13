@@ -29,14 +29,12 @@ irr_set_seasons(void)
     extern option_struct       options;
     extern irr_con_map_struct *irr_con_map;
     extern irr_con_struct    **irr_con;
-    extern veg_con_struct    **veg_con;
 
     double                    *dvar;
 
     size_t                     i;
     size_t                     j;
     size_t                     k;
-    size_t                     l;
 
     size_t                     d3count[3];
     size_t                     d3start[3];
@@ -69,7 +67,7 @@ irr_set_seasons(void)
             d4start[1] = j;
 
             get_scatter_nc_field_double(&(filenames.irrigation),
-                                        "growing_season_start", d4start,
+                                        "season_start", d4start,
                                         d4count,
                                         dvar);
 
@@ -82,7 +80,7 @@ irr_set_seasons(void)
             }
 
             get_scatter_nc_field_double(&(filenames.irrigation),
-                                        "growing_season_end", d4start, d4count,
+                                        "season_end", d4start, d4count,
                                         dvar);
 
             for (i = 0; i < local_domain.ncells_active; i++) {
@@ -93,7 +91,7 @@ irr_set_seasons(void)
             }
 
             get_scatter_nc_field_double(&(filenames.irrigation),
-                                        "growing_season_offset", d3start,
+                                        "offset", d3start,
                                         d3count,
                                         dvar);
 
@@ -120,31 +118,6 @@ irr_set_seasons(void)
                 irr_con[i][j].season_end[k] -= irr_con[i][j].season_offset;
                 if (irr_con[i][j].season_end[k] < 0) {
                     irr_con[i][j].season_end[k] += DAYS_PER_JYEAR;
-                }
-            }
-        }
-    }
-
-
-    // Check for overlap
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < irr_con_map[i].ni_active; j++) {
-            for (k = 0; k < irr_con[i][j].nseasons; k++) {
-                for (l = 0; l < irr_con[i][j].nseasons; l++) {
-                    if (k != l &&
-                        (between_jday(irr_con[i][j].season_start[l],
-                                      irr_con[i][j].season_end[l],
-                                      irr_con[i][j].season_start[k]) > 0 ||
-                         between_jday(irr_con[i][j].season_start[l],
-                                      irr_con[i][j].season_end[l],
-                                      irr_con[i][j].season_end[k]) > 0)) {
-	                log_err("Irrigated calendars are overlapping; "
-	                        "Cell %zu; crop %zu [veg_class %d]; "
-	                        "season %zu [%.2f - %.2f] and %zu [%.2f - %.2f]",
-	                        i,j, veg_con[i][irr_con[i][j].veg_index].veg_class,
-	                        k,irr_con[i][j].season_start[k],irr_con[i][j].season_end[k],
-	                        l,irr_con[i][j].season_start[l],irr_con[i][j].season_end[l]);
-                    }
                 }
             }
         }
@@ -183,7 +156,7 @@ irr_set_ponding(void)
     // Gather ponded vegetation classes
     if (mpi_rank == VIC_MPI_ROOT) {
         get_nc_field_int(&(filenames.irrigation),
-                         "irr_pond", &d1start, &d1count, ivar);
+                         "pond", &d1start, &d1count, ivar);
     }
 
     status = MPI_Bcast(ivar, options.NIRRTYPES, MPI_INT, VIC_MPI_ROOT,
@@ -231,7 +204,7 @@ irr_set_water_use(void)
     check_alloc_status(dvar, "Memory allocation error.");
     
     get_scatter_nc_field_double(&(filenames.irrigation),
-                                "WUE", d2start, d2count,
+                                "efficiency", d2start, d2count,
                                 dvar);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
@@ -241,7 +214,7 @@ irr_set_water_use(void)
     }
     
     get_scatter_nc_field_double(&(filenames.irrigation),
-                                "gw_fraction", d2start, d2count,
+                                "groundwater_source", d2start, d2count,
                                 dvar);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
