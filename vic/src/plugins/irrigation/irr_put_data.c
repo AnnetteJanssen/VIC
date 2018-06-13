@@ -17,12 +17,19 @@ irr_put_data(void)
     size_t                     k;
     size_t                     cur_veg;
     
-    int OUT_IRR_REQUIREMENT = list_search_id(outvar_types, "OUT_IRR_REQUIREMENT");
-    int OUT_IRR_NEED = list_search_id(outvar_types, "OUT_IRR_NEED");
-    int OUT_IRR_DEFICIT = list_search_id(outvar_types, "OUT_IRR_DEFICIT");
-    int OUT_IRR_SHORTAGE = list_search_id(outvar_types, "OUT_IRR_SHORTAGE");
-    int OUT_IRR_POND_STORAGE = list_search_id(outvar_types, "OUT_IRR_POND_STORAGE");
-    int OUT_IRR_LEFTOVER = list_search_id(outvar_types, "OUT_IRR_LEFTOVER");
+    int                        OUT_IRR_REQUIREMENT;
+    int                        OUT_IRR_NEED;
+    int                        OUT_IRR_DEFICIT;
+    int                        OUT_IRR_SHORTAGE;
+    int                        OUT_IRR_POND_STORAGE;
+    int                        OUT_IRR_LEFTOVER;
+    
+    OUT_IRR_REQUIREMENT = list_search_id(outvar_types, "OUT_IRR_REQUIREMENT");
+    OUT_IRR_NEED = list_search_id(outvar_types, "OUT_IRR_NEED");
+    OUT_IRR_DEFICIT = list_search_id(outvar_types, "OUT_IRR_DEFICIT");
+    OUT_IRR_SHORTAGE = list_search_id(outvar_types, "OUT_IRR_SHORTAGE");
+    OUT_IRR_POND_STORAGE = list_search_id(outvar_types, "OUT_IRR_POND_STORAGE");
+    OUT_IRR_LEFTOVER = list_search_id(outvar_types, "OUT_IRR_LEFTOVER");
     
     for (i = 0; i < local_domain.ncells_active; i++) { 
         for (j = 0; j < irr_con_map[i].ni_active; j++) {

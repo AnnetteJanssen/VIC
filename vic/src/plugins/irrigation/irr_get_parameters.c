@@ -43,7 +43,7 @@ irr_validate_global_parameters(void)
         log_err("IRRIGATION = TRUE but IRRIGATION_PARAMETERS is missing");
     }
     
-    if(options.IRR_POTENTIAL && !options.WATER_USE){
-        log_err("POTENTIAL_IRRIGATION = TRUE but WATER_USE = FALSE");
+    if(options.IRR_POTENTIAL && options.WATER_USE){
+        log_err("POTENTIAL_IRRIGATION = TRUE but WATER_USE = TRUE");
     }
 }

@@ -129,6 +129,11 @@ irr_run(size_t cur_cell)
                 }
             }
             
+            if(irr_var[cur_cell][i][j].shortage < 0.0){
+                log_err("Irrigation shortage < 0.0 [%.16f]?",
+                        irr_var[cur_cell][i][j].shortage);
+            }
+            
             // Calculate deficit - newly added shortage
             irr_var[cur_cell][i][j].deficit =
                     irr_var[cur_cell][i][j].shortage - 
@@ -210,11 +215,23 @@ irr_run(size_t cur_cell)
             }
             irr_var[cur_cell][i][j].prev_req = 
                 irr_var[cur_cell][i][j].requirement;
+                                        
+            /**********************************************************************
+            * 5. Handle potential irrigation
+            **********************************************************************/
+            if(options.IRR_POTENTIAL){
+                if(irr_var[cur_cell][i][j].requirement > 0.0){
+                    
+                    // Fill top layer to maximum
+                    all_vars[cur_cell].cell[cur_veg][j].layer[0].moist = 
+                            soil_con[cur_cell].max_moist[0];
+                }
             }
-        }
+        }        
+    }
     
     /**********************************************************************
-    * 5. Finalization
+    * 6. Finalization
     **********************************************************************/  
     free(moist);
 }
@@ -299,10 +316,6 @@ irr_get_withdrawn(size_t cur_cell)
                     soil_con[cur_cell].AreaFract[j] * 
                     veg_con[cur_cell][cur_veg].Cv;
         }
-    }
-    
-    if(options.IRR_POTENTIAL){
-        total_available = total_requirement;
     }
     
     if(total_available > 0){
