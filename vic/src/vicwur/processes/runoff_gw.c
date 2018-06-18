@@ -375,7 +375,11 @@ runoff_gw(cell_data_struct  *cell,
             else {
                 Q12[lindex] = 0.;
             }
-
+            
+            if(options.GW_CALC_EQ){
+                Q12[lindex] = param.HUGE_RESIST;
+            }
+            
             /**************************************************
                Solve for Current Soil Layer Moisture, and
                Check Versus Maximum and Minimum Moisture Contents.

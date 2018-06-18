@@ -110,6 +110,7 @@ initialize_options()
 
     // Groundwater options
     options.GW_INIT_FROM_FILE = false;
+    options.GW_CALC_EQ = false;
     // Routing options
     options.ROUTING_TYPE = ROUTING_FALSE;
     options.ROUTING_FORCE = false;

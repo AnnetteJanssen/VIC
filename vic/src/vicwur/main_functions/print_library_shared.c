@@ -539,6 +539,8 @@ print_option(option_struct *option)
     // Plugins    
     fprintf(LOG_DEST, "\tGW_INIT_FROM_FILE    : %s\n",
             option->GW_INIT_FROM_FILE ? "true" : "false");
+    fprintf(LOG_DEST, "\tGW_CALC_EQ           : %s\n",
+            option->GW_CALC_EQ ? "true" : "false");
     fprintf(LOG_DEST, "\tROUTING_TYPE         : %d\n", option->ROUTING_TYPE);
     fprintf(LOG_DEST, "\tIUH_NSTEPS           : %zu\n", option->IUH_NSTEPS);
     fprintf(LOG_DEST, "\tRUH_NSTEPS           : %zu\n", option->RUH_NSTEPS);
