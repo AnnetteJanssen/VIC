@@ -29,7 +29,6 @@ void gw_set_state_meta_data_info(void);
 bool gw_history(int, unsigned int *);
 void gw_generate_default_state(void);
 void gw_restore(void);
-void gw_put_data(void);
 void gw_finalize(void);
 void gw_add_types(void);
 
