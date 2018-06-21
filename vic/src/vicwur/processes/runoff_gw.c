@@ -90,13 +90,11 @@ runoff_gw(cell_data_struct  *cell,
     // fluxes
     double                     dt_recharge;
     double                     dt_evaporation;
-    double                     dt_exchange;
 
     // temp variables
     double                     avg_K;
     double                     tmp_z;
     double                     tmp_Wt;
-    int                        new_lwt;
 
     // states
     int                        lwt;

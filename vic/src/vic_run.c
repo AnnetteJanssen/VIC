@@ -156,6 +156,7 @@ vic_run(dmy_struct *dmy_current)
             log_err("WATER_USE is not yet available with ROUTING_RANDOM");
         }
     }
+    
     if (options.ROUTING) {
         rout_put_data();
     }

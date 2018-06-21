@@ -26,8 +26,6 @@ typedef struct {
     int year;
     int function;
     double max_volume;
-    double max_area;
-    double max_height;
     size_t nservice;
     size_t *service;
 } dam_con_struct;
@@ -35,8 +33,6 @@ typedef struct {
 typedef struct {
     double volume;
     double discharge;
-    double area;
-    double height;
 
     double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];

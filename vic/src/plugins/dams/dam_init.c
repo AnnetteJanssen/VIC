@@ -36,7 +36,7 @@ dam_set_info(void)
         d3start[0] = j;
         
         get_scatter_nc_field_int(&(filenames.dams), 
-                "dam_id", d3start, d3count, ivar);
+                "id", d3start, d3count, ivar);
         
         for (i = 0; i < local_domain.ncells_active; i++) {
             if (j < dam_con_map[i].nd_active) {
@@ -54,25 +54,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_double(&(filenames.dams),
-                                    "max_height", d3start, d3count, dvar);
-
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].max_height = dvar[i];
-            }
-        }
-
-        get_scatter_nc_field_double(&(filenames.dams),
-                                    "max_area", d3start, d3count, dvar);
-
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].max_area = dvar[i] * pow(M_PER_KM, 2);
-            }
-        }
-
-        get_scatter_nc_field_double(&(filenames.dams),
-                                    "max_volume", d3start, d3count, dvar);
+                                    "volume", d3start, d3count, dvar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
             if (j < dam_con_map[i].nd_active) {
@@ -81,7 +63,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_int(&(filenames.dams),
-                                 "function", d3start, d3count, ivar);
+                                 "type", d3start, d3count, ivar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
             if (j < dam_con_map[i].nd_active) {
@@ -107,6 +89,7 @@ dam_set_service(void)
     int *service_var;
     int *ivar;
     int **adjustment;
+    size_t                  service_count;
     bool done;
     
     size_t i;
@@ -153,6 +136,7 @@ dam_set_service(void)
     get_scatter_nc_field_int(&(filenames.dams), 
             "service_id", d2start, d2count, service_var);
             
+    service_count = 0;
     for(k = 0; k < (size_t)options.MAXSERVICE; k++){
         d4start[0] = k;
         
@@ -176,8 +160,7 @@ dam_set_service(void)
                         }
                         
                         if(!done){
-                            log_err("Dams service cell id %d not found. "
-                                    "Removing... ", ivar[i]);
+                            service_count++;
                             dam_con[i][j].nservice--;
                             adjustment[i][j]++;
                         }
@@ -187,6 +170,13 @@ dam_set_service(void)
         }
     }
      
+    if(service_count > 0){
+        log_err("Dams service cell id not found for %zu cells; "
+                "Probably the ID was outside of the mask or "
+                "the ID was not set; "
+                "Removing from dam service", service_count);
+    }
+    
     for(i = 0; i < local_domain.ncells_active; i++){
         free(adjustment[i]);
     }

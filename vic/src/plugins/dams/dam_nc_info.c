@@ -13,8 +13,6 @@ dam_set_nc_var_info(int                varid,
 
     int OUT_DAM_VOLUME = list_search_id(outvar_types, "OUT_DAM_VOLUME");
     int OUT_DAM_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_DISCHARGE");
-    int OUT_DAM_AREA = list_search_id(outvar_types, "OUT_DAM_AREA");
-    int OUT_DAM_HEIGHT = list_search_id(outvar_types, "OUT_DAM_HEIGHT");
     int OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
     int OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
     int OUT_DAM_OP_MONTH = list_search_id(outvar_types, "OUT_DAM_OP_MONTH");
@@ -24,8 +22,6 @@ dam_set_nc_var_info(int                varid,
 
     if (varid == OUT_DAM_VOLUME ||
 	varid == OUT_DAM_DISCHARGE ||
-	varid == OUT_DAM_AREA ||
-	varid == OUT_DAM_HEIGHT ||
 	varid == OUT_DAM_OP_DISCHARGE ||
 	varid == OUT_DAM_OP_VOLUME ||
 	varid == OUT_DAM_OP_MONTH ||
@@ -52,8 +48,6 @@ dam_set_nc_var_dimids(int             varid,
     
     int OUT_DAM_VOLUME = list_search_id(outvar_types, "OUT_DAM_VOLUME");
     int OUT_DAM_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_DISCHARGE");
-    int OUT_DAM_AREA = list_search_id(outvar_types, "OUT_DAM_AREA");
-    int OUT_DAM_HEIGHT = list_search_id(outvar_types, "OUT_DAM_HEIGHT");
     int OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
     int OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
     int OUT_DAM_OP_MONTH = list_search_id(outvar_types, "OUT_DAM_OP_MONTH");
@@ -63,8 +57,6 @@ dam_set_nc_var_dimids(int             varid,
 
         if (varid == OUT_DAM_VOLUME ||
             varid == OUT_DAM_DISCHARGE ||
-            varid == OUT_DAM_AREA ||
-            varid == OUT_DAM_HEIGHT ||
             varid == OUT_DAM_OP_DISCHARGE ||
             varid == OUT_DAM_OP_VOLUME ||
             varid == OUT_DAM_OP_MONTH ||

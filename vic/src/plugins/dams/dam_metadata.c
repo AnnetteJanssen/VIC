@@ -23,22 +23,6 @@ dam_set_output_meta_data_info(void)
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_DISCHARGE")].description,
            "dam_discharge");
 
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].varname, "OUT_DAM_AREA");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].long_name, "dam_water_area");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].standard_name,
-           "dam_water_area");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].units, "km2");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].description,
-           "dam_water_area");
-
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].varname, "OUT_DAM_HEIGHT");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].long_name, "dam_water_height");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].standard_name,
-           "dam_water_height");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].units, "m");
-    strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].description,
-           "dam_water_height");
-
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE")].varname, "OUT_DAM_OP_DISCHARGE");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE")].long_name, "dam_operational_discharge");
     strcpy(out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE")].standard_name,
@@ -89,8 +73,6 @@ dam_set_output_meta_data_info(void)
 
     out_metadata[list_search_id(outvar_types, "OUT_DAM_VOLUME")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_DISCHARGE")].nelem = options.MAXDAMS;
-    out_metadata[list_search_id(outvar_types, "OUT_DAM_AREA")].nelem = options.MAXDAMS;
-    out_metadata[list_search_id(outvar_types, "OUT_DAM_HEIGHT")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_VOLUME")].nelem = options.MAXDAMS;
     out_metadata[list_search_id(outvar_types, "OUT_DAM_OP_MONTH")].nelem = options.MAXDAMS;

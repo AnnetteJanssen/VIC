@@ -39,8 +39,6 @@ dam_add_types(void)
     // add outvar_types
     outvar_types = list_prepend(outvar_types, "OUT_DAM_VOLUME");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_DISCHARGE");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_AREA");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_HEIGHT");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_DISCHARGE");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_VOLUME");
     outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_MONTH");

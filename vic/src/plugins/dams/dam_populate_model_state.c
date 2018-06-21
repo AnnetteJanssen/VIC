@@ -17,14 +17,6 @@ dam_generate_default_state(void)
         for (j = 0; j < dam_con_map[i].nd_active; j++) {
             dam_var[i][j].volume =
                 dam_con[i][j].max_volume * DAM_PREF_VOL_FRAC;
-            dam_var[i][j].area =
-                dam_area(dam_var[i][j].volume,
-                         dam_con[i][j].max_volume,
-                         dam_con[i][j].max_area,
-                         dam_con[i][j].max_height);
-            dam_var[i][j].height =
-                dam_height(dam_var[i][j].area,
-                           dam_con[i][j].max_height);
             dam_var[i][j].op_year = dmy[current].month;
         }
     }

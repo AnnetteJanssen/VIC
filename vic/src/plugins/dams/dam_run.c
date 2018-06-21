@@ -1,21 +1,5 @@
 #include <vic.h>
 
-double
-dam_calc_discharge(double ay_flow, 
-        double am_flow, 
-        double amplitude, 
-        double offset){
-    
-    double discharge = 0.0;
-    
-    discharge = ay_flow + ((am_flow - ay_flow) * amplitude) + offset;
-    if(discharge < 0){
-        discharge = 0.0;
-    }
-    
-    return discharge;
-}
-
 void
 dam_calc_year_discharge(double ay_flow, 
         double *am_flow, 
@@ -26,7 +10,66 @@ dam_calc_year_discharge(double ay_flow,
     size_t i;
     
     for(i = 0; i < MONTHS_PER_YEAR; i ++){
-        op_dicharge[i] = dam_calc_discharge(ay_flow, am_flow[i], amplitude, offset);
+        op_dicharge[i] = ay_flow + ((am_flow[i] - ay_flow) * amplitude) + offset;
+        if(op_dicharge[i] < 0){
+            op_dicharge[i] = 0.0;
+        }
+    }
+}
+
+void
+dam_calc_irr_year_discharge(double ay_flow, 
+        double *am_flow,
+        double ay_demand,
+        double *am_demand,
+        double amplitude,
+        double offset,
+        double *op_dicharge)
+{
+    size_t i;
+    
+    for(i = 0; i < MONTHS_PER_YEAR; i ++){
+        op_dicharge[i] = (ay_flow + ((am_flow[i] - ay_flow) * amplitude)) * 
+                         ((am_demand[i] / ay_demand) * (1 - amplitude)) + offset;
+        if(op_dicharge[i] < 0){
+            op_dicharge[i] = 0.0;
+        }
+    }
+}
+
+
+void
+dam_calc_year_volume(double pref_volume, 
+        double *am_flow, 
+        double *op_discharge,
+        int op_year,  
+        double *op_volume)
+{    
+    extern global_param_struct global_param;
+    
+    int month_nr;
+    
+    size_t i;
+    
+    // Calculate operational volume
+    for(i = 0; i < MONTHS_PER_YEAR; i++){
+        month_nr = (i + op_year) % MONTHS_PER_YEAR;
+        
+        if(i == 0){
+                op_volume[month_nr] = pref_volume;
+        } else if (month_nr==0){
+            op_volume[month_nr] = op_volume[MONTHS_PER_YEAR - 1] + 
+                    ((am_flow[month_nr] - op_discharge[month_nr]) * 
+                    global_param.dt * 
+                    global_param.model_steps_per_day * 
+                    DAYS_PER_MONTH_AVG);
+        }else {
+            op_volume[month_nr] = op_volume[month_nr - 1] + 
+                    ((am_flow[month_nr] - op_discharge[month_nr]) * 
+                    global_param.dt * 
+                    global_param.model_steps_per_day * 
+                    DAYS_PER_MONTH_AVG);
+        }
     }
 }
 
@@ -63,44 +106,6 @@ dam_get_op_year_flow(double ay_flow, double *am_flow)
     return month_add % MONTHS_PER_YEAR;   
 }
 
-int
-dam_get_op_year_demand(double *am_demand)
-{
-    double con_demand;
-    double max_con_demand;
-    size_t month_start;
-    size_t month_nr;
-    size_t month_add;
-
-    size_t i;
-
-    con_demand = 0.0;
-    max_con_demand = 0.0;
-    month_add = 0;
-    
-    for(i = 0; i < 2 * MONTHS_PER_YEAR; i++){
-        month_nr = i % MONTHS_PER_YEAR;
-
-        if(am_demand[month_nr] > 0){
-            if(month_start == MISSING_USI){
-                month_start = month_nr;
-            }
-            
-            con_demand += am_demand[month_nr];
-
-            if(con_demand > max_con_demand){
-                max_con_demand = con_demand;
-                month_add = month_start;
-            }
-        }else{
-            con_demand = 0.0;
-            month_start = MISSING_USI;
-        }
-    }
-    
-    return month_add % MONTHS_PER_YEAR; 
-}
-
 void
 dam_get_operation_flo(double ay_flow, 
         double *am_flow, 
@@ -114,13 +119,58 @@ dam_get_operation_flo(double ay_flow,
     
     double amplitude;
     double volume_needed;
-    int month_nr;
     
     size_t i;    
     
     // Set operational discharge
-    for(amplitude = VFM_HIGH_DEMAND_FRAC; amplitude < 1; amplitude += DAM_AMP_STEP){
+    for(amplitude = 0; amplitude < 1; amplitude += DAM_AMP_STEP){
         dam_calc_year_discharge(ay_flow, am_flow, amplitude, 0.0, op_discharge);
+        
+        volume_needed = 0.0;
+        for(i = 0; i < MONTHS_PER_YEAR; i ++){
+            if(op_discharge[i] < am_flow[i]){
+                volume_needed += (am_flow[i] - op_discharge[i]) * 
+                        global_param.dt * 
+                        global_param.model_steps_per_day * 
+                        DAYS_PER_MONTH_AVG;
+            }
+        }
+         
+        if(volume_needed < pref_volume - min_volume){
+            break;
+        }
+    }    
+    
+    if(volume_needed > pref_volume - min_volume){
+        for(i = 0; i < MONTHS_PER_YEAR; i ++){
+            op_discharge[i] = am_flow[i];
+        }
+    }
+    
+    dam_calc_year_volume(pref_volume, am_flow, op_discharge, op_year, op_volume);
+}
+
+void
+dam_get_operation_irr(double ay_flow, 
+        double *am_flow, 
+        double ay_demand,
+        double *am_demand,
+        double pref_volume, 
+        double min_volume,
+        int op_year,
+        double *op_discharge, 
+        double *op_volume)
+{
+    extern global_param_struct global_param;
+    
+    double amplitude;
+    double volume_needed;
+    
+    size_t i;    
+    
+    // Set operational discharge
+    for(amplitude = 0; amplitude < 1; amplitude += DAM_AMP_STEP){
+        dam_calc_irr_year_discharge(ay_flow, am_flow, ay_demand, am_demand, amplitude, 0.0, op_discharge);
         
         volume_needed = 0.0;
         for(i = 0; i < MONTHS_PER_YEAR; i ++){
@@ -143,66 +193,7 @@ dam_get_operation_flo(double ay_flow,
         }
     }  
     
-    // Set operational volume
-    for(i = 0; i < MONTHS_PER_YEAR; i++){
-        month_nr = (i + op_year) % MONTHS_PER_YEAR;
-        
-        if(i == 0){
-                op_volume[month_nr] = pref_volume;
-        } else if (month_nr==0){
-            op_volume[month_nr] = op_volume[MONTHS_PER_YEAR - 1] + 
-                    ((am_flow[month_nr] - op_discharge[month_nr]) * 
-                    global_param.dt * 
-                    global_param.model_steps_per_day * 
-                    DAYS_PER_MONTH_AVG);
-        }else {
-            op_volume[month_nr] = op_volume[month_nr - 1] + 
-                    ((am_flow[month_nr] - op_discharge[month_nr]) * 
-                    global_param.dt * 
-                    global_param.model_steps_per_day * 
-                    DAYS_PER_MONTH_AVG);
-        }
-    }
-}
-
-void
-dam_get_operation_hyd(double *am_flow,
-        double pref_volume,
-        double *op_discharge, 
-        double *op_volume)
-{        
-    size_t i;
-    
-    // Set operational discharge
-    for(i = 0; i < MONTHS_PER_YEAR; i ++){
-        op_discharge[i] = am_flow[i];
-    }
-    
-    
-    // Set operational volume
-    for(i = 0; i < MONTHS_PER_YEAR; i++){
-        op_volume[i] = pref_volume;
-    }
-}
-
-void
-dam_get_operation_irr(double *am_flow,
-        double pref_volume,
-        double *op_discharge, 
-        double *op_volume)
-{
-    size_t i;
-    
-    // Set operational discharge
-    for(i = 0; i < MONTHS_PER_YEAR; i ++){
-        op_discharge[i] = am_flow[i];
-    }
-    
-    
-    // Set operational volume
-    for(i = 0; i < MONTHS_PER_YEAR; i++){
-        op_volume[i] = pref_volume;
-    }
+    dam_calc_year_volume(pref_volume, am_flow, op_discharge, op_year, op_volume);
 }
 
 double
@@ -251,6 +242,7 @@ dam_history(size_t cur_cell, size_t cur_dam)
     
     size_t years_running;
     double ay_flow;
+    double ay_demand;
     double am_flow[MONTHS_PER_YEAR];
     double am_demand[MONTHS_PER_YEAR];
     double am_shortage[MONTHS_PER_YEAR];
@@ -287,6 +279,8 @@ dam_history(size_t cur_cell, size_t cur_dam)
     if(current > 0 && dmy[current].year != dmy[current - 1].year){
         ay_flow = array_average(dam_var[cur_cell][cur_dam].history_flow,
             years_running, MONTHS_PER_YEAR, 0, 0);
+        ay_demand = array_average(dam_var[cur_cell][cur_dam].history_demand,
+            years_running, MONTHS_PER_YEAR, 0, 0);
         for(i = 0; i < MONTHS_PER_YEAR; i++){
             am_flow[i] = array_average(dam_var[cur_cell][cur_dam].history_flow,
             years_running, 1, i, MONTHS_PER_YEAR - i - 1);
@@ -300,18 +294,19 @@ dam_history(size_t cur_cell, size_t cur_dam)
         double_flip(am_demand,MONTHS_PER_YEAR);
         double_flip(am_shortage,MONTHS_PER_YEAR);
         
-        // Calculate operation discharge and volume
+        // Calculate operational year, discharge and volume
         if(dam_con[cur_cell][cur_dam].function == DAM_FUN_IRR){
-            // Recalculate operational year
             dam_var[cur_cell][cur_dam].op_year = 
-                    dam_get_op_year_demand(am_shortage);
+                    dam_get_op_year_flow(ay_flow, am_flow);
         
-            dam_get_operation_irr(am_flow,
+            dam_get_operation_irr(ay_flow, am_flow,
+                    ay_demand, am_demand,
                     dam_con[cur_cell][cur_dam].max_volume * DAM_PREF_VOL_FRAC,
+                    dam_con[cur_cell][cur_dam].max_volume * DAM_MIN_VOL_FRAC,
+                    dam_var[cur_cell][cur_dam].op_year,
                     dam_var[cur_cell][cur_dam].op_discharge,
                     dam_var[cur_cell][cur_dam].op_volume);              
-        }else if(dam_con[cur_cell][cur_dam].function == DAM_FUN_FLO){    
-            // Calculate operational year
+        }else {
             dam_var[cur_cell][cur_dam].op_year = 
                     dam_get_op_year_flow(ay_flow, am_flow);
         
@@ -321,18 +316,6 @@ dam_history(size_t cur_cell, size_t cur_dam)
                     dam_var[cur_cell][cur_dam].op_year,
                     dam_var[cur_cell][cur_dam].op_discharge,
                     dam_var[cur_cell][cur_dam].op_volume);            
-        }else if(dam_con[cur_cell][cur_dam].function == DAM_FUN_HYD){ 
-            // Calculate operational year
-            dam_var[cur_cell][cur_dam].op_year = 
-                    dam_get_op_year_flow(ay_flow, am_flow);
-        
-            dam_get_operation_hyd(am_flow, 
-                    dam_con[cur_cell][cur_dam].max_volume * DAM_PREF_VOL_FRAC,
-                    dam_var[cur_cell][cur_dam].op_discharge,
-                    dam_var[cur_cell][cur_dam].op_volume);  
-            
-        }else{
-            log_err("Unknown dam function");
         }
     } 
 }
@@ -367,18 +350,12 @@ dam_total(size_t cur_cell, size_t cur_dam)
             other_cell = dam_con[cur_cell][cur_dam].service[i];
 
             for(j = 0; j < irr_con_map[other_cell].ni_active; j++){
-                cur_veg = irr_con[cur_cell][i].veg_index;
+                cur_veg = irr_con[other_cell][j].veg_index;
             
                 for(k = 0; k < elev_con_map[other_cell].ne_active; k++){
 
                     dam_var[cur_cell][cur_dam].total_demand +=
                             irr_var[other_cell][j][k].need / MM_PER_M * 
-                            (local_domain.locations[other_cell].area *
-                            soil_con[other_cell].AreaFract[k] * 
-                            veg_con[other_cell][cur_veg].Cv) / 
-                            global_param.dt;
-                    dam_var[cur_cell][cur_dam].total_shortage +=
-                            irr_var[other_cell][j][k].deficit / MM_PER_M * 
                             (local_domain.locations[other_cell].area *
                             soil_con[other_cell].AreaFract[k] * 
                             veg_con[other_cell][cur_veg].Cv) / 
@@ -481,27 +458,17 @@ dam_run(size_t cur_cell)
                     ((double)op_year_dist / (double)MONTHS_PER_YEAR), 2);
             
             // Calculate discharge
-            if(dam_con[cur_cell][i].function == DAM_FUN_HYD){
+            if (dam_con[cur_cell][i].function == DAM_FUN_IRR) {                
                 dam_var[cur_cell][i].discharge = 
                     rout_var[cur_cell].discharge[0] +
                     dam_discharge_correction(
                     dam_var[cur_cell][i].op_volume[MONTHS_PER_YEAR - 1],                    
                     dam_var[cur_cell][i].op_volume[0],
-                    dam_con[cur_cell][i].max_volume * 
-                    DAM_VOL_MOD_FRAC * vol_discharge_modifier,
+                    dam_var[cur_cell][i].op_discharge[0] * 
+                    DAM_DIS_MOD_FRAC * vol_discharge_modifier,  
                     dam_var[cur_cell][i].total_steps,
                     tmp_volume);
-            } else if(dam_con[cur_cell][i].function == DAM_FUN_IRR){                
-                dam_var[cur_cell][i].discharge = 
-                    rout_var[cur_cell].discharge[0] +
-                    dam_discharge_correction(
-                    dam_var[cur_cell][i].op_volume[MONTHS_PER_YEAR - 1],                    
-                    dam_var[cur_cell][i].op_volume[0],
-                    dam_con[cur_cell][i].max_volume * 
-                    DAM_VOL_MOD_FRAC * op_year_discharge_modifier,
-                    dam_var[cur_cell][i].total_steps,
-                    tmp_volume);
-            } else if (dam_con[cur_cell][i].function == DAM_FUN_FLO){                
+            } else {                
                 dam_var[cur_cell][i].discharge = 
                     dam_var[cur_cell][i].op_discharge[0] +
                     dam_discharge_correction(
@@ -511,9 +478,7 @@ dam_run(size_t cur_cell)
                     DAM_DIS_MOD_FRAC * vol_discharge_modifier,   
                     dam_var[cur_cell][i].total_steps,
                     tmp_volume);
-            }else{
-                log_err("Unknown dam function");
-            }        
+            }      
             
             if(dam_var[cur_cell][i].discharge < 0){
                 dam_var[cur_cell][i].discharge = 0.0;
@@ -554,16 +519,6 @@ dam_run(size_t cur_cell)
             rout_var[cur_cell].discharge[0] = 0.0;                          
             rout_var[cur_cell].discharge[0] += 
                     dam_var[cur_cell][i].discharge;
-            
-            // Recalculate dam info
-            dam_var[cur_cell][i].area = 
-                    dam_area(dam_var[cur_cell][i].volume,
-                    dam_con[cur_cell][i].max_volume,
-                    dam_con[cur_cell][i].max_area,
-                    dam_con[cur_cell][i].max_height);
-            dam_var[cur_cell][i].height = 
-                    dam_height(dam_var[cur_cell][i].area,
-                    dam_con[cur_cell][i].max_height);
         }
     }
 }
