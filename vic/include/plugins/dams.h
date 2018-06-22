@@ -6,13 +6,13 @@
 #define DAM_HIST_YEARS 3
 #define DAM_AMP_STEP 0.05
 #define DAM_PREF_VOL_FRAC 0.85
-#define DAM_MIN_VOL_FRAC 0.1
-#define DAM_DIS_MOD_FRAC 0.5
-#define DAM_VOL_MOD_FRAC 0.05
+#define DAM_MIN_VOL_FRAC 0
+#define DAM_DIS_MOD_FRAC 0.8
+#define DAM_DIS_MOD_SHAPE 6
 
-#define DAM_FUN_IRR 1
-#define DAM_FUN_FLO 2
-#define DAM_FUN_HYD 3
+#define DAM_FUN_FLO 1
+#define DAM_FUN_HYD 2
+#define DAM_FUN_IRR 3
 
 #define DAYS_PER_MONTH_AVG 30.42
 #define DAYS_PER_WEEK 7
@@ -36,13 +36,12 @@ typedef struct {
 
     double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];
-    double history_shortage[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double op_discharge[MONTHS_PER_YEAR];
+    double op_discharge_irr[MONTHS_PER_YEAR];
     double op_volume[MONTHS_PER_YEAR];
 
     double total_flow;
     double total_demand;
-    double total_shortage;
     size_t total_steps;
 
     int op_year;
