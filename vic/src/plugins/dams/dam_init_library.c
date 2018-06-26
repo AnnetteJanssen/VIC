@@ -33,7 +33,7 @@ initialize_dam_con(dam_con_struct *dam_con)
     
     dam_con->id = 0;
     dam_con->year = 0;
-    dam_con->function = DAM_FUN_FLO;
+    dam_con->function = DAM_FUN_DEF;
     dam_con->max_volume = 0;
     
     for (i = 0; i < dam_con->nservice; i++) {

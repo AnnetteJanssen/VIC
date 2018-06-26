@@ -14,7 +14,7 @@
 #define DAM_DIS_MOD_FRAC 0.75
 #define DAM_DIS_MOD_SHAPE 6
 
-#define DAM_FUN_FLO 1
+#define DAM_FUN_DEF 1
 #define DAM_FUN_HYD 2
 #define DAM_FUN_IRR 3
 

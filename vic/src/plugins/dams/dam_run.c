@@ -460,9 +460,9 @@ dam_run(size_t cur_cell)
         if(dmy[current].year >= dam_con[cur_cell][i].year && years_running > 0){
             
             // Fill reservoir
-            dam_var[cur_cell][i].inflow = rout_var[cur_cell].discharge[0] * 
-                    global_param.dt; 
-            dam_var[cur_cell][i].volume += dam_var[cur_cell][i].inflow;
+            dam_var[cur_cell][i].inflow = rout_var[cur_cell].discharge[0];
+            dam_var[cur_cell][i].volume += dam_var[cur_cell][i].inflow * 
+                    global_param.dt;
                           
             
             // Calculate volume at end of step
