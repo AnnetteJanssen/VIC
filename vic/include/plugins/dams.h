@@ -9,7 +9,7 @@
 #define DAM_AMP_DEF 0.8
 #define DAM_PREF_VOL_HYD 0.85
 #define DAM_PREF_VOL_DEF 0.5
-#define DAM_PREF_VOL_IRR 0.5
+#define DAM_PREF_VOL_IRR 0.85
 
 #define DAM_DIS_MOD_FRAC 0.75
 #define DAM_DIS_MOD_SHAPE 6
