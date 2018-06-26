@@ -16,7 +16,7 @@ dam_generate_default_state(void)
     for (i = 0; i < local_domain.ncells_active; i++) {
         for (j = 0; j < dam_con_map[i].nd_active; j++) {
             dam_var[i][j].volume =
-                dam_con[i][j].max_volume * DAM_PREF_VOL_FRAC;
+                dam_con[i][j].max_volume * DAM_PREF_VOL_HYD;
             dam_var[i][j].op_year = dmy[current].month;
         }
     }

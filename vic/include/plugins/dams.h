@@ -7,7 +7,9 @@
 
 #define DAM_AMP_STEP 0.05
 #define DAM_AMP_DEF 0.8
-#define DAM_PREF_VOL_FRAC 0.85
+#define DAM_PREF_VOL_HYD 0.85
+#define DAM_PREF_VOL_DEF 0.5
+#define DAM_PREF_VOL_IRR 0.5
 
 #define DAM_DIS_MOD_FRAC 0.75
 #define DAM_DIS_MOD_SHAPE 6
@@ -35,6 +37,7 @@ typedef struct {
 typedef struct {
     double volume;
     double discharge;
+    double inflow;
 
     double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];
