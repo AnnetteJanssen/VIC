@@ -31,7 +31,7 @@ void efr_alloc(void);
 void initialize_efr_local_structures(void);
 void efr_forcing(void);
 void efr_run(size_t cur_cell);
-void efr_put_data(void);
+void efr_put_data(size_t);
 void efr_finalize(void);
 void efr_add_types(void);
 

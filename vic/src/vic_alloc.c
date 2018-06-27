@@ -42,6 +42,8 @@ vic_alloc(void)
     N_STATE_VARS_ALL = N_STATE_VARS;
     N_OUTVAR_TYPES_ALL = N_OUTVAR_TYPES;
 
+    plugin_add_types();
+    
     if (options.ROUTING_RVIC) {
         routing_rvic_add_types();
     }

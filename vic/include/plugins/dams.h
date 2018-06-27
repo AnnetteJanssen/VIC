@@ -67,7 +67,7 @@ void dam_run(size_t cur_cell);
 double dam_area(double volume, double max_volume, double max_area,
                 double max_height);
 double dam_height(double area, double max_height);
-void dam_put_data(void);
+void dam_put_data(size_t);
 void dam_finalize(void);
 void dam_add_types(void);
 

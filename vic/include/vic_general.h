@@ -1023,5 +1023,6 @@ bool wu_set_nc_var_dimids(int varid, nc_file_struct *nc_file,
 bool wu_set_nc_var_info(int varid, unsigned short int dtype,
                         nc_file_struct *nc_file,
                         nc_var_struct *nc_var);
+void plugin_put_data(double **, timer_struct *);
 
 #endif

@@ -24,8 +24,8 @@ rout_set_output_meta_data_info(void)
     strcpy(out_metadata[OUT_STREAM_MOIST].units, "mm");
     strcpy(out_metadata[OUT_STREAM_MOIST].description, "moisture storage in stream flow");
 
-    out_metadata[list_search_id(outvar_types, "OUT_STREAM_MOIST")].nelem = 1;
-    out_metadata[list_search_id(outvar_types, "OUT_DISCHARGE")].nelem = 1;
+    out_metadata[OUT_DISCHARGE].nelem = 1;
+    out_metadata[OUT_STREAM_MOIST].nelem = 1;
 }
 
 void

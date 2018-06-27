@@ -60,7 +60,7 @@ void irr_run(size_t cur_cell);
 void irr_set_demand(size_t cur_cell);
 void irr_get_withdrawn(size_t cur_cell);
 void irr_run_ponding_leftover(size_t cur_cell);
-void irr_put_data(void);
+void irr_put_data(size_t);
 void irr_finalize(void);
 void irr_add_types(void);
 

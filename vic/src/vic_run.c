@@ -63,17 +63,16 @@ vic_run(dmy_struct *dmy_current)
                dmy_current->year,
                dmy_current->dayseconds / SEC_PER_HOUR);
     }
-
+    
+    timer_start(&timer);
     // If running with OpenMP, run this for loop using multiple threads
-    #pragma omp parallel for default(shared) private(i, timer, vic_run_ref_str)
+    #pragma omp parallel for default(shared) private(i, vic_run_ref_str)
     for (i = 0; i < local_domain.ncells_active; i++) {
         // Set global reference string (for debugging inside vic_run)
         sprintf(vic_run_ref_str, "Gridcell io_idx: %zu, timestep: %zu",
                 local_domain.locations[i].io_idx, current);
 
         update_step_vars(&(all_vars[i]), veg_con[i], &soil_con[i], veg_hist[i]);
-
-        timer_start(&timer);
         if (options.GROUNDWATER) {
             run_gw_general(&(force[i]), &(all_vars[i]), gw_var[i],
                        dmy_current, &global_param,
@@ -89,9 +88,8 @@ vic_run(dmy_struct *dmy_current)
         if (options.IRRIGATION) {
             irr_run(i);
         }
-
-        timer_stop(&timer);
     }
+    timer_stop(&timer);
 
     // If running with OpenMP, run this for loop using multiple threads
     #pragma omp parallel for default(shared) private(i)
@@ -108,14 +106,15 @@ vic_run(dmy_struct *dmy_current)
         }
     }
 
+    timer_start(&timer);   
     if (options.ROUTING_RVIC) {
         routing_rvic_run();
     }
     if (options.ROUTING_TYPE == ROUTING_BASIN) {
         for (i = 0; i < local_domain.ncells_active; i++) {
             cur_cell = routing_order[i];
-
-            // Plugins
+            
+            // Plugins         
             rout_run(cur_cell);
 
             if (options.EFR) {
@@ -140,7 +139,7 @@ vic_run(dmy_struct *dmy_current)
                     irr_get_withdrawn(cur_cell);
                     irr_run_ponding_leftover(cur_cell);
                 }
-            }
+            }            
         }
     }
     else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
@@ -156,23 +155,31 @@ vic_run(dmy_struct *dmy_current)
             log_err("WATER_USE is not yet available with ROUTING_RANDOM");
         }
     }
+    timer_stop(&timer);
     
-    if (options.ROUTING) {
-        rout_put_data();
-    }
-    if (options.EFR) {
-        efr_put_data();
-    }
-    if (options.IRRIGATION) {
-        irr_put_data();
-    }
-    if (options.WATER_USE) {
-        wu_put_data();
-    }
-    if (options.DAMS) {
-        dam_put_data();
-    }
+    
+    // If running with OpenMP, run this for loop using multiple threads
+    #pragma omp parallel for default(shared) private(i)
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        plugin_put_data(out_data[i], &timer);
 
+        if (options.ROUTING) {
+            rout_put_data(i);
+        }
+        if (options.EFR) {
+            efr_put_data(i);
+        }
+        if (options.IRRIGATION) {
+            irr_put_data(i);
+        }
+        if (options.WATER_USE) {
+            wu_put_data(i);
+        }
+        if (options.DAMS) {
+            dam_put_data(i);
+        }
+    }
+    
     for (i = 0; i < options.Noutstreams; i++) {
         agg_stream_data(&(output_streams[i]), dmy_current, out_data);
     }
