@@ -246,7 +246,7 @@ runoff_gw(cell_data_struct  *cell,
             **************************************************/
             lwt = -1;
             for (lindex = 0; lindex < options.Nlayer; lindex++) {
-                if (zwt[fidx] < z[lindex]) {
+                if (zwt[fidx] <= z[lindex]) {
                     lwt = lindex;
                     break;
                 }
