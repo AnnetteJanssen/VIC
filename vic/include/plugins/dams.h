@@ -38,6 +38,7 @@ typedef struct {
     double volume;
     double discharge;
     double inflow;
+    double demand;
 
     double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];

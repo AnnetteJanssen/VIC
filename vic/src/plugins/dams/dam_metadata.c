@@ -9,7 +9,8 @@ dam_set_output_meta_data_info(void)
 
     int OUT_DAM_VOLUME; 
     int OUT_DAM_DISCHARGE; 
-    int OUT_DAM_INFLOW; 
+    int OUT_DAM_INFLOW;
+    int OUT_DAM_DEMAND;
     int OUT_DAM_OP_DISCHARGE; 
     int OUT_DAM_OP_DISCHARGE_IRR; 
     int OUT_DAM_OP_VOLUME; 
@@ -20,6 +21,7 @@ dam_set_output_meta_data_info(void)
     OUT_DAM_VOLUME = list_search_id(outvar_types, "OUT_DAM_VOLUME");
     OUT_DAM_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_DISCHARGE");
     OUT_DAM_INFLOW = list_search_id(outvar_types, "OUT_DAM_INFLOW");
+    OUT_DAM_DEMAND = list_search_id(outvar_types, "OUT_DAM_DEMAND");
     OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
     OUT_DAM_OP_DISCHARGE_IRR = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE_IRR");
     OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
@@ -50,6 +52,14 @@ dam_set_output_meta_data_info(void)
     strcpy(out_metadata[OUT_DAM_DISCHARGE].units, "m3/s");
     strcpy(out_metadata[OUT_DAM_DISCHARGE].description,
            "flow in dam reservoir");
+
+    strcpy(out_metadata[OUT_DAM_DEMAND].varname, "OUT_DAM_DEMAND");
+    strcpy(out_metadata[OUT_DAM_DEMAND].long_name, "dam_demand");
+    strcpy(out_metadata[OUT_DAM_DEMAND].standard_name,
+           "dam_demand");
+    strcpy(out_metadata[OUT_DAM_DEMAND].units, "m3/s");
+    strcpy(out_metadata[OUT_DAM_DEMAND].description,
+           "demand of downstream irrigation");
 
     strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].varname, "OUT_DAM_OP_DISCHARGE");
     strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].long_name, "dam_operational_discharge");

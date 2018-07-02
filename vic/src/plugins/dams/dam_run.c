@@ -349,10 +349,13 @@ dam_history_step(size_t cur_cell, size_t cur_dam)
     size_t j;
     size_t k;
     
+    dam_var[cur_cell][cur_dam].inflow = rout_var[cur_cell].discharge[0];
     dam_var[cur_cell][cur_dam].total_flow += 
-            rout_var[cur_cell].discharge[0];
+            dam_var[cur_cell][cur_dam].inflow;
     
     if(options.IRRIGATION){
+        dam_var[cur_cell][cur_dam].demand = 0.0;
+        
         for(i = 0; i < dam_con[cur_cell][cur_dam].nservice; i++){
             other_cell = dam_con[cur_cell][cur_dam].service[i];
 
@@ -360,8 +363,7 @@ dam_history_step(size_t cur_cell, size_t cur_dam)
                 cur_veg = irr_con[other_cell][j].veg_index;
             
                 for(k = 0; k < elev_con_map[other_cell].ne_active; k++){
-
-                    dam_var[cur_cell][cur_dam].total_demand +=
+                    dam_var[cur_cell][cur_dam].demand +=
                             irr_var[other_cell][j][k].need / MM_PER_M * 
                             (local_domain.locations[other_cell].area *
                             soil_con[other_cell].AreaFract[k] * 
@@ -371,7 +373,9 @@ dam_history_step(size_t cur_cell, size_t cur_dam)
             }
         }
     }
-    
+    dam_var[cur_cell][cur_dam].total_demand +=
+            dam_var[cur_cell][cur_dam].demand;
+                    
     dam_var[cur_cell][cur_dam].total_steps++;
 }
 
@@ -460,7 +464,6 @@ dam_run(size_t cur_cell)
         if(dmy[current].year >= dam_con[cur_cell][i].year && years_running > 0){
             
             // Fill reservoir
-            dam_var[cur_cell][i].inflow = rout_var[cur_cell].discharge[0];
             dam_var[cur_cell][i].volume += dam_var[cur_cell][i].inflow * 
                     global_param.dt;
                           
