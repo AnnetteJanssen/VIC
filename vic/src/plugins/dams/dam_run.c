@@ -25,7 +25,6 @@ void
 dam_adj_op_discharge(double ay_flow,
                      double ay_demand,
                      double *am_demand,
-                     double amplitude,
                      double *op_dicharge)
 {
     size_t i;
@@ -36,11 +35,11 @@ dam_adj_op_discharge(double ay_flow,
     if(ay_demand > 0){
         ay_demand_frac = min(1, (ay_demand / ay_flow));
         
-        for(i = 0; i < MONTHS_PER_YEAR; i ++){
-            op_dicharge[i] -= ay_demand * ay_demand_frac;
-            
+        for(i = 0; i < MONTHS_PER_YEAR; i ++){            
             am_demand_frac = min(1, (am_demand[i] / op_dicharge[i]));
-            op_dicharge[i] += am_demand[i] * am_demand_frac * (1 - amplitude);
+            
+            op_dicharge[i] -= ay_demand * ay_demand_frac;
+            op_dicharge[i] += am_demand[i] * am_demand_frac;
             
             if(op_dicharge[i] < 0){
                 op_dicharge[i] = 0.0;
@@ -186,7 +185,7 @@ dam_get_operation_irr(double ay_flow,
     // Set operational discharge
     for(amplitude = 0; amplitude < 1; amplitude += DAM_AMP_STEP){
         dam_calc_op_discharge(ay_flow, am_flow, amplitude, op_discharge);
-        dam_adj_op_discharge(ay_flow, ay_demand, am_demand, amplitude, op_discharge);
+        dam_adj_op_discharge(ay_flow, ay_demand, am_demand, op_discharge);
         
         dam_calc_vol_needed(op_discharge, am_flow, &volume_needed); 
         if(volume_needed < pref_volume ){
