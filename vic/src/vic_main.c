@@ -187,18 +187,3 @@ main(int    argc,
 
     return EXIT_SUCCESS;
 }
-
-
-
-
-void test(){
-    int p;
-    int *pointer;
-    p=2;
-    
-    int *pp = &p;
-}
-
-void testfunction(float x[10]){
-    
-}
