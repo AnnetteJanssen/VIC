@@ -49,6 +49,16 @@ gw_calculate_derived_states(void)
                         gw_var[i][j][k].Wt =
                             (z_tmp - gw_var[i][j][k].zwt) *
                             eff_porosity * MM_PER_M;
+                        
+                        all_vars[i].cell[j][k].layer[l].moist =
+                            (z_tmp - gw_var[i][j][k].zwt) *
+                            eff_porosity * MM_PER_M;
+                        
+                        if (all_vars[i].cell[j][k].layer[l].moist >
+                            soil_con[i].max_moist[l]) {
+                            all_vars[i].cell[j][k].layer[l].moist =
+                                soil_con[i].max_moist[l];
+                        }
 
                         // add water for lower layers
                         for (n = l + 1; n < options.Nlayer; n++) {
@@ -64,6 +74,16 @@ gw_calculate_derived_states(void)
                             gw_var[i][j][k].Wt +=
                                 soil_con[i].depth[n] *
                                 eff_porosity * MM_PER_M;
+                        
+                            all_vars[i].cell[j][k].layer[n].moist =
+                                soil_con[i].depth[n] *
+                                eff_porosity * MM_PER_M;
+                            
+                            if (all_vars[i].cell[j][k].layer[n].moist >
+                                soil_con[i].max_moist[n]) {
+                                all_vars[i].cell[j][k].layer[n].moist =
+                                    soil_con[i].max_moist[n];
+                            }
                         }
 
                         break;
@@ -150,7 +170,7 @@ gw_generate_default_state(void)
         for (i = 0; i < local_domain.ncells_active; i++) {
             for (j = 0; j < veg_con_map[i].nv_active; j++) {
                 for (k = 0; k < elev_con_map[i].ne_active; k++) {
-                    gw_var[i][j][k].zwt = GW_DEF_DEPTH;
+                    gw_var[i][j][k].zwt = 0;
                 }
             }
         }
