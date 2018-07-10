@@ -170,7 +170,7 @@ gw_generate_default_state(void)
         for (i = 0; i < local_domain.ncells_active; i++) {
             for (j = 0; j < veg_con_map[i].nv_active; j++) {
                 for (k = 0; k < elev_con_map[i].ne_active; k++) {
-                    gw_var[i][j][k].zwt = 0;
+                    gw_var[i][j][k].zwt = GW_DEF_DEPTH;
                 }
             }
         }
