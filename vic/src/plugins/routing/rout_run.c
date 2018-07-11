@@ -171,7 +171,7 @@ rout_gl_run()
             for(j = 0; j < options.IUH_NSTEPS; j++){
                 store_global[cur_cell] += dis_global[cur_cell][j] *
                                         global_param.dt /
-                                        local_domain.locations[cur_cell].area *
+                                        global_domain.locations[cur_cell].area *
                                         MM_PER_M;
             }
         }
