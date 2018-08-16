@@ -1132,11 +1132,6 @@ init_general(void)
         }
     }
 
-    // Validate plugins
-    if (options.ROUTING_LOHMANN) {
-        log_err("Routing LOHMANN is not implemented yet!");
-    }
-
     // TODO: Determine which bands are above treeline
 
     // read_vegparam()

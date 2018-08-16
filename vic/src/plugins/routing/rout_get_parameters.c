@@ -118,6 +118,9 @@ rout_get_global_parameters(char *cmdstr)
 
     if (strcasecmp("ROUTING", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
+        if(options.ROUTING && str_to_bool(flgstr)){
+            log_err("Multiple routing types selected");
+        }
         options.ROUTING = str_to_bool(flgstr);
     } else if (strcasecmp("ROUTING_FORCE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);

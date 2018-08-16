@@ -7,6 +7,7 @@
 
 enum {
     ROUTING_FALSE,
+    ROUTING_RVIC,
     ROUTING_BASIN,
     ROUTING_RANDOM
 };
@@ -54,8 +55,8 @@ void rout_set_output_meta_data_info(void);
 void rout_set_state_meta_data_info(void);
 bool rout_history(int, unsigned int *);
 void rout_forcing(void);
-void rout_run(size_t cur_cell);
-void rout_gl_run(void);
+void rout_basin_run(size_t cur_cell);
+void rout_random_run(void);
 void rout_put_data(size_t);
 void rout_finalize(void);
 void rout_add_types(void);

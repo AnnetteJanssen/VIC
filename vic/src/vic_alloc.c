@@ -44,7 +44,7 @@ vic_alloc(void)
 
     plugin_add_types();
     
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_add_types();
     }
     if (options.DAMS) {
@@ -75,7 +75,7 @@ vic_alloc(void)
     alloc_general();
 
     // Allocate memory for routing
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_alloc();
     }
     if (options.DAMS) {

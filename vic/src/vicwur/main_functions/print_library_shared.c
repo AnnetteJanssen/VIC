@@ -473,10 +473,6 @@ print_option(option_struct *option)
             option->GROUNDWATER ? "true" : "false");
     fprintf(LOG_DEST, "\tROUTING              : %s\n",
             option->ROUTING ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING_LOHMANN      : %s\n",
-            option->ROUTING_LOHMANN ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING_RVIC         : %s\n",
-            option->ROUTING_RVIC ? "true" : "false");
     fprintf(LOG_DEST, "\tDAMS                 : %s\n",
             option->DAMS ? "true" : "false");
     fprintf(LOG_DEST, "\tEFR                  : %s\n",

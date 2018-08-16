@@ -38,7 +38,7 @@ vic_init(void)
     init_general();
     
     // Initialize all plugins
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_init();
     }
     if (options.DAMS) {

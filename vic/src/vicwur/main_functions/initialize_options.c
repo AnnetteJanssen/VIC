@@ -98,8 +98,6 @@ initialize_options()
     options.Noutstreams = 2;
 
     // plugins
-    options.ROUTING_RVIC = false;
-    options.ROUTING_LOHMANN = false;
     options.GROUNDWATER = false;
     options.ROUTING = false;
     options.WATER_USE = false;

@@ -53,7 +53,7 @@ set_state_meta_data_info()
     }
 
     // STATE_ROUT_RING
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_state_metadata();
     }
 

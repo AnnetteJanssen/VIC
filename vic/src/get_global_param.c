@@ -63,8 +63,6 @@ get_global_param(FILE *gp)
             *************************************/
             if (routing_rvic_get_global_param(cmdstr)) {
             }
-            else if (routing_lohmann_get_global_param(cmdstr)) {
-            }
             else if (matric_get_global_parameters(cmdstr)) {
             }
             else if (gw_get_global_parameters(cmdstr)) {

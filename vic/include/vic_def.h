@@ -336,21 +336,19 @@ typedef struct {
 
     // Plugins
     bool GROUNDWATER;
-    bool ROUTING;
-    bool ROUTING_RVIC;
-    bool ROUTING_LOHMANN;
-    bool WATER_USE;
-    bool IRRIGATION;
-    bool EFR;
-    bool DAMS;
     bool MATRIC;
+    bool ROUTING;
+    bool DAMS;
+    bool IRRIGATION;
+    bool WATER_USE;
+    bool EFR;
 
     // Groundwater options
     bool GW_INIT_FROM_FILE;
     bool GW_CALC_EQ;
     // Routing options
-    bool ROUTING_FORCE;
     int ROUTING_TYPE;
+    bool ROUTING_FORCE;
     size_t IUH_NSTEPS;
     size_t RUH_NSTEPS;
     // Water use options

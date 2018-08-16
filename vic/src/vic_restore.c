@@ -982,7 +982,7 @@ vic_restore(void)
     }
 
     // routing ring
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_restore(&(filenames.init_state), state_metadata);
     }
 

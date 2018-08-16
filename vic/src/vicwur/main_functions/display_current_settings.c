@@ -257,12 +257,6 @@ display_current_settings(int mode)
     if (options.ROUTING) {
         fprintf(LOG_DEST, "ROUTING\t\tTRUE\n");
     }
-    else if (options.ROUTING_LOHMANN) {
-        fprintf(LOG_DEST, "ROUTING_LOHMANN\t\tTRUE\n");
-    }
-    else if (options.ROUTING_RVIC) {
-        fprintf(LOG_DEST, "ROUTING_RVIC\t\tTRUE\n");
-    }
     else {
         fprintf(LOG_DEST, "ROUTING\t\tFALSE\n");
     }
@@ -421,7 +415,7 @@ display_current_settings(int mode)
     }
 
     // Plugins
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         fprintf(LOG_DEST, "ROUTING_RVIC\t\tTRUE\n");
     }
 

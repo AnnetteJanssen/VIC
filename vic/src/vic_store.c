@@ -1272,7 +1272,7 @@ vic_store(dmy_struct *dmy_state,
     }
 
     // store extension variables
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_store(&nc_state_file);
     }
 
@@ -1332,7 +1332,7 @@ set_nc_state_file_info(nc_file_struct *nc_state_file)
     nc_state_file->veg_size = options.NVEGTYPES;
 
     // set ids and dimension sizes of the extension variables
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_set_nc_state_file_info(nc_state_file);
     }
 
@@ -1550,7 +1550,7 @@ set_nc_state_var_info(nc_file_struct *nc)
     }
 
     // Plugins
-    if (options.ROUTING_RVIC) {
+    if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_set_nc_state_var_info(nc);
     }
 }
@@ -1695,7 +1695,7 @@ initialize_state_file(char           *filename,
         }
 
         // add extension dimensions
-        if (options.ROUTING_RVIC) {
+        if (options.ROUTING_TYPE == ROUTING_RVIC) {
             routing_rvic_initialize_state_file(filename, nc_state_file);
         }
 

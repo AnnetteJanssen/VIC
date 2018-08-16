@@ -1,6 +1,6 @@
 #include <vic.h>
 void
-rout_gl_run()
+rout_random_run()
 {
     extern domain_struct       local_domain;
     extern domain_struct       global_domain;
@@ -225,7 +225,7 @@ rout_gl_run()
 }
 
 void
-rout_run(size_t cur_cell)
+rout_basin_run(size_t cur_cell)
 {
     extern domain_struct       local_domain;
     extern global_param_struct global_param;
