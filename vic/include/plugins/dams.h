@@ -5,18 +5,33 @@
 #include <stdbool.h>
 #define DAM_HIST_YEARS 3
 
-#define DAM_AMP_STEP 0.05
-#define DAM_AMP_DEF 0.8
+#define DAM_AMP_STEP_POS 0.05
+#define DAM_AMP_STEP_NEG -0.05
+
+#define DAM_SAMP_FLO 0.75
+#define DAM_SAMP_HYD 0
+#define DAM_SAMP_SUP 1
+#define DAM_EAMP_FLO 1
+#define DAM_EAMP_HYD 1
+#define DAM_EAMP_SUP 0
+
 #define DAM_PREF_VOL_HYD 0.85
-#define DAM_PREF_VOL_DEF 0.5
-#define DAM_PREF_VOL_IRR 0.85
+#define DAM_PREF_VOL_FLO 0.5
+#define DAM_PREF_VOL_SUP 0.85
+#define DAM_MIN_VOL_HYD 0.1
+#define DAM_MIN_VOL_FLO 0
+#define DAM_MIN_VOL_SUP 0.1
+
+#define DAM_PREF_DEM_SUP 0.2
 
 #define DAM_DIS_MOD_FRAC 0.75
 #define DAM_DIS_MOD_SHAPE 6
 
-#define DAM_FUN_DEF 1
 #define DAM_FUN_HYD 2
 #define DAM_FUN_IRR 3
+#define DAM_FUN_WAS 4
+#define DAM_FUN_FLO 5
+#define DAM_FUN_OTH 6
 
 #define DAYS_PER_MONTH_AVG 30.42
 #define DAYS_PER_WEEK 7
@@ -32,6 +47,7 @@ typedef struct {
     double max_volume;
     size_t nservice;
     size_t *service;
+    double *serve_factor;
 } dam_con_struct;
 
 typedef struct {
@@ -64,6 +80,7 @@ void dam_init(void);
 void dam_set_output_meta_data_info(void);
 void dam_set_state_meta_data_info(void);
 void dam_generate_default_state(void);
+void dam_history(size_t cur_cell);
 void dam_run(size_t cur_cell);
 double dam_area(double volume, double max_volume, double max_area,
                 double max_height);

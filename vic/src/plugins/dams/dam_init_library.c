@@ -34,11 +34,12 @@ initialize_dam_con(dam_con_struct *dam_con)
     
     dam_con->id = 0;
     dam_con->year = 0;
-    dam_con->function = DAM_FUN_DEF;
+    dam_con->function = DAM_FUN_OTH;
     dam_con->max_volume = 0;
     
     for (i = 0; i < dam_con->nservice; i++) {
         dam_con->service[i] = MISSING_USI;
+        dam_con->serve_factor[i] = 0.0;
     }    
 }
 
