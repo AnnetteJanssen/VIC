@@ -88,6 +88,7 @@ dam_set_service(void)
     
     int *service_var;
     int *ivar;
+    double ***dvar;
     int **adjustment;
     size_t                  service_count;
     bool done;
@@ -117,7 +118,9 @@ dam_set_service(void)
     d4count[3] = global_domain.n_nx; 
     
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
-    check_alloc_status(ivar, "Memory allocation error.");     
+    check_alloc_status(ivar, "Memory allocation error.");    
+    dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
+    check_alloc_status(dvar, "Memory allocation error.");   
     service_var = malloc(local_domain.ncells_active * sizeof(*service_var));
     check_alloc_status(service_var, "Memory allocation error."); 
     adjustment = malloc(local_domain.ncells_active * sizeof(*adjustment));
@@ -125,6 +128,12 @@ dam_set_service(void)
     for(i = 0; i < local_domain.ncells_active; i++){
         adjustment[i] = malloc(options.MAXDAMS * sizeof(*adjustment[i]));
         check_alloc_status(adjustment[i], "Memory allocation error.");
+        dvar[i] = malloc(options.MAXDAMS * sizeof(*dvar[i]));
+        check_alloc_status(dvar[i], "Memory allocation error.");
+        for(j = 0; j < options.MAXDAMS; j++){
+            dvar[i][j] = malloc(options.MAXSERVICE * sizeof(*dvar[i][j]));
+            check_alloc_status(dvar[i][j], "Memory allocation error.");
+        }
     }
     
     for(i = 0; i < local_domain.ncells_active; i++){
@@ -145,6 +154,8 @@ dam_set_service(void)
                         
             get_scatter_nc_field_int(&(filenames.dams), 
                     "service", d4start, d4count, ivar);
+            get_scatter_nc_field_double(&(filenames.dams), 
+                    "serve_factor", d4start, d4count, dvar);
             
             for(i = 0; i < local_domain.ncells_active; i++){
                 if(j < dam_con_map[i].nd_active){
@@ -158,7 +169,9 @@ dam_set_service(void)
                                 break;
                             }
                         }
-                        
+                        dam_con[i][j].serve_factor[k - adjustment[i][j]] = 
+                                dvar[i][j][k];
+                                
                         if(!done){
                             service_count++;
                             dam_con[i][j].nservice--;

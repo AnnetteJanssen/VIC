@@ -134,6 +134,7 @@ vic_run(dmy_struct *dmy_current)
                     efr_run(cur_cell);
                 }
                 if (options.DAMS) {
+                    dam_history(cur_cell);
                     dam_run(cur_cell);
                 }
 

@@ -122,6 +122,8 @@ dam_alloc(void)
         for(j=0; j < dam_con_map[i].nd_active; j++){
             dam_con[i][j].service = malloc(dam_con[i][j].nservice * sizeof(*dam_con[i][j].service));
             check_alloc_status(dam_con[i][j].service,"Memory allocation error");
+            dam_con[i][j].serve_factor = malloc(dam_con[i][j].nservice * sizeof(*dam_con[i][j].serve_factor));
+            check_alloc_status(dam_con[i][j].serve_factor,"Memory allocation error");
         }
     }
     
