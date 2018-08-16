@@ -66,7 +66,7 @@ vic_run(dmy_struct *dmy_current)
     }
     
     /******************************************************************************
-      VIC
+      VIC & cell operations
      *****************************************************************************/
     timer_start(&timer);
     // If running with OpenMP, run this for loop using multiple threads
@@ -108,7 +108,7 @@ vic_run(dmy_struct *dmy_current)
     }
 
     /******************************************************************************
-     Plugins
+     Plugins & ordered operations
      *****************************************************************************/
     timer_start(&timer);
     if (options.ROUTING_TYPE == ROUTING_RVIC) {
