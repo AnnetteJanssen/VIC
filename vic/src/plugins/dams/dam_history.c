@@ -347,7 +347,7 @@ dam_history_step(size_t cur_cell, size_t cur_dam)
         
         for(i = 0; i < dam_con[cur_cell][cur_dam].nservice; i++){
             other_cell = dam_con[cur_cell][cur_dam].service[i];
-            serve_factor = dam_con[cur_cell][cur_dam][i].serve_factor;
+            serve_factor = dam_con[cur_cell][cur_dam].serve_factor[i];
                     
             for(j = 0; j < irr_con_map[other_cell].ni_active; j++){
                 cur_veg = irr_con[other_cell][j].veg_index;

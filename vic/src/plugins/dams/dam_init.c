@@ -88,7 +88,7 @@ dam_set_service(void)
     
     int *service_var;
     int *ivar;
-    double ***dvar;
+    double *dvar;
     int **adjustment;
     size_t                  service_count;
     bool done;
@@ -128,12 +128,6 @@ dam_set_service(void)
     for(i = 0; i < local_domain.ncells_active; i++){
         adjustment[i] = malloc(options.MAXDAMS * sizeof(*adjustment[i]));
         check_alloc_status(adjustment[i], "Memory allocation error.");
-        dvar[i] = malloc(options.MAXDAMS * sizeof(*dvar[i]));
-        check_alloc_status(dvar[i], "Memory allocation error.");
-        for(j = 0; j < options.MAXDAMS; j++){
-            dvar[i][j] = malloc(options.MAXSERVICE * sizeof(*dvar[i][j]));
-            check_alloc_status(dvar[i][j], "Memory allocation error.");
-        }
     }
     
     for(i = 0; i < local_domain.ncells_active; i++){
@@ -170,7 +164,7 @@ dam_set_service(void)
                             }
                         }
                         dam_con[i][j].serve_factor[k - adjustment[i][j]] = 
-                                dvar[i][j][k];
+                                dvar[i];
                                 
                         if(!done){
                             service_count++;
