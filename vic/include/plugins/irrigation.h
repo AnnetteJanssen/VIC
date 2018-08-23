@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define FIELD_CAP_FRAC 0.7
+#define FIELD_CAP_FRAC 0.8
 #define IRR_CRIT_FRAC 0.9
 
 #define POND_IRR_CRIT_FRAC 0.1
