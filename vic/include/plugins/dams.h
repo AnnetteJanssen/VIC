@@ -27,11 +27,11 @@
 #define DAM_DIS_MOD_FRAC 0.75
 #define DAM_DIS_MOD_SHAPE 6
 
-#define DAM_FUN_HYD 2
-#define DAM_FUN_IRR 3
-#define DAM_FUN_WAS 4
-#define DAM_FUN_FLO 5
-#define DAM_FUN_OTH 6
+#define DAM_FUN_HYD 1
+#define DAM_FUN_IRR 2
+#define DAM_FUN_WAS 3
+#define DAM_FUN_FLO 4
+#define DAM_FUN_OTH 5
 
 #define DAYS_PER_MONTH_AVG 30.42
 #define DAYS_PER_WEEK 7
