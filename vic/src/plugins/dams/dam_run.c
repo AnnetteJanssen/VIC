@@ -51,12 +51,7 @@ dam_run(size_t cur_cell)
     size_t years_running;
     
     size_t i;
-    double tmp_volume;
-    double tmp_volume_frac;
-    double tmp_volume_diff;
-    double extreme_modifier;
-    double difference_modifier;
-    double modifier;
+    double discharge_mod;
     
     for(i = 0; i < dam_con_map[cur_cell].nd_active; i++){
         years_running = (size_t)(dam_var[cur_cell][i].months_running / 
@@ -67,50 +62,34 @@ dam_run(size_t cur_cell)
         
         if(dmy[current].year >= dam_con[cur_cell][i].year && years_running > 0){
             
+            // Calculate discharge modifier
+            discharge_mod = dam_discharge_correction(
+                    dam_var[cur_cell][i].op_volume[MONTHS_PER_YEAR - 1],                    
+                    dam_var[cur_cell][i].op_volume[0],
+                    //dam_var[cur_cell][i].op_discharge[0] * 0.4,  
+                    dam_var[cur_cell][i].volume * 0.05 / global_param.model_steps_per_day,
+                    dam_var[cur_cell][i].total_steps,
+                    dam_var[cur_cell][i].volume);   
+            
             // Fill reservoir
             dam_var[cur_cell][i].volume += dam_var[cur_cell][i].inflow * 
                     global_param.dt;
-                          
-            
-            // Calculate volume at end of step
-            tmp_volume = dam_var[cur_cell][i].volume - 
-                    dam_var[cur_cell][i].op_discharge[0] * 
-                    global_param.dt;            
-            if(tmp_volume > dam_con[cur_cell][i].max_volume){
-                tmp_volume = dam_con[cur_cell][i].max_volume;
-            }         
-            
-            tmp_volume_frac = tmp_volume / dam_con[cur_cell][i].max_volume;            
-            tmp_volume_frac = max(tmp_volume_frac, 1 - tmp_volume_frac);
-            tmp_volume_frac = linear_interp(tmp_volume_frac, 0.5, 1, 0, 1);
-            
-            tmp_volume_diff = abs(tmp_volume - dam_var[cur_cell][i].op_volume[0]);
-            tmp_volume_diff = tmp_volume_diff / dam_con[cur_cell][i].max_volume;
-            
-            // Calculate discharge modifiers
-            extreme_modifier = pow(tmp_volume_frac, DAM_DIS_MOD_SHAPE);
-            difference_modifier = pow(tmp_volume_frac, DAM_DIS_MOD_SHAPE / 3);
-            modifier = max(difference_modifier, extreme_modifier);
-            modifier *= DAM_DIS_MOD_FRAC;
             
             // Calculate discharge               
             dam_var[cur_cell][i].discharge = 
-                dam_var[cur_cell][i].op_discharge[0] +
-                dam_discharge_correction(
-                    dam_var[cur_cell][i].op_volume[MONTHS_PER_YEAR - 1],                    
-                    dam_var[cur_cell][i].op_volume[0],
-                    dam_var[cur_cell][i].op_discharge[0] * modifier,  
-                    dam_var[cur_cell][i].total_steps,
-                    tmp_volume);   
+                dam_var[cur_cell][i].op_discharge[0] + 
+                    discharge_mod;
+                
             
             if(dam_var[cur_cell][i].discharge < 0){
                 dam_var[cur_cell][i].discharge = 0.0;
             }
             
-            // Empty reservoir
             dam_var[cur_cell][i].volume -= 
                     dam_var[cur_cell][i].discharge * 
                     global_param.dt;
+            
+            // Empty reservoir
             if(dam_var[cur_cell][i].volume < 0){
                 dam_var[cur_cell][i].discharge -= 
                         dam_var[cur_cell][i].volume / 

@@ -17,7 +17,6 @@ dam_put_data(size_t cur_cell)
     int OUT_DAM_INFLOW;
     int OUT_DAM_DEMAND;
     int OUT_DAM_OP_DISCHARGE; 
-    int OUT_DAM_OP_DISCHARGE_IRR; 
     int OUT_DAM_OP_VOLUME; 
     int OUT_DAM_OP_MONTH; 
     int OUT_DAM_HIST_DEMAND; 
@@ -28,7 +27,6 @@ dam_put_data(size_t cur_cell)
     OUT_DAM_INFLOW = list_search_id(outvar_types, "OUT_DAM_INFLOW");
     OUT_DAM_DEMAND = list_search_id(outvar_types, "OUT_DAM_DEMAND");
     OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
-    OUT_DAM_OP_DISCHARGE_IRR = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE_IRR");
     OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
     OUT_DAM_OP_MONTH = list_search_id(outvar_types, "OUT_DAM_OP_MONTH");
     OUT_DAM_HIST_DEMAND = list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND");
@@ -47,11 +45,12 @@ dam_put_data(size_t cur_cell)
         out_data[cur_cell][OUT_DAM_DISCHARGE][j] = dam_var[cur_cell][j].discharge;
         out_data[cur_cell][OUT_DAM_INFLOW][j] = dam_var[cur_cell][j].inflow;
         out_data[cur_cell][OUT_DAM_DEMAND][j] = dam_var[cur_cell][j].demand;
+        
         out_data[cur_cell][OUT_DAM_OP_DISCHARGE][j] = dam_var[cur_cell][j].op_discharge[0];
-        out_data[cur_cell][OUT_DAM_OP_VOLUME][j] = dam_var[cur_cell][j].op_volume[0] / pow(M_PER_KM, 3);
+        out_data[cur_cell][OUT_DAM_OP_VOLUME][j] = dam_var[cur_cell][j].op_volume[0] / pow(M_PER_KM, 2);
         out_data[cur_cell][OUT_DAM_OP_MONTH][j] = dam_var[cur_cell][j].op_year;
+        
         out_data[cur_cell][OUT_DAM_HIST_DEMAND][j] = dam_var[cur_cell][j].history_demand[years_running * MONTHS_PER_YEAR - 1];
         out_data[cur_cell][OUT_DAM_HIST_FLOW][j] = dam_var[cur_cell][j].history_flow[years_running * MONTHS_PER_YEAR - 1];
-        out_data[cur_cell][OUT_DAM_OP_DISCHARGE_IRR][j] = dam_var[cur_cell][j].op_discharge_irr[0];
     }
 }    

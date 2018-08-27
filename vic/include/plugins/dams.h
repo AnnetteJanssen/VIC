@@ -58,8 +58,8 @@ typedef struct {
 
     double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
     double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];
+    
     double op_discharge[MONTHS_PER_YEAR];
-    double op_discharge_irr[MONTHS_PER_YEAR];
     double op_volume[MONTHS_PER_YEAR];
 
     double total_flow;

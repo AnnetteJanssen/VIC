@@ -21,7 +21,6 @@ initialize_dam_var(dam_var_struct *dam_var)
     for (i = 0; i < MONTHS_PER_YEAR; i++) {
         dam_var->op_volume[i] = 0.0;
         dam_var->op_discharge[i] = 0.0;
-        dam_var->op_discharge_irr[i] = 0.0;
     }
 
     dam_var->op_year = 0;

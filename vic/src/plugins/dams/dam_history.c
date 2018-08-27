@@ -234,7 +234,6 @@ dam_history_month(size_t cur_cell, size_t cur_dam)
     cshift(dam_var[cur_cell][cur_dam].history_demand, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
     cshift(dam_var[cur_cell][cur_dam].history_flow, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
     cshift(dam_var[cur_cell][cur_dam].op_discharge, MONTHS_PER_YEAR, 1, 0, 1);
-    cshift(dam_var[cur_cell][cur_dam].op_discharge_irr, MONTHS_PER_YEAR, 1, 0, 1);
     cshift(dam_var[cur_cell][cur_dam].op_volume, MONTHS_PER_YEAR, 1, 0, 1);
     
     // Store monthly average
