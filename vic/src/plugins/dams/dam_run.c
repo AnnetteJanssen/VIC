@@ -66,8 +66,10 @@ dam_run(size_t cur_cell)
             discharge_mod = dam_discharge_correction(
                     dam_var[cur_cell][i].op_volume[MONTHS_PER_YEAR - 1],                    
                     dam_var[cur_cell][i].op_volume[0],
-                    //dam_var[cur_cell][i].op_discharge[0] * 0.4,  
-                    dam_var[cur_cell][i].volume * 0.05 / global_param.model_steps_per_day,
+                    dam_var[cur_cell][i].op_discharge[0] * DAM_MOD_DIS_FRAC / 
+                    global_param.model_steps_per_day,  
+                    //dam_var[cur_cell][i].volume * DAM_MOD_VOL_FRAC / 
+                    //global_param.model_steps_per_day,
                     dam_var[cur_cell][i].total_steps,
                     dam_var[cur_cell][i].volume);   
             

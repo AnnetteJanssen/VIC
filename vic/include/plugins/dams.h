@@ -24,8 +24,8 @@
 
 #define DAM_PREF_DEM_SUP 0.2
 
-#define DAM_DIS_MOD_FRAC 0.75
-#define DAM_DIS_MOD_SHAPE 6
+#define DAM_MOD_VOL_FRAC 0.005
+#define DAM_MOD_DIS_FRAC 0.4
 
 #define DAM_FUN_HYD 1
 #define DAM_FUN_IRR 2
