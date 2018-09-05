@@ -46,12 +46,11 @@ vic_alloc(void)
     
     if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_add_types();
+    } else if (options.ROUTING_TYPE != ROUTING_FALSE) {
+        rout_add_types();
     }
     if (options.DAMS) {
         dam_add_types();
-    }
-    if (options.ROUTING) {
-        rout_add_types();
     }
     if (options.IRRIGATION) {
         irr_add_types();

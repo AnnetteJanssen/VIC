@@ -57,12 +57,11 @@ set_output_met_data_info()
     plugin_set_output_meta_data_info();
     if (options.ROUTING_TYPE == ROUTING_RVIC) {
         routing_rvic_output_metadata();
+    } else if (options.ROUTING_TYPE != ROUTING_FALSE) {
+        rout_set_output_meta_data_info();
     }
     if (options.DAMS) {
         dam_set_output_meta_data_info();
-    }
-    if (options.ROUTING) {
-        rout_set_output_meta_data_info();
     }
     if (options.IRRIGATION) {
         irr_set_output_meta_data_info();

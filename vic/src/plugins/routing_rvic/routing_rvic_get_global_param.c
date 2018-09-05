@@ -51,7 +51,9 @@ routing_rvic_get_global_param(char *cmdstr)
     }
     else if (strcasecmp("ROUT_RVIC_PARAM", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.rout_params.nc_filename);
-        return 1;
+    } else {
+        return false;
     }
-    return 0;
+    
+    return true;
 }

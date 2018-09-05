@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-#define FIELD_CAP_FRAC 0.8
-#define IRR_CRIT_FRAC 0.95
+#define IRR_CAP_FRAC 0.78
+#define IRR_CRIT_FRAC 0.99
 
 #define POND_IRR_CRIT_FRAC 0.1
 #define POND_CAPACITY 100

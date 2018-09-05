@@ -164,7 +164,7 @@ vic_run(dmy_struct *dmy_current)
     for (i = 0; i < local_domain.ncells_active; i++) {
         plugin_put_data(out_data[i], &timer);
 
-        if (options.ROUTING) {
+        if (options.ROUTING_TYPE == ROUTING_RANDOM || options.ROUTING_TYPE == ROUTING_BASIN) {
             rout_put_data(i);
         }
         if (options.EFR) {

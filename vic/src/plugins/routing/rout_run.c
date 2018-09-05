@@ -155,25 +155,20 @@ rout_random_run()
                 inflow += hist_global[cur_cell];
             }
 
-            runoff = 0;
-            runoff += run_global[cur_cell];
+            runoff = run_global[cur_cell];
 
             rout(inflow, iuh_global[cur_cell], dis_global[cur_cell],
                  options.IUH_NSTEPS);
             rout(runoff, ruh_global[cur_cell], dis_global[cur_cell],
                  options.RUH_NSTEPS);
             
-            if (dis_global[cur_cell][0] < 0) {
-                dis_global[cur_cell][0] = 0.0;
-            }
-            
-            store_global[cur_cell] = 0.0;
-            for(j = 0; j < options.IUH_NSTEPS; j++){
-                store_global[cur_cell] += dis_global[cur_cell][j] *
-                                        global_param.dt /
-                                        global_domain.locations[cur_cell].area *
-                                        MM_PER_M;
-            }
+//            store_global[cur_cell] = 0.0;
+//            for(j = 0; j < options.IUH_NSTEPS; j++){
+//                store_global[cur_cell] += dis_global[cur_cell][j] *
+//                                        global_param.dt /
+//                                        global_domain.locations[cur_cell].area *
+//                                        MM_PER_M;
+//            }
         }
     }
 
@@ -252,27 +247,22 @@ rout_basin_run(size_t cur_cell)
         inflow += rout_hist[cur_cell].discharge;
     }
 
-    runoff = 0;
-    runoff +=
+    runoff =
         (out_data[cur_cell][OUT_RUNOFF][0] +
-         out_data[cur_cell][OUT_BASEFLOW][0]) /
-        MM_PER_M * local_domain.locations[cur_cell].area /
-        global_param.dt;
+         out_data[cur_cell][OUT_BASEFLOW][0]) *
+        local_domain.locations[cur_cell].area /
+        (global_param.dt * MM_PER_M);
 
     rout(inflow, rout_con[cur_cell].inflow_uh, rout_var[cur_cell].discharge,
          options.IUH_NSTEPS);
     rout(runoff, rout_con[cur_cell].runoff_uh, rout_var[cur_cell].discharge,
          options.RUH_NSTEPS);
-
-    if (rout_var[cur_cell].discharge[0] < 0) {
-        rout_var[cur_cell].discharge[0] = 0.0;
-    }
     
-    rout_var[cur_cell].moist = 0.0;
-    for(i = 0; i < options.IUH_NSTEPS; i++){
-        rout_var[cur_cell].moist += rout_var[cur_cell].discharge[i] *
-                                      global_param.dt /
-                                      local_domain.locations[cur_cell].area *
-                                      MM_PER_M;
-    }
+//    rout_var[cur_cell].moist = 0.0;
+//    for(i = 0; i < options.IUH_NSTEPS; i++){
+//        rout_var[cur_cell].moist += rout_var[cur_cell].discharge[i] *
+//                                      global_param.dt /
+//                                      local_domain.locations[cur_cell].area *
+//                                      MM_PER_M;
+//    }
 }

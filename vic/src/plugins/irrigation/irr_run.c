@@ -156,7 +156,7 @@ irr_run(size_t cur_cell)
                         < (total_wcr / IRR_CRIT_FRAC)){
                     // moisture content is below critical   
                     irr_var[cur_cell][i][j].requirement = 
-                            (total_wcr / FIELD_CAP_FRAC) - 
+                            (total_wcr / IRR_CAP_FRAC) - 
                             (total_moist + irr_var[cur_cell][i][j].leftover);
                 } else if (irr_con[cur_cell][i].ponding &&
                         (irr_var[cur_cell][i][j].pond_storage + 
@@ -187,7 +187,7 @@ irr_run(size_t cur_cell)
                 if(calc_req){
                     // moisture content is below critical
                     irr_var[cur_cell][i][j].requirement = 
-                            (total_wcr / FIELD_CAP_FRAC) - 
+                            (total_wcr / IRR_CAP_FRAC) - 
                             (total_moist + irr_var[cur_cell][i][j].leftover);
                 } else if (irr_con[cur_cell][i].ponding &&
                         (irr_var[cur_cell][i][j].pond_storage + 

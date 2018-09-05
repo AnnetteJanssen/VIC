@@ -1015,7 +1015,7 @@ validate_global_param(void)
     if (options.DAMS) {
         dam_validate_global_parameters();
     }
-    if (options.ROUTING) {
+    if (options.ROUTING_TYPE != ROUTING_RVIC && options.ROUTING_TYPE != ROUTING_FALSE) {
         rout_validate_global_parameters();
     }
     if (options.EFR) {
