@@ -95,6 +95,9 @@ get_global_param(FILE *gp)
             else if (strcasecmp("RUNOFF_STEPS_PER_DAY", optstr) == 0) {
                 sscanf(cmdstr, "%*s %zu", &global_param.runoff_steps_per_day);
             }
+            else if (strcasecmp("ROUT_STEPS_PER_DAY", optstr) == 0) {
+                sscanf(cmdstr, "%*s %zu", &global_param.rout_steps_per_day);
+            }
             else if (strcasecmp("STARTYEAR", optstr) == 0) {
                 sscanf(cmdstr, "%*s %hu", &global_param.startyear);
             }
@@ -683,6 +686,30 @@ validate_global_param(void)
                                  (double) global_param.runoff_steps_per_day;
     }
 
+    if(options.ROUTING){
+        // Validate routing time step
+        if (global_param.rout_steps_per_day == 0) {
+            log_err("Routing time steps per day has not been defined.  Make "
+                    "sure that the global file defines ROUT_STEPS_PER_DAY.");
+        }
+        else if (global_param.rout_steps_per_day != HOURS_PER_DAY) {
+            log_err("The specified number of routing steps per day (%zu) is != "
+                    "24.",
+                    global_param.rout_steps_per_day);
+        }
+        else if (global_param.rout_steps_per_day %
+                 global_param.model_steps_per_day != 0) {
+            log_err("The specified number of routing timesteps (%zu) must be "
+                    "evenly divisible by the number of model timesteps per day "
+                    "(%zu)", global_param.rout_steps_per_day,
+                    global_param.model_steps_per_day);
+        }
+        else {
+            global_param.rout_dt = SEC_PER_DAY /
+                                     (double) global_param.rout_steps_per_day;
+        }
+    }
+    
     // Validate atmos time step
     if (global_param.atmos_steps_per_day == 0) {
         // For image drivers, set to model timestep
@@ -1015,7 +1042,7 @@ validate_global_param(void)
     if (options.DAMS) {
         dam_validate_global_parameters();
     }
-    if (options.ROUTING_TYPE != ROUTING_RVIC && options.ROUTING_TYPE != ROUTING_FALSE) {
+    if (options.ROUTING) {
         rout_validate_global_parameters();
     }
     if (options.EFR) {

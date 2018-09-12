@@ -6,8 +6,6 @@
 #define MAX_UPSTREAM 8
 
 enum {
-    ROUTING_FALSE,
-    ROUTING_RVIC,
     ROUTING_BASIN,
     ROUTING_RANDOM
 };
@@ -38,7 +36,8 @@ typedef struct {
 
 typedef struct {
     double moist;
-    double *discharge;
+    double discharge;
+    double *dt_discharge;
 } rout_var_struct;
 
 void get_basins_routing(basin_struct *basins);
@@ -63,7 +62,7 @@ void rout_add_types(void);
 
 size_t get_downstream_global(size_t id, int direction);
 size_t get_downstream_local(size_t id, int direction, size_t n_nx);
-void rout(double quantity, double *uh, double *discharge, size_t length);
+void rout(double quantity, double *uh, double *discharge, size_t length, size_t offset);
 
 size_t          *routing_order;
 

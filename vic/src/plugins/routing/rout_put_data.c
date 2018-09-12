@@ -14,5 +14,5 @@ rout_put_data(size_t cur_cell)
     OUT_STREAM_MOIST = list_search_id(outvar_types, "OUT_STREAM_MOIST");
 
     out_data[cur_cell][OUT_STREAM_MOIST][0] = rout_var[cur_cell].moist;
-    out_data[cur_cell][OUT_DISCHARGE][0] = rout_var[cur_cell].discharge[0];
+    out_data[cur_cell][OUT_DISCHARGE][0] = rout_var[cur_cell].discharge;
 }

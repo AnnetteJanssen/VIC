@@ -111,19 +111,19 @@ vic_run(dmy_struct *dmy_current)
      Plugins & ordered operations
      *****************************************************************************/
     timer_start(&timer);
-    if (options.ROUTING_TYPE == ROUTING_RVIC) {
+    if (options.ROUTING_RVIC) {
         routing_rvic_run();
         if(options.DAMS || options.EFR || options.WATER_USE){
             log_err("Plugins not yet implemented for ROUTING_RVIC");
         }
     }
-    else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
+    else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_RANDOM) {
         rout_random_run();
         if(options.DAMS || options.EFR || options.WATER_USE){
             log_err("Plugins not yet implemented for ROUTING_RANDOM");
         }
     }
-    else if (options.ROUTING_TYPE == ROUTING_BASIN) {
+    else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_BASIN) {
         for (i = 0; i < local_domain.ncells_active; i++) {
             cur_cell = routing_order[i];
                      
@@ -164,7 +164,7 @@ vic_run(dmy_struct *dmy_current)
     for (i = 0; i < local_domain.ncells_active; i++) {
         plugin_put_data(out_data[i], &timer);
 
-        if (options.ROUTING_TYPE == ROUTING_RANDOM || options.ROUTING_TYPE == ROUTING_BASIN) {
+        if (options.ROUTING) {
             rout_put_data(i);
         }
         if (options.EFR) {

@@ -111,8 +111,8 @@ dam_run(size_t cur_cell)
             }
             
             // Discharge
-            rout_var[cur_cell].discharge[0] = 0.0;                          
-            rout_var[cur_cell].discharge[0] += 
+            rout_var[cur_cell].discharge = 0.0;                          
+            rout_var[cur_cell].discharge += 
                     dam_var[cur_cell][i].discharge;
         }
     }

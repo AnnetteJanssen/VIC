@@ -55,9 +55,10 @@ set_output_met_data_info()
 
     // Plugins
     plugin_set_output_meta_data_info();
-    if (options.ROUTING_TYPE == ROUTING_RVIC) {
+    if (options.ROUTING_RVIC) {
         routing_rvic_output_metadata();
-    } else if (options.ROUTING_TYPE != ROUTING_FALSE) {
+    }
+    if (options.ROUTING) {
         rout_set_output_meta_data_info();
     }
     if (options.DAMS) {

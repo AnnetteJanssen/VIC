@@ -43,11 +43,10 @@ routing_rvic_get_global_param(char *cmdstr)
 
     if (strcasecmp("ROUTING_RVIC", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
-        if(options.ROUTING && str_to_bool(flgstr)){
+        options.ROUTING_RVIC = str_to_bool(flgstr);
+        if(options.ROUTING && options.ROUTING_RVIC){
             log_err("Multiple routing types selected");
         }
-        options.ROUTING = str_to_bool(flgstr);
-        options.ROUTING_TYPE = ROUTING_RVIC;
     }
     else if (strcasecmp("ROUT_RVIC_PARAM", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.rout_params.nc_filename);

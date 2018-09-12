@@ -338,6 +338,7 @@ typedef struct {
     bool GROUNDWATER;
     bool MATRIC;
     bool ROUTING;
+    bool ROUTING_RVIC;
     bool DAMS;
     bool IRRIGATION;
     bool WATER_USE;
@@ -381,11 +382,13 @@ typedef struct {
     double runoff_dt;              /**< Runoff time step in seconds */
     double atmos_dt;               /**< Atmos time step in seconds */
     double force_dt[N_FORCING_TYPES]; /**< Forcing time step in seconds */
+    double rout_dt;                /**< Routing time step in seconds */ 
     size_t model_steps_per_day;    /**< Number of model timesteps per day */
     size_t snow_steps_per_day;     /**< Number of snow timesteps per day */
     size_t runoff_steps_per_day;   /**< Number of runoff timesteps per day */
     size_t atmos_steps_per_day;    /**< Number of atmos timesteps per day */
     size_t force_steps_per_day[N_FORCING_TYPES];    /**< forcing file timesteps per day */
+    size_t rout_steps_per_day;     /**< Number of routing timesteps per day */
     unsigned short int endday;     /**< Last day of model simulation */
     unsigned short int endmonth;   /**< Last month of model simulation */
     unsigned short int endyear;    /**< Last year of model simulation */

@@ -26,8 +26,9 @@ initialize_rout_var(rout_var_struct *rout_var)
     size_t               i;
 
     rout_var->moist = 0.0;
+    rout_var->discharge = 0.0;
     for (i = 0; i < options.IUH_NSTEPS; i++) {
-        rout_var->discharge[i] = 0.0;
+        rout_var->dt_discharge[i] = 0.0;
     }
 }
 

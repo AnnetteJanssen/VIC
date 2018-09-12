@@ -125,7 +125,7 @@ wu_run(size_t cur_cell)
     // Get surface water availability
     available_local[0] = 0.0;
     if (demand > 0) {
-        available_local[0] = rout_var[cur_cell].discharge[0] * global_param.dt; 
+        available_local[0] = rout_var[cur_cell].discharge * global_param.dt; 
 
         if(options.EFR){
             available_local[0] -= efr_hist[cur_cell].requirement_discharge 
@@ -281,7 +281,7 @@ wu_run(size_t cur_cell)
             for(i = 0; i < wu_con[cur_cell].nreceiving; i++){
                 rec_cell = wu_con[cur_cell].receiving[i];
 
-                available_receiving[i] = rout_var[rec_cell].discharge[0] * 
+                available_receiving[i] = rout_var[rec_cell].discharge * 
                         global_param.dt;
 
                 if(options.EFR){
@@ -482,9 +482,9 @@ wu_run(size_t cur_cell)
         withdrawn = withdrawn_local[0] - returned;
         withdrawn /= global_param.dt;
         
-        rout_var[cur_cell].discharge[0] -= withdrawn;
-        if(rout_var[cur_cell].discharge[0] < 0.0){
-            rout_var[cur_cell].discharge[0] = 0.0;
+        rout_var[cur_cell].discharge -= withdrawn;
+        if(rout_var[cur_cell].discharge < 0.0){
+            rout_var[cur_cell].discharge = 0.0;
         }
     }
         
@@ -524,9 +524,9 @@ wu_run(size_t cur_cell)
                             (available_receiving[i] / available_remote);
                 withdrawn /= global_param.dt;
 
-                rout_var[rec_cell].discharge[0] -= withdrawn;
-                if(rout_var[rec_cell].discharge[0] < 0.0){
-                    rout_var[rec_cell].discharge[0] = 0.0;
+                rout_var[rec_cell].discharge -= withdrawn;
+                if(rout_var[rec_cell].discharge < 0.0){
+                    rout_var[rec_cell].discharge = 0.0;
                 }
             }
         }

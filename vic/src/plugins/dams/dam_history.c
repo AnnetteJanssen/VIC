@@ -337,7 +337,7 @@ dam_history_step(size_t cur_cell, size_t cur_dam)
     size_t j;
     size_t k;
     
-    dam_var[cur_cell][cur_dam].inflow = rout_var[cur_cell].discharge[0];
+    dam_var[cur_cell][cur_dam].inflow = rout_var[cur_cell].discharge;
     dam_var[cur_cell][cur_dam].total_flow += 
             dam_var[cur_cell][cur_dam].inflow;
     

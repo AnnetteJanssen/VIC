@@ -100,7 +100,7 @@ create_MPI_global_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in global_param_struct
-    nitems = 36;
+    nitems = 38;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -148,6 +148,10 @@ create_MPI_global_struct_type(MPI_Datatype *mpi_type)
     blocklengths[i] = N_FORCING_TYPES;
     mpi_types[i++] = MPI_DOUBLE;
 
+    // double rout_dt;
+    offsets[i] = offsetof(global_param_struct, rout_dt);
+    mpi_types[i++] = MPI_DOUBLE;
+
     // size_t model_steps_per_day;
     offsets[i] = offsetof(global_param_struct, model_steps_per_day);
     mpi_types[i++] = MPI_AINT;
@@ -169,6 +173,10 @@ create_MPI_global_struct_type(MPI_Datatype *mpi_type)
     blocklengths[i] = N_FORCING_TYPES;
     mpi_types[i++] = MPI_DOUBLE;
 
+    // size_t rout_steps_per_day;
+    offsets[i] = offsetof(global_param_struct, rout_steps_per_day);
+    mpi_types[i++] = MPI_AINT;
+    
     // unsigned short endday;
     offsets[i] = offsetof(global_param_struct, endday);
     mpi_types[i++] = MPI_UNSIGNED_SHORT;
@@ -503,7 +511,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 82;
+    nitems = 83;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -746,6 +754,9 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     mpi_types[i++] = MPI_C_BOOL;
     // bool ROUTING;
     offsets[i] = offsetof(option_struct, ROUTING);
+    mpi_types[i++] = MPI_C_BOOL;
+    // bool ROUTING_RVIC;
+    offsets[i] = offsetof(option_struct, ROUTING_RVIC);
     mpi_types[i++] = MPI_C_BOOL;
     // bool WATER_USE;
     offsets[i] = offsetof(option_struct, WATER_USE);

@@ -110,7 +110,7 @@ initialize_options()
     options.GW_INIT_FROM_FILE = false;
     options.GW_CALC_EQ = false;
     // Routing options
-    options.ROUTING_TYPE = ROUTING_FALSE;
+    options.ROUTING_TYPE = ROUTING_RANDOM;
     options.ROUTING_FORCE = false;
     options.IUH_NSTEPS = 0;
     options.RUH_NSTEPS = 0;

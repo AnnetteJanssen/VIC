@@ -415,7 +415,7 @@ display_current_settings(int mode)
     }
 
     // Plugins
-    if (options.ROUTING_TYPE == ROUTING_RVIC) {
+    if (options.ROUTING_RVIC) {
         fprintf(LOG_DEST, "ROUTING_RVIC\t\tTRUE\n");
     }
 

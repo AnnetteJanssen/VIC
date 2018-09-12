@@ -35,7 +35,7 @@ vic_finalize(void)
     extern option_struct options;
 
     // Free memory for all plugins
-    if (options.ROUTING_TYPE == ROUTING_RANDOM || options.ROUTING_TYPE == ROUTING_BASIN) {
+    if (options.ROUTING_RVIC) {
         routing_rvic_finalize();
     }
     if (options.GROUNDWATER) {
