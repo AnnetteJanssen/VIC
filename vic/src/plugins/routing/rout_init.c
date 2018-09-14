@@ -163,6 +163,7 @@ rout_gl_set_downstream(void)
         get_active_nc_field_int(&(filenames.routing), "downstream", 
                                  d2start, d2count, downstream);
 
+        rout_count = 0;
         for (i = 0; i < global_domain.ncells_active; i++) {
             found = false;
 

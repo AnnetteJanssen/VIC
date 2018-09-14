@@ -22,12 +22,17 @@ void
 initialize_rout_var(rout_var_struct *rout_var)
 {
     extern option_struct options;
+    extern global_param_struct global_param;
 
     size_t               i;
+    size_t               rout_steps_per_dt;
+        
+    rout_steps_per_dt = global_param.rout_steps_per_day /
+                          global_param.model_steps_per_day;
 
     rout_var->moist = 0.0;
     rout_var->discharge = 0.0;
-    for (i = 0; i < options.IUH_NSTEPS; i++) {
+    for (i = 0; i < options.IUH_NSTEPS + rout_steps_per_dt; i++) {
         rout_var->dt_discharge[i] = 0.0;
     }
 }
