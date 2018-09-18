@@ -51,7 +51,7 @@ rout_set_uh(void)
 }
 
 void
-rout_set_downstream(void)
+rout_basin_set_downstream(void)
 {
     extern domain_struct    global_domain;
     extern domain_struct    local_domain;
@@ -116,7 +116,7 @@ rout_set_downstream(void)
 }
 
 void
-rout_gl_set_downstream(void)
+rout_random_set_downstream(void)
 {
     extern domain_struct    global_domain;
     extern domain_struct    local_domain;
@@ -202,7 +202,7 @@ rout_gl_set_downstream(void)
 }
 
 void
-rout_set_upstream(void)
+rout_basin_set_upstream(void)
 {
     extern domain_struct    local_domain;
     extern rout_con_struct *rout_con;
@@ -231,7 +231,7 @@ rout_set_upstream(void)
 }
 
 void
-rout_gl_set_upstream(void)
+rout_random_set_upstream(void)
 {
     extern domain_struct    local_domain;
     extern domain_struct    global_domain;
@@ -299,7 +299,7 @@ rout_gl_set_upstream(void)
     // Set upstream
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_con[i].Nupstream = nup_local[i];
-
+        
         rout_con[i].upstream =
             malloc(rout_con[i].Nupstream * sizeof(*rout_con[i].upstream));
         check_alloc_status(rout_con[i].upstream, "Memory allocation error.");
@@ -325,7 +325,7 @@ rout_gl_set_upstream(void)
 }
 
 void
-rout_set_order()
+rout_basin_set_order()
 {
     extern domain_struct    local_domain;
     extern rout_con_struct *rout_con;
@@ -383,7 +383,7 @@ rout_set_order()
 }
 
 void
-rout_gl_set_order()
+rout_random_set_order()
 {
     extern domain_struct    local_domain;
     extern domain_struct    global_domain;
@@ -517,14 +517,14 @@ rout_init(void)
     rout_set_uh();
 
     if (options.ROUTING_TYPE == ROUTING_BASIN) {
-        rout_set_downstream();
-        rout_set_upstream();
-        rout_set_order();
+        rout_basin_set_downstream();
+        rout_basin_set_upstream();
+        rout_basin_set_order();
     }
     else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
-        rout_gl_set_downstream();
-        rout_gl_set_upstream();
-        rout_gl_set_order();
+        rout_random_set_downstream();
+        rout_random_set_upstream();
+        rout_random_set_order();
     }
 
     // close parameter file
