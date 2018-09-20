@@ -187,7 +187,7 @@ rout_random_run()
 
     // Set discharge
     for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < options.IUH_NSTEPS; j++) {
+        for (j = 0; j < options.IUH_NSTEPS + rout_steps_per_dt; j++) {
             rout_var[i].dt_discharge[j] = dt_dis_local[i][j];
         }
         rout_var[i].discharge = dis_local[i];
