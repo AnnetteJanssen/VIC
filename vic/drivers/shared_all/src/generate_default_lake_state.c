@@ -40,9 +40,9 @@ generate_default_lake_state(all_vars_struct *all_vars,
 
     size_t               k;
 
-    lake_var_struct      lake;
+    lake_var_struct     *lake;
 
-    lake = all_vars->lake_var;
+    lake = &(all_vars->lake_var);
 
     /************************************************************************
        Initialize lake state variables
@@ -52,10 +52,10 @@ generate_default_lake_state(all_vars_struct *all_vars,
             want control over initial depth)
     ************************************************************************/
     if (options.LAKES) {
-        lake.ldepth = lake_con.depth_in;
-        for (k = 0; k < lake.activenod; k++) {
+        lake->ldepth = lake_con.depth_in;
+        for (k = 0; k < lake->activenod; k++) {
             // lake model requires FULL_ENERGY set to true
-            lake.temp[k] = soil_con->avg_temp;
+            lake->temp[k] = soil_con->avg_temp;
         }
     }
 }
