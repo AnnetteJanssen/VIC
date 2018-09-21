@@ -216,6 +216,7 @@ typedef struct {
     bool EXP_TRANS;      /**< TRUE = Uses grid transform for exponential node
                             distribution for soil heat flux calculations*/
     bool FROZEN_SOIL;    /**< TRUE = Use frozen soils code */
+    bool TLAKE_MODE;     /**< TRUE = Use lake temperature mode */
     bool FULL_ENERGY;    /**< TRUE = Use full energy code */
     unsigned short int GRND_FLUX_TYPE; /**< "GF_406"  = use (flawed) formulas for ground flux, deltaH, and fusion
                                           from VIC 4.0.6 and earlier
