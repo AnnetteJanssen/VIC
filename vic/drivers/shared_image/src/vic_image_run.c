@@ -39,7 +39,7 @@ vic_image_run(dmy_struct *dmy_current)
     extern domain_struct       local_domain;
     extern option_struct       options;
     extern global_param_struct global_param;
-    extern lake_con_struct     *lake_con;
+    extern lake_con_struct    *lake_con;
     extern double           ***out_data;
     extern stream_struct      *output_streams;
     extern save_data_struct   *save_data;
@@ -62,9 +62,9 @@ vic_image_run(dmy_struct *dmy_current)
         // Set global reference string (for debugging inside vic_run)
         sprintf(vic_run_ref_str, "Gridcell io_idx: %zu, timestep info: %s",
                 local_domain.locations[i].io_idx, dmy_str);
-        
+
         update_step_vars(&(all_vars[i]), veg_con[i], veg_hist[i]);
-        
+
         timer_start(&timer);
         if(options.TLAKE_MODE){
             tlake_run(&(force[i]), &(all_vars[i]), dmy_current, &global_param,
