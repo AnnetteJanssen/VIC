@@ -713,6 +713,15 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_LAKE_SURF_TEMP].description,
            "lake surface temperature");
 
+    /* lake surface temperature [K] */
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].varname, "OUT_LAKE_NODE_TEMP");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].long_name, "lake_node_temp");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].standard_name,
+           "lake_node_temperature");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].units, "K");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].description,
+           "lake node temperature");
+
     /* average radiative surface temperature [K] */
     strcpy(out_metadata[OUT_RAD_TEMP].varname, "OUT_RAD_TEMP");
     strcpy(out_metadata[OUT_RAD_TEMP].long_name, "rad_temp");
@@ -1502,6 +1511,7 @@ set_output_met_data_info()
     out_metadata[OUT_SOIL_TNODE].nelem = options.Nnode;
     out_metadata[OUT_SOIL_TNODE_WL].nelem = options.Nnode;
     out_metadata[OUT_SOILT_FBFLAG].nelem = options.Nnode;
+    out_metadata[OUT_LAKE_NODE_TEMP].nelem = options.NLAKENODES;
     out_metadata[OUT_ADV_SENS_BAND].nelem = options.SNOW_BAND;
     out_metadata[OUT_ADVECTION_BAND].nelem = options.SNOW_BAND;
     out_metadata[OUT_ALBEDO_BAND].nelem = options.SNOW_BAND;

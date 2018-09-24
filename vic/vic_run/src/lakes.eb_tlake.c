@@ -539,35 +539,35 @@ water_balance_tlake(lake_var_struct *lake,
               soil_con_struct  soil_con,
               veg_con_struct   veg_con)
 {
-    extern option_struct       options;
-    extern parameters_struct   param;
-    extern global_param_struct global_param;
-
-    int                        isave_n;
-    double                     inflow_volume;
-    double                     surfacearea, ldepth;
-    double                     i_dbl;
-    double                     index;
-    size_t                     j, k, frost_area;
-    double                     Tnew[MAX_LAKE_NODES];
-    double                     circum;
-    double                     baseflow_out_mm;
-    double                     newfraction, Recharge;
-    double                     abovegrnd_storage;
-    int                        ErrorFlag;
-    cell_data_struct         **cell;
-    veg_var_struct           **veg_var;
-    snow_data_struct         **snow;
-    energy_bal_struct        **energy;
-    size_t                     lindex;
-    double                     frac;
-    double                     Dsmax, resid_moist, liq, rel_moist;
-    double                    *frost_fract;
-    double                     volume_save;
-    double                    *delta_moist = NULL;
-    double                    *moist = NULL;
-    double                     max_newfraction;
-
+//    extern option_struct       options;
+//    extern parameters_struct   param;
+//    extern global_param_struct global_param;
+//
+//    int                        isave_n;
+//    double                     inflow_volume;
+//    double                     surfacearea, ldepth;
+//    double                     i_dbl;
+//    double                     index;
+//    size_t                     j, k, frost_area;
+//    double                     Tnew[MAX_LAKE_NODES];
+//    double                     circum;
+//    double                     baseflow_out_mm;
+//    double                     newfraction, Recharge;
+//    double                     abovegrnd_storage;
+//    int                        ErrorFlag;
+//    cell_data_struct         **cell;
+//    veg_var_struct           **veg_var;
+//    snow_data_struct         **snow;
+//    energy_bal_struct        **energy;
+//    size_t                     lindex;
+//    double                     frac;
+//    double                     Dsmax, resid_moist, liq, rel_moist;
+//    double                    *frost_fract;
+//    double                     volume_save;
+//    double                    *delta_moist = NULL;
+//    double                    *moist = NULL;
+//    double                     max_newfraction;
+//
 //    cell = all_vars->cell;
 //    veg_var = all_vars->veg_var;
 //    snow = all_vars->snow;

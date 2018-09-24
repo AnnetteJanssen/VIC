@@ -186,12 +186,12 @@ vic_force(void)
     // Optional inputs
     if (options.LAKES) {
         // Channel inflow to lake
-        d3start[0] = global_param.forceskip[0] + global_param.forceoffset[0] +
-                     j;
-        get_scatter_nc_field_double(&(filenames.forcing[0]),
-                                    param_set.TYPE[CHANNEL_IN].varname,
-                                    d3start, d3count, dvar);
         for (j = 0; j < NF; j++) {
+            d3start[0] = global_param.forceskip[0] + global_param.forceoffset[0] +
+                         j;
+            get_scatter_nc_field_double(&(filenames.forcing[0]),
+                                        param_set.TYPE[CHANNEL_IN].varname,
+                                        d3start, d3count, dvar);
             for (i = 0; i < local_domain.ncells_active; i++) {
                 force[i].channel_in[j] = (double) dvar[i];
             }
