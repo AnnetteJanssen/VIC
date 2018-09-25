@@ -192,13 +192,13 @@ rout_random_run()
         }
         rout_var[i].discharge = dis_local[i];
         
-        rout_var[i].moist = 0.0;
-        for(j = 0; j < options.IUH_NSTEPS + rout_steps_per_dt; j++){
-            rout_var[i].moist += rout_var[i].dt_discharge[j] *
-                                          global_param.dt /
-                                          local_domain.locations[i].area *
-                                          MM_PER_M;
-        }
+//        rout_var[i].moist = 0.0;
+//        for(j = 0; j < options.IUH_NSTEPS + rout_steps_per_dt; j++){
+//            rout_var[i].moist += rout_var[i].dt_discharge[j] *
+//                                          global_param.dt /
+//                                          local_domain.locations[i].area *
+//                                          MM_PER_M;
+//        }
     }
 
     // Free
@@ -293,11 +293,11 @@ rout_basin_run(size_t cur_cell)
         cshift(rout_var[cur_cell].dt_discharge, 1, options.IUH_NSTEPS + rout_steps_per_dt, 1, -1);
     }
     
-    rout_var[cur_cell].moist = 0.0;
-    for(i = 0; i < options.IUH_NSTEPS + rout_steps_per_dt; i++){
-        rout_var[cur_cell].moist += rout_var[cur_cell].dt_discharge[i] *
-                                      global_param.dt /
-                                      local_domain.locations[cur_cell].area *
-                                      MM_PER_M;
-    }
+//    rout_var[cur_cell].moist = 0.0;
+//    for(i = 0; i < options.IUH_NSTEPS + rout_steps_per_dt; i++){
+//        rout_var[cur_cell].moist += rout_var[cur_cell].dt_discharge[i] *
+//                                      global_param.dt /
+//                                      local_domain.locations[cur_cell].area *
+//                                      MM_PER_M;
+//    }
 }
