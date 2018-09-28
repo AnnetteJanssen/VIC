@@ -14,18 +14,16 @@ tlake_run(force_data_struct   *force,
             global_param_struct *gp,
             lake_con_struct     *lake_con,
             soil_con_struct     *soil_con,
-            veg_con_struct      *veg_con,
-            veg_lib_struct      *veg_lib)
+            veg_con_struct      *veg_con)
 {
     extern option_struct     options;
     extern parameters_struct param;
 
     unsigned short           iveg;
-    size_t                   Nveg;
-    unsigned short           band;
-    size_t                   Nbands;
     int                      ErrorFlag;
     double                   Cv;
+    double                   Tair;
+    double                   Prec;
     double                   rainonly;
     double                   sum_runoff;
     double                   sum_baseflow;
@@ -37,15 +35,31 @@ tlake_run(force_data_struct   *force,
     double                   snowprec;
     double                   rainprec;
     lake_var_struct         *lake_var;
-    cell_data_struct        *cell;
     
     /* set local pointers */
     lake_var = &all_vars->lake_var;
-
-    Nbands = options.SNOW_BAND;
-
-    /* Set number of vegetation tiles */
-    Nveg = veg_con[0].vegetat_type_num;
+    
+    /* Update areai to equal new ice area from previous time step. */
+    lake_var->areai = lake_var->new_ice_area;
+    
+    /* Compute lake fraction and ice-covered fraction */
+    if (lake_var->areai < 0) {
+        lake_var->areai = 0;
+    }
+    if (lake_var->sarea > 0) {
+        fraci = lake_var->areai / lake_var->sarea;
+        if (fraci > 1.0) {
+            fraci = 1.0;
+        }
+    }
+    else {
+        fraci = 0.0;
+    }
+    lakefrac = lake_var->sarea / lake_con->basin[0];
+    
+    /* set air temperature and precipitation for this snow band */
+    Tair = force->air_temp[NR] + soil_con->Tfactor[lake_con->lake_elev_idx];
+    Prec = force->prec[NR] * soil_con->Pfactor[lake_con->lake_elev_idx];
     
     /****************************
        Run Lake Model
@@ -59,7 +73,6 @@ tlake_run(force_data_struct   *force,
 
         /** Run lake model **/
         iveg = lake_con->lake_idx;
-        band = 0;
         lake_var->runoff_in =
             (sum_runoff * lake_con->rpercent +
              wetland_runoff) * soil_con->cell_area / MM_PER_M;                                               // m3
@@ -69,8 +82,8 @@ tlake_run(force_data_struct   *force,
         lake_var->channel_in = force->channel_in[NR] * soil_con->cell_area /
                                MM_PER_M;                                        // m3
         // TODO: probably set precipitation to zero
-        lake_var->prec = force->prec[NR] * lake_var->sarea / MM_PER_M; // m3
-        rainonly = calc_rainonly(force->air_temp[NR], force->prec[NR],
+        lake_var->prec = Prec * lake_var->sarea / MM_PER_M; // m3
+        rainonly = calc_rainonly(Tair, Prec,
                                  param.SNOW_MAX_SNOW_TEMP,
                                  param.SNOW_MIN_RAIN_TEMP);
         if ((int) rainonly == ERROR) {
@@ -81,14 +94,14 @@ tlake_run(force_data_struct   *force,
            Solve the energy budget for the lake.
         **********************************************************************/
         // TODO: probably remove?
-        snowprec = gauge_correction[SNOW] * (force->prec[NR] - rainonly);
+        snowprec = gauge_correction[SNOW] * (Prec - rainonly);
         rainprec = gauge_correction[SNOW] * rainonly;
         Cv = veg_con[iveg].Cv * lakefrac;
         force->out_prec += (snowprec + rainprec) * Cv;
         force->out_rain += rainprec * Cv;
         force->out_snow += snowprec * Cv;
 
-        ErrorFlag = solve_lake_tlake(snowprec, rainprec, force->air_temp[NR],
+        ErrorFlag = solve_lake_tlake(snowprec, rainprec, Tair,
                                force->wind[NR], force->vp[NR] / PA_PER_KPA,
                                force->shortwave[NR], force->longwave[NR],
                                force->vpd[NR] / PA_PER_KPA,
@@ -99,16 +112,7 @@ tlake_run(force_data_struct   *force,
         if (ErrorFlag == ERROR) {
             return (ERROR);
         }
-
-        /**********************************************************************
-           Solve the water budget for the lake.
-        **********************************************************************/
-        
-        ErrorFlag = water_balance_tlake(lake_var, *lake_con, gp->dt, all_vars,
-                                  iveg, band, lakefrac, *soil_con,
-                                  veg_con[iveg]);
-        if (ErrorFlag == ERROR) {
-            return (ERROR);
-        }
     } // end if (options.LAKES && lake_con->lake_idx >= 0)
+    
+    return (0);
 }

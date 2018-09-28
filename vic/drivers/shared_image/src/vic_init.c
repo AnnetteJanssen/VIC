@@ -1366,7 +1366,23 @@ vic_init(void)
                 max_numnod = lake_con[i].numnod;
             }
         }
-
+        
+        // elevation (elevation of the lake)
+        get_scatter_nc_field_double(&(filenames.params), "lake_elevation",
+                                    d2start, d2count, dvar);
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            lake_con[i].lake_elev_idx = -1;
+            for(j = 0; j < options.SNOW_BAND; j++){
+                if(soil_con[i].AreaFract[j] > 0 && 
+                        (double) dvar[i] > soil_con[i].BandElev[j]){
+                    lake_con[i].lake_elev_idx = j;
+                }
+            }
+            if(lake_con[i].lake_elev_idx == -1){
+                lake_con[i].lake_elev_idx = 0;
+            }
+        }
+        
         // mindepth (minimum depth for which channel outflow occurs)
         get_scatter_nc_field_double(&(filenames.params), "mindepth",
                                     d2start, d2count, dvar);

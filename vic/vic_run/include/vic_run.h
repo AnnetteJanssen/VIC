@@ -266,6 +266,9 @@ double solve_canopy_energy_bal(double Tfoliage, ...);
 int solve_lake(double, double, double, double, double, double, double, double,
                double, double, lake_var_struct *, soil_con_struct, double,
                double, dmy_struct, double);
+int solve_lake_tlake(double, double, double, double, double, double, double, double,
+               double, double, lake_var_struct *, soil_con_struct, double,
+               double, dmy_struct, double);
 double solve_snow(char, double, double, double, double, double, double, double,
                   double, double, double *, double *, double *, double *,
                   double *, double *, double *, double *, double *, double *,
@@ -321,6 +324,9 @@ void tridiag(double *, double *, double *, double *, unsigned int);
 int vic_run(force_data_struct *, all_vars_struct *, dmy_struct *,
             global_param_struct *, lake_con_struct *, soil_con_struct *,
             veg_con_struct *, veg_lib_struct *);
+int tlake_run(force_data_struct *, all_vars_struct *, dmy_struct *,
+            global_param_struct *, lake_con_struct *, soil_con_struct *,
+            veg_con_struct *);
 double volumetric_heat_capacity(double, double, double, double);
 int water_balance(lake_var_struct *, lake_con_struct, double, all_vars_struct *,
                   int, int, double, soil_con_struct, veg_con_struct);

@@ -988,6 +988,12 @@ get_global_param(FILE *gp)
     }
 
     // Validate lake parameter information
+    if(options.TLAKE_MODE){
+        if(!options.LAKES){
+            log_err("LAKES must be TRUE if the lake temperature model is to "
+                    "be run.");
+        }
+    }
     if (options.LAKES) {
         if (!options.FULL_ENERGY) {
             log_err("FULL_ENERGY must be TRUE if the lake model is to "

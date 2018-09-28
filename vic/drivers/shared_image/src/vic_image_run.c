@@ -68,10 +68,10 @@ vic_image_run(dmy_struct *dmy_current)
         timer_start(&timer);
         if(options.TLAKE_MODE){
             tlake_run(&(force[i]), &(all_vars[i]), dmy_current, &global_param,
-                    &lake_con[i], &(soil_con[i]), veg_con[i], veg_lib[i]);
+                    &(lake_con[i]), &(soil_con[i]), veg_con[i]);
         } else {
             vic_run(&(force[i]), &(all_vars[i]), dmy_current, &global_param,
-                    &lake_con[i], &(soil_con[i]), veg_con[i], veg_lib[i]);
+                    &(lake_con[i]), &(soil_con[i]), veg_con[i], veg_lib[i]);
         }
         timer_stop(&timer);
 
