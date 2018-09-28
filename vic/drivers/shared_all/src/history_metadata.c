@@ -713,7 +713,7 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_LAKE_SURF_TEMP].description,
            "lake surface temperature");
 
-    /* lake surface temperature [K] */
+    /* lake node temperature [C] */
     strcpy(out_metadata[OUT_LAKE_NODE_TEMP].varname, "OUT_LAKE_NODE_TEMP");
     strcpy(out_metadata[OUT_LAKE_NODE_TEMP].long_name, "lake_node_temp");
     strcpy(out_metadata[OUT_LAKE_NODE_TEMP].standard_name,
@@ -721,6 +721,15 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_LAKE_NODE_TEMP].units, "K");
     strcpy(out_metadata[OUT_LAKE_NODE_TEMP].description,
            "lake node temperature");
+
+    /* lake node layer thickness [m] */
+    strcpy(out_metadata[OUT_LAKE_DZ].varname, "OUT_LAKE_DZ");
+    strcpy(out_metadata[OUT_LAKE_DZ].long_name, "lake_layer_dz");
+    strcpy(out_metadata[OUT_LAKE_DZ].standard_name,
+           "lake_layer_thickness");
+    strcpy(out_metadata[OUT_LAKE_DZ].units, "m");
+    strcpy(out_metadata[OUT_LAKE_DZ].description,
+           "lake node layer thickness");
 
     /* average radiative surface temperature [K] */
     strcpy(out_metadata[OUT_RAD_TEMP].varname, "OUT_RAD_TEMP");

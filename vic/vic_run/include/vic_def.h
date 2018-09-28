@@ -63,7 +63,7 @@
 #define MAX_NODES       50     /**< maximum number of soil thermal nodes */
 #define MAX_FRONTS      3      /**< maximum number of freezing and thawing front depths to store */
 #define MAX_FROST_AREAS 10     /**< maximum number of frost sub-areas */
-#define MAX_LAKE_NODES  200     /**< maximum number of lake thermal nodes */
+#define MAX_LAKE_NODES  1000     /**< maximum number of lake thermal nodes */
 #define MAX_ZWTVMOIST   11     /**< maximum number of points in water table vs moisture curve for each soil layer; should include points at lower and upper boundaries of the layer */
 
 /***** Define minimum values for model parameters *****/

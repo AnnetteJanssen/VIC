@@ -379,6 +379,7 @@ put_data(all_vars_struct   *all_vars,
                         for(i = 0; i < lake_var.activenod; i++){
                             out_data[OUT_LAKE_NODE_TEMP][i] = lake_var.temp[i];
                         }
+                        out_data[OUT_LAKE_DZ][0] = lake_var.dz;
                         if (out_data[OUT_LAKE_SURF_AREA][0] > 0) {
                             // mm over gridcell
                             out_data[OUT_LAKE_MOIST][0] =
