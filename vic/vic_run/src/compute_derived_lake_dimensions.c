@@ -36,6 +36,7 @@ compute_derived_lake_dimensions(lake_var_struct *lake,
                                 lake_con_struct  lake_con)
 {
     extern parameters_struct param;
+    extern option_struct options;
 
     int                      k;
     int                      status;
@@ -54,8 +55,8 @@ compute_derived_lake_dimensions(lake_var_struct *lake,
         /* More than two layers. */
         lake->surfdz = param.LAKE_MAX_SURFACE;
         lake->activenod = (int) (lake->ldepth / param.LAKE_MAX_SURFACE);
-        if (lake->activenod > MAX_LAKE_NODES) {
-            lake->activenod = MAX_LAKE_NODES;
+        if (lake->activenod > options.Nlakenode) {
+            lake->activenod = options.Nlakenode;
         }
         lake->dz = (lake->ldepth - lake->surfdz) /
                    ((double) (lake->activenod - 1));
