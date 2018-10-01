@@ -35,7 +35,7 @@ get_global_domain(nameid_struct *domain_nc_nameid,
                   domain_struct *global_domain)
 {
     int    *mask = NULL;
-    int typeid;
+    int     typeid;
     double *var = NULL;
     size_t  i;
     size_t  j;
