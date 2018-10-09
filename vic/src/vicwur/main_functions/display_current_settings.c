@@ -38,6 +38,7 @@ display_current_settings(int mode)
     extern option_struct       options;
     extern global_param_struct global_param;
     extern filenames_struct    filenames;
+    extern int                 mpi_decomposition;
 
     int                        file_num;
 
@@ -242,6 +243,15 @@ display_current_settings(int mode)
     fprintf(LOG_DEST, "Ncanopy\t\t%zu\n", options.Ncanopy);
 
     // Plugins
+    if (mpi_decomposition == MPI_DECOMPOSITION_RANDOM) {
+        fprintf(LOG_DEST, "MPI_DECOMPOSITION\t\tRANDOM\n");
+    }
+    else if (mpi_decomposition == MPI_DECOMPOSITION_BASIN) {
+        fprintf(LOG_DEST, "MPI_DECOMPOSITION\t\tBASIN\n");
+    }
+    else if (mpi_decomposition == MPI_DECOMPOSITION_FILE) {
+        fprintf(LOG_DEST, "MPI_DECOMPOSITION\t\tFILE\n");
+    }
     if (options.MATRIC) {
         fprintf(LOG_DEST, "MATRIC\t\tTRUE\n");
     }

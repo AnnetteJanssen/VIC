@@ -34,12 +34,6 @@ typedef struct {
     double *gw_fraction;
 } wu_force_struct;
 
-typedef struct{
-    double demand;
-    double consumption_fraction;
-    double gw_fraction;
-} wu_hist_struct;
-
 typedef struct {
     double demand;
     double withdrawn;
@@ -65,7 +59,6 @@ void wu_finalize(void);
 void wu_add_types(void);
 
 wu_var_struct   **wu_var;
-wu_hist_struct  **wu_hist;
 wu_force_struct **wu_force;
 wu_con_struct    *wu_con;
 

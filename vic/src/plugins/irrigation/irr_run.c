@@ -15,7 +15,7 @@ irr_run(size_t cur_cell)
     extern veg_con_struct **veg_con;
     extern option_struct options;
     
-    double *moist;
+    double moist[MAX_LAYERS];
     double total_moist;
     double total_wcr;
     double season_day;
@@ -26,17 +26,12 @@ irr_run(size_t cur_cell)
     size_t k;
     size_t l;
     
-    /**********************************************************************
-    * 0. Allocation
-    **********************************************************************/
-    // Allocate
-    moist = malloc(options.Nlayer * sizeof(*moist));
-    check_alloc_status(moist, "Memory allocation error.");
-    
     for(i = 0; i < irr_con_map[cur_cell].ni_active; i++){
         cur_veg = irr_con[cur_cell][i].veg_index;
         
-        // Reset values
+        /**********************************************************************
+        * 0. Reset values
+        **********************************************************************/
         for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){     
             irr_var[cur_cell][i][j].need = 0.0;
             irr_var[cur_cell][i][j].shortage = 0.0;
@@ -229,11 +224,6 @@ irr_run(size_t cur_cell)
             }
         }        
     }
-    
-    /**********************************************************************
-    * 6. Finalization
-    **********************************************************************/  
-    free(moist);
 }
      
 void

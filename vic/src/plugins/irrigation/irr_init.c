@@ -132,7 +132,6 @@ irr_set_ponding(void)
     extern domain_struct       local_domain;
     extern filenames_struct    filenames;
     extern option_struct       options;
-    extern option_struct       options;
     extern irr_con_map_struct *irr_con_map;
     extern irr_con_struct    **irr_con;
     extern int                 mpi_rank;
@@ -182,6 +181,7 @@ irr_set_water_use(void)
 {
     extern domain_struct       local_domain;
     extern domain_struct       global_domain;
+    extern option_struct       options;
     extern filenames_struct    filenames;
     extern irr_con_map_struct *irr_con_map;
     extern irr_con_struct    **irr_con;
@@ -191,35 +191,39 @@ irr_set_water_use(void)
     size_t                     i;
     size_t                     j;
 
-    size_t                     d2count[2];
-    size_t                     d2start[2];
+    size_t                     d3count[3];
+    size_t                     d3start[3];
 
     // Get active irrigated vegetation
-    d2start[0] = 0;
-    d2start[1] = 0;
-    d2count[0] = global_domain.n_ny;
-    d2count[1] = global_domain.n_nx;
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx;
 
     dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
     check_alloc_status(dvar, "Memory allocation error.");
     
-    get_scatter_nc_field_double(&(filenames.irrigation),
-                                "efficiency", d2start, d2count,
-                                dvar);
-
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < irr_con_map[i].ni_active; j++) {
-            irr_con[i][j].WUE = dvar[i];
+    for (j = 0; j < (size_t)options.NIRRTYPES; j++) {
+        d3start[0] = j;
+        
+        get_scatter_nc_field_double(&(filenames.irrigation),
+                                    "efficiency", d3start, d3count,
+                                    dvar);
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            if (irr_con_map[i].iidx[j] != NODATA_VEG) {
+                irr_con[i][irr_con_map[i].iidx[j]].WUE = dvar[i];
+            }
         }
-    }
-    
-    get_scatter_nc_field_double(&(filenames.irrigation),
-                                "groundwater_source", d2start, d2count,
-                                dvar);
 
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < irr_con_map[i].ni_active; j++) {
-            irr_con[i][j].gw_fraction = dvar[i];
+        get_scatter_nc_field_double(&(filenames.irrigation),
+                                    "groundwater_source", d3start, d3count,
+                                    dvar);
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            if (irr_con_map[i].iidx[j] != NODATA_VEG) {
+                irr_con[i][irr_con_map[i].iidx[j]].gw_fraction = dvar[i];
+            }
         }
     }
 

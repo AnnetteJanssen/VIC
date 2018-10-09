@@ -11,8 +11,8 @@ wu_forcing(void)
     extern option_struct options;
     extern filenames_struct filenames;
     extern wu_force_struct **wu_force;
-    extern wu_hist_struct **wu_hist;
     extern size_t NF;
+    extern size_t NR;
     extern int mpi_rank;
     
     int status;
@@ -95,15 +95,15 @@ wu_forcing(void)
             
             // Average forcing data
             for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].consumption_fraction =  
+                wu_force[i][f].consumption_fraction[NR] =  
                         average(wu_force[i][f].consumption_fraction, NF);
             }
             for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].demand = 
+                wu_force[i][f].demand[NR] = 
                         average(wu_force[i][f].demand, NF);
             }       
             for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].gw_fraction = 
+                wu_force[i][f].gw_fraction[NR] = 
                         average(wu_force[i][f].gw_fraction, NF);
             }       
                 
