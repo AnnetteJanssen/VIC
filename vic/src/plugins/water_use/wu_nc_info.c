@@ -7,19 +7,21 @@ wu_set_nc_var_info(int                varid,
                    nc_var_struct     *nc_var)
 {
     extern node *outvar_types;
+    
+    int OUT_WU_DEMAND;
+    int OUT_WU_WITHDRAWN;
+    int OUT_WU_RETURNED;
 
     // set datatype
     nc_var->nc_type = get_nc_dtype(dtype);
-
-    int OUT_WU_DEMAND = list_search_id(outvar_types, "OUT_WU_DEMAND");
-    int OUT_WU_WITHDRAWN = list_search_id(outvar_types, "OUT_WU_WITHDRAWN");
-    int OUT_WU_CONSUMED = list_search_id(outvar_types, "OUT_WU_CONSUMED");
-    int OUT_WU_RETURNED = list_search_id(outvar_types, "OUT_WU_RETURNED");
+    
+    OUT_WU_DEMAND = list_search_id(outvar_types, "OUT_WU_DEMAND");
+    OUT_WU_WITHDRAWN = list_search_id(outvar_types, "OUT_WU_WITHDRAWN");
+    OUT_WU_RETURNED = list_search_id(outvar_types, "OUT_WU_RETURNED");
 
     if (varid == OUT_WU_DEMAND ||
         varid == OUT_WU_RETURNED ||
-        varid == OUT_WU_WITHDRAWN ||
-        varid == OUT_WU_CONSUMED) {
+        varid == OUT_WU_WITHDRAWN) {
         nc_var->nc_dims = 4;
         nc_var->nc_counts[1] = nc_file->sector_size;
         nc_var->nc_counts[2] = nc_file->nj_size;
@@ -38,18 +40,17 @@ wu_set_nc_var_dimids(int             varid,
 {
     extern node *outvar_types;
 
-    int          OUT_WU_DEMAND = list_search_id(outvar_types, "OUT_WU_DEMAND");
-    int          OUT_WU_WITHDRAWN = list_search_id(outvar_types,
-                                                   "OUT_WU_WITHDRAWN");
-    int          OUT_WU_CONSUMED = list_search_id(outvar_types,
-                                                  "OUT_WU_CONSUMED");
-    int          OUT_WU_RETURNED = list_search_id(outvar_types,
-                                                  "OUT_WU_RETURNED");
+    int OUT_WU_DEMAND;
+    int OUT_WU_WITHDRAWN;
+    int OUT_WU_RETURNED;
+    
+    OUT_WU_DEMAND = list_search_id(outvar_types, "OUT_WU_DEMAND");
+    OUT_WU_WITHDRAWN = list_search_id(outvar_types, "OUT_WU_WITHDRAWN");
+    OUT_WU_RETURNED = list_search_id(outvar_types, "OUT_WU_RETURNED");
 
     if (varid == OUT_WU_DEMAND ||
         varid == OUT_WU_RETURNED ||
-        varid == OUT_WU_WITHDRAWN ||
-        varid == OUT_WU_CONSUMED) {
+        varid == OUT_WU_WITHDRAWN) {
         nc_var->nc_dimids[0] = nc_file->time_dimid;
         nc_var->nc_dimids[1] = nc_file->sector_dimid;
         nc_var->nc_dimids[2] = nc_file->nj_dimid;

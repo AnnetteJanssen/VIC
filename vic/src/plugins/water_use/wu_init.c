@@ -1,6 +1,50 @@
 #include <vic.h>
 
 void
+wu_set_fractions(void)
+{
+    extern domain_struct local_domain;
+    extern domain_struct global_domain;
+    extern filenames_struct filenames;
+    extern wu_con_struct *wu_con;
+    
+    double *dvar;
+    
+    size_t i;
+    size_t j;
+    
+    size_t  d3count[3];
+    size_t  d3start[3];
+    
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx; 
+    
+    dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
+    check_alloc_status(dvar, "Memory allocation error."); 
+    
+    for(j = 0; j < WU_NSECTORS; j++){
+        d3start[0] = j;
+        get_scatter_nc_field_double(&(filenames.water_use), 
+                "groundwater_fraction", d3start, d3count, dvar);
+        for(i = 0; i < local_domain.ncells_active; i++){
+            wu_con[i].gw_fraction[j] = dvar[i];
+        }
+
+        get_scatter_nc_field_double(&(filenames.water_use), 
+                "consumption_fraction", d3start, d3count, dvar);
+        for(i = 0; i < local_domain.ncells_active; i++){
+            wu_con[i].cons_fraction[j] = dvar[i];
+        }
+    }
+    
+    free(dvar);
+}
+
+void
 wu_set_receiving(void)
 {
     extern domain_struct local_domain;
@@ -37,7 +81,7 @@ wu_set_receiving(void)
     d3count[2] = global_domain.n_nx;     
     
     link_id = malloc(local_domain.ncells_active * sizeof(*link_id));
-    check_alloc_status(link_id, "Memory allocation error.");     
+    check_alloc_status(link_id, "Memory allocation error.");
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error."); 
     adjustment = malloc(local_domain.ncells_active * sizeof(*adjustment));
@@ -48,7 +92,7 @@ wu_set_receiving(void)
     }
     
     get_scatter_nc_field_int(&(filenames.water_use), 
-            "cellID", d2start, d2count, link_id);
+            "receiving_id", d2start, d2count, link_id);
     
     for(j = 0; j < options.MAXRECEIVING; j++){
         d3start[0] = j;
@@ -86,7 +130,6 @@ wu_set_receiving(void)
 void
 wu_set_service(void)
 {
-    extern option_struct options;
     extern domain_struct local_domain;
     extern wu_con_struct *wu_con;
     extern dam_con_map_struct *dam_con_map;
@@ -98,18 +141,16 @@ wu_set_service(void)
     size_t k;
     size_t l;
     
-    if(options.DAMS){
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            for(j = 0; j < dam_con_map[i].nd_active; j++){
-                for(k = 0; k < dam_con[i][j].nservice; k++){
-                    cur_ser = dam_con[i][j].service[k];
-                    
-                    for(l = 0; l < wu_con[cur_ser].nservice; l++){
-                        if(wu_con[cur_ser].service[l] == MISSING_USI){
-                            wu_con[cur_ser].service[l] = i;
-                            wu_con[cur_ser].service_idx[l] = j;
-                            break;
-                        }
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        for(j = 0; j < dam_con_map[i].nd_active; j++){
+            for(k = 0; k < dam_con[i][j].nservice; k++){
+                cur_ser = dam_con[i][j].service[k];
+
+                for(l = 0; l < wu_con[cur_ser].nservice; l++){
+                    if(wu_con[cur_ser].service[l] == MISSING_USI){
+                        wu_con[cur_ser].service[l] = i;
+                        wu_con[cur_ser].service_idx[l] = j;
+                        break;
                     }
                 }
             }
@@ -126,23 +167,26 @@ wu_init(void)
     
     int status;
     
+    // open parameter file
+    if(mpi_rank == VIC_MPI_ROOT){
+        status = nc_open(filenames.water_use.nc_filename, NC_NOWRITE,
+                         &(filenames.water_use.nc_id));
+        check_nc_status(status, "Error opening %s",
+                        filenames.water_use.nc_filename);
+    }
+
+    wu_set_fractions();
     if(options.WU_REMOTE){
-        // open parameter file
-        if(mpi_rank == VIC_MPI_ROOT){
-            status = nc_open(filenames.water_use.nc_filename, NC_NOWRITE,
-                             &(filenames.water_use.nc_id));
-            check_nc_status(status, "Error opening %s",
-                            filenames.water_use.nc_filename);
-        }
-    
         wu_set_receiving();
+    }
+    if(options.WU_DAM){
         wu_set_service();
-    
-        // close parameter file
-        if(mpi_rank == VIC_MPI_ROOT){
-            status = nc_close(filenames.water_use.nc_id);
-            check_nc_status(status, "Error closing %s",
-                            filenames.water_use.nc_filename);
-        }
+    }
+
+    // close parameter file
+    if(mpi_rank == VIC_MPI_ROOT){
+        status = nc_close(filenames.water_use.nc_id);
+        check_nc_status(status, "Error closing %s",
+                        filenames.water_use.nc_filename);
     }
 }

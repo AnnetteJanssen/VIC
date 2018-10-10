@@ -178,12 +178,12 @@ wu_get_global_parameters(char *cmdstr)
         
         if(strcasecmp("EQUAL", strategy) == 0){
             options.WU_STRATEGY = WU_STRATEGY_EQUAL;
-        }else if(strcasecmp("PRIORITY", strategy) == 0){
-            options.WU_STRATEGY = WU_STRATEGY_PRIORITY;
-            
-            for(i = 0; i < WU_NSECTORS; i++){
-                options.WU_PRIORITY[i] = wu_get_sector_id(priority_sector[i]);
-            }
+//        }else if(strcasecmp("PRIORITY", strategy) == 0){
+//            options.WU_STRATEGY = WU_STRATEGY_PRIORITY;
+//            
+//            for(i = 0; i < WU_NSECTORS; i++){
+//                options.WU_PRIORITY[i] = wu_get_sector_id(priority_sector[i]);
+//            }
         }else{
             log_err("WU_STRATEGY should be EQUAL or PRIORITY; "
                     "%s is unknown", strategy);

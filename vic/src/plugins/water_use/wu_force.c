@@ -11,8 +11,8 @@ wu_forcing(void)
     extern option_struct options;
     extern filenames_struct filenames;
     extern wu_force_struct **wu_force;
-    extern wu_hist_struct **wu_hist;
     extern size_t NF;
+    extern size_t NR;
     extern int mpi_rank;
     
     int status;
@@ -72,40 +72,17 @@ wu_forcing(void)
                              global_param.forceoffset[0] + j - 1;
 
                 get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
-                    "consumption_fraction", d3start, d3count, dvar);
-                
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    wu_force[i][f].consumption_fraction[j] = dvar[i];
-                }
-
-                get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
                     "demand", d3start, d3count, dvar);
                 
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     wu_force[i][f].demand[j] = dvar[i];
                 }
-
-                get_scatter_nc_field_double(&(filenames.water_use_forcing[f]), 
-                    "groundwater_fraction", d3start, d3count, dvar);
-                
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    wu_force[i][f].gw_fraction[j] = dvar[i];
-                }
             }
             
-            // Average forcing data
             for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].consumption_fraction =  
-                        average(wu_force[i][f].consumption_fraction, NF);
-            }
-            for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].demand = 
+                wu_force[i][f].demand[NR] = 
                         average(wu_force[i][f].demand, NF);
-            }       
-            for (i = 0; i < local_domain.ncells_active; i++) {
-                wu_hist[i][f].gw_fraction = 
-                        average(wu_force[i][f].gw_fraction, NF);
-            }       
+            }    
                 
             // Close forcing file if it is the last time step
             if (current == global_param.nrecs - 1) {
