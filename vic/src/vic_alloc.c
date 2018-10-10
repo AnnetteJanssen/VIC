@@ -66,11 +66,6 @@ vic_alloc(void)
         gw_add_types();
     }
 
-    if (mpi_rank == VIC_MPI_ROOT) {
-        list_print(outvar_types);
-        list_print(state_vars);
-    }
-
     // Allocate memory for all non specific VIC structures
     alloc_general();
 
