@@ -351,7 +351,6 @@ typedef struct {
     size_t MAXRECEIVING;
     int WU_INPUT_LOCATION[WU_NSECTORS];
     int WU_COMPENSATION_TIME[WU_NSECTORS];
-    int WU_STRATEGY;
     int WU_PRIORITY[WU_NSECTORS];
     // Irrigation options
     size_t NIRRTYPES;

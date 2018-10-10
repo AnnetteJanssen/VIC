@@ -15,11 +15,6 @@ enum {
     WU_NSECTORS
 };
 
-enum {
-    WU_STRATEGY_EQUAL,
-    WU_NSTRATEGY
-};
-
 typedef struct {    
     size_t nreceiving;
     size_t *receiving;

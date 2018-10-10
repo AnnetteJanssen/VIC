@@ -35,9 +35,6 @@ vic_alloc(void)
     extern option_struct options;
     extern int           N_STATE_VARS_ALL;
     extern int           N_OUTVAR_TYPES_ALL;
-    extern node         *outvar_types;
-    extern node         *state_vars;
-    extern int           mpi_rank;
 
     N_STATE_VARS_ALL = N_STATE_VARS;
     N_OUTVAR_TYPES_ALL = N_OUTVAR_TYPES;

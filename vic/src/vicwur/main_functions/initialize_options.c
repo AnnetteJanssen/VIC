@@ -124,7 +124,6 @@ initialize_options()
         options.WU_COMPENSATION_TIME[i] = 0;
         options.WU_PRIORITY[i] = i;
     }
-    options.WU_STRATEGY = WU_STRATEGY_EQUAL;
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;

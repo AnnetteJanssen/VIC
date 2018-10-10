@@ -549,7 +549,6 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tWU_DAM               : %s\n",
             option->WU_DAM ? "true" : "false");
     fprintf(LOG_DEST, "\tMAXRECEIVING         : %zu\n", option->MAXRECEIVING);
-    fprintf(LOG_DEST, "\tWU_STRATEGY          : %d\n", option->WU_STRATEGY);
     fprintf(LOG_DEST, "\tNIRRTYPES            : %zu\n", option->NIRRTYPES);
     fprintf(LOG_DEST, "\tNIRRSEASONS          : %zu\n", option->NIRRSEASONS);
     fprintf(LOG_DEST, "\tIRR_POTENTIAL        : %s\n",

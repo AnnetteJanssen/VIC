@@ -170,25 +170,6 @@ wu_get_global_parameters(char *cmdstr)
         strcpy(filenames.water_use_forcing_pfx[cur_sector], file);
     }
     
-    else if (strcasecmp("WU_STRATEGY", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s %s %s %s %s %s %s", strategy, 
-                priority_sector[0],priority_sector[1],
-                priority_sector[2],priority_sector[3],
-                priority_sector[4],priority_sector[5]);
-        
-        if(strcasecmp("EQUAL", strategy) == 0){
-            options.WU_STRATEGY = WU_STRATEGY_EQUAL;
-//        }else if(strcasecmp("PRIORITY", strategy) == 0){
-//            options.WU_STRATEGY = WU_STRATEGY_PRIORITY;
-//            
-//            for(i = 0; i < WU_NSECTORS; i++){
-//                options.WU_PRIORITY[i] = wu_get_sector_id(priority_sector[i]);
-//            }
-        }else{
-            log_err("WU_STRATEGY should be EQUAL or PRIORITY; "
-                    "%s is unknown", strategy);
-        }
-    }
     else if (strcasecmp("REMOTE_WATER_USE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.WU_REMOTE = str_to_bool(flgstr);
