@@ -38,12 +38,8 @@ wu_add_types(void)
 
     // add outvar_types
     outvar_types = list_prepend(outvar_types, "OUT_WU_DEMAND");
-    outvar_types = list_prepend(outvar_types, "OUT_WU_COMPENSATION");
-    outvar_types = list_prepend(outvar_types, "OUT_WU_COMPENSATED");
     outvar_types = list_prepend(outvar_types, "OUT_WU_WITHDRAWN");
-    outvar_types = list_prepend(outvar_types, "OUT_WU_CONSUMED");
     outvar_types = list_prepend(outvar_types, "OUT_WU_RETURNED");
-    outvar_types = list_prepend(outvar_types, "OUT_WU_SHORTAGE");
 
     outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
     N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;

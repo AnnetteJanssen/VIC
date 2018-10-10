@@ -3,9 +3,6 @@
 
 #include <stdbool.h>
 
-#define MAX_RETURN_STEPS 50
-#define MAX_COMPENSATION_STEPS 100
-
 enum {
     WU_INPUT_FROM_FILE,
     WU_INPUT_CALCULATE,
@@ -14,8 +11,12 @@ enum {
 };
 
 enum {
+    WU_IRRIGATION,
+    WU_NSECTORS
+};
+
+enum {
     WU_STRATEGY_EQUAL,
-    WU_STRATEGY_PRIORITY,
     WU_NSTRATEGY
 };
 
@@ -26,18 +27,18 @@ typedef struct {
     size_t nservice;
     size_t *service;
     size_t *service_idx;
+    
+    double cons_fraction[WU_NSECTORS];
+    double gw_fraction[WU_NSECTORS];
 } wu_con_struct;
 
 typedef struct {
     double *demand;
-    double *consumption_fraction;
-    double *gw_fraction;
 } wu_force_struct;
 
 typedef struct {
     double demand;
     double withdrawn;
-    double consumed;
     double returned;
 } wu_var_struct;
 

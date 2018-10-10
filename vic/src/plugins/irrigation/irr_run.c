@@ -233,9 +233,10 @@ irr_set_demand(size_t cur_cell)
     extern irr_con_map_struct *irr_con_map;
     extern irr_con_struct **irr_con;
     extern elev_con_map_struct *elev_con_map;
-    extern wu_hist_struct **wu_hist;
+    extern wu_force_struct **wu_force;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
+    extern size_t NR;
     
     double demand;
     size_t cur_veg;
@@ -253,14 +254,8 @@ irr_set_demand(size_t cur_cell)
                     veg_con[cur_cell][cur_veg].Cv;
         }
     }
-    wu_hist[cur_cell][WU_IRRIGATION].demand = demand / 
-                wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction /
+    wu_force[cur_cell][WU_IRRIGATION].demand[NR] = demand / 
                 MM_PER_M * local_domain.locations[cur_cell].area;
-    
-    if (demand > 0) {
-        wu_hist[cur_cell][WU_IRRIGATION].consumption_fraction = irr_con[cur_cell][0].WUE;
-        wu_hist[cur_cell][WU_IRRIGATION].gw_fraction = irr_con[cur_cell][0].gw_fraction;
-    }
 }
 
 void
@@ -292,7 +287,8 @@ irr_get_withdrawn(size_t cur_cell)
     size_t j;
     
     total_available = 
-            wu_var[cur_cell][WU_IRRIGATION].consumed / 
+            (wu_var[cur_cell][WU_IRRIGATION].withdrawn - 
+            wu_var[cur_cell][WU_IRRIGATION].returned) / 
             local_domain.locations[cur_cell].area * 
             MM_PER_M;
 

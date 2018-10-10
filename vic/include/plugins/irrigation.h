@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define IRR_CAP_FRAC 0.78
+#define IRR_CAP_FRAC 0.7
 #define IRR_CRIT_FRAC 0.99
 
 #define POND_IRR_CRIT_FRAC 0.1
@@ -28,9 +28,6 @@ typedef struct {
     double *season_start;
     double *season_end;
     double season_offset;
-    
-    double WUE;
-    double gw_fraction;
 } irr_con_struct;
 
 typedef struct {

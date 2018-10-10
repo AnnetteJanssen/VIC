@@ -5,7 +5,7 @@ wu_run(size_t cur_cell)
 {
     extern domain_struct local_domain;
     extern option_struct options;
-    extern wu_hist_struct **wu_hist;
+    extern wu_force_struct **wu_force;
     extern wu_var_struct **wu_var;
     extern wu_con_struct *wu_con;
     extern rout_var_struct *rout_var;
@@ -17,6 +17,7 @@ wu_run(size_t cur_cell)
     extern veg_con_struct **veg_con;
     extern efr_var_struct *efr_var;
     extern efr_hist_struct *efr_hist;
+    extern size_t NR;
     
     double liq;
     double moist;
@@ -95,18 +96,10 @@ wu_run(size_t cur_cell)
     }
     satisfaction = false;
     
-    // Initialize groundwater
-    if (!options.WU_GW) {
-        for(i = 0; i < WU_NSECTORS; i++){
-            wu_hist[cur_cell][i].gw_fraction = 0.0;
-        }
-    }
-    
     // Reset values
     for(i = 0; i < WU_NSECTORS; i++){
-        wu_var[cur_cell][i].demand = wu_hist[cur_cell][i].demand;
+        wu_var[cur_cell][i].demand = wu_force[cur_cell][i].demand[NR];
         wu_var[cur_cell][i].withdrawn = 0.0;
-        wu_var[cur_cell][i].consumed = 0.0;
         wu_var[cur_cell][i].returned = 0.0;
     }    
     
@@ -118,8 +111,8 @@ wu_run(size_t cur_cell)
     // Get surface water demand
     demand = 0.0;
     for(i = 0; i < WU_NSECTORS; i++){
-        demand += wu_hist[cur_cell][i].demand * 
-                (1 - wu_hist[cur_cell][i].gw_fraction);
+        demand += wu_force[cur_cell][i].demand[NR] * 
+                (1 - wu_con[cur_cell].gw_fraction[i]);
     }
     
     // Get surface water availability
@@ -148,8 +141,8 @@ wu_run(size_t cur_cell)
 
             // Withdrawal as fraction of demand
             for(i = 0; i < WU_NSECTORS; i++){
-                withdrawn = wu_hist[cur_cell][i].demand *
-                        (1 - wu_hist[cur_cell][i].gw_fraction) *
+                withdrawn = wu_force[cur_cell][i].demand[NR] *
+                        (1 - wu_con[cur_cell].gw_fraction[i]) *
                         fraction;
 
                 wu_var[cur_cell][i].demand -= withdrawn;            
@@ -177,8 +170,8 @@ wu_run(size_t cur_cell)
     // Get groundwater demand
     demand = 0.0;
     for(i = 0; i < WU_NSECTORS; i++){
-        demand += wu_hist[cur_cell][i].demand * 
-                wu_hist[cur_cell][i].gw_fraction;
+        demand += wu_force[cur_cell][i].demand[NR] * 
+                wu_con[cur_cell].gw_fraction[i];
     }
     
     // Get groundwater availability
@@ -236,8 +229,8 @@ wu_run(size_t cur_cell)
 
             // Withdrawal as fraction of demand
             for(i = 0; i < WU_NSECTORS; i++){
-                withdrawn = wu_hist[cur_cell][i].demand *
-                        wu_hist[cur_cell][i].gw_fraction *
+                withdrawn = wu_force[cur_cell][i].demand[NR] *
+                        wu_con[cur_cell].gw_fraction[i] *
                         fraction;
 
                 wu_var[cur_cell][i].demand -= withdrawn;
@@ -458,17 +451,15 @@ wu_run(size_t cur_cell)
         wu_var[cur_cell][i].withdrawn = withdrawn_sec[i];
         
         // Check if withdrawal exceeds demand
-        fraction = wu_var[cur_cell][i].withdrawn / wu_hist[cur_cell][i].demand;
+        fraction = wu_var[cur_cell][i].withdrawn / wu_force[cur_cell][i].demand[NR];
         if(fraction > 1){
             if(fabs(fraction - 1.0) > DBL_EPSILON){
                 log_err("fraction > 1.0 [%.16f]?", fraction);
             }
         }
             
-        wu_var[cur_cell][i].consumed = wu_var[cur_cell][i].withdrawn * 
-                wu_hist[cur_cell][i].consumption_fraction;
         wu_var[cur_cell][i].returned = wu_var[cur_cell][i].withdrawn * 
-                (1 - wu_hist[cur_cell][i].consumption_fraction);
+                (1 - wu_con[cur_cell].cons_fraction[i]);
         
         returned += wu_var[cur_cell][i].returned;
     }
