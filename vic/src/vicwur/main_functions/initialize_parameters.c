@@ -237,4 +237,10 @@ initialize_parameters()
     param.ROOT_BRENT_MAXITER = 1000;
     param.ROOT_BRENT_TSTEP = 10;
     param.ROOT_BRENT_T = 1.0e-7;
+    
+    // Plugins - irrigation
+    param.IRR_WIRR = 0.99;
+    param.IRR_WFC = 0.7;
+    param.IRR_WPOND = 0.1;
+    param.IRR_KPOND = 0.05;
 }

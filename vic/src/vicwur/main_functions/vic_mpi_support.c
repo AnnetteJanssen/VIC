@@ -876,7 +876,7 @@ create_MPI_param_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in parameters_struct
-    nitems = 156;
+    nitems = 160;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -1516,6 +1516,22 @@ create_MPI_param_struct_type(MPI_Datatype *mpi_type)
 
     // double ROOT_BRENT_T
     offsets[i] = offsetof(parameters_struct, ROOT_BRENT_T);
+    mpi_types[i++] = MPI_DOUBLE;
+
+    // double IRR_WIRR
+    offsets[i] = offsetof(parameters_struct, IRR_WIRR);
+    mpi_types[i++] = MPI_DOUBLE;
+
+    // double IRR_WFC
+    offsets[i] = offsetof(parameters_struct, IRR_WFC);
+    mpi_types[i++] = MPI_DOUBLE;
+
+    // double IRR_WPOND
+    offsets[i] = offsetof(parameters_struct, IRR_WPOND);
+    mpi_types[i++] = MPI_DOUBLE;
+
+    // double IRR_KPOND
+    offsets[i] = offsetof(parameters_struct, IRR_KPOND);
     mpi_types[i++] = MPI_DOUBLE;
 
     // make sure that the we have the right number of elements

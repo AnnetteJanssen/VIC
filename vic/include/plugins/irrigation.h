@@ -3,12 +3,7 @@
 
 #include <stdbool.h>
 
-#define IRR_CAP_FRAC 0.7
-#define IRR_CRIT_FRAC 0.99
-
-#define POND_IRR_CRIT_FRAC 0.1
-#define POND_CAPACITY 100
-#define POND_KSAT_FRAC 0.05
+#define POND_CAPACITY 250
 
 typedef struct {
     size_t ni_types;

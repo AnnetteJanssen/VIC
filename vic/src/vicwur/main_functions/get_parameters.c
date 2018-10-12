@@ -532,6 +532,18 @@ get_parameters(FILE *paramfile)
             else if (strcasecmp("ROOT_BRENT_T", optstr) == 0) {
                 sscanf(cmdstr, "%*s %lf", &param.ROOT_BRENT_T);
             }
+            else if (strcasecmp("IRR_WIRR", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.IRR_WIRR);
+            }
+            else if (strcasecmp("IRR_WFC", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.IRR_WFC);
+            }
+            else if (strcasecmp("IRR_WPOND", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.IRR_WPOND);
+            }
+            else if (strcasecmp("IRR_KPOND", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.IRR_KPOND);
+            }
             else {
                 log_warn("Unrecognized option in the parameter file:  %s "
                          "- check your spelling", optstr);

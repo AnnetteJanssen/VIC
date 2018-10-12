@@ -13,7 +13,7 @@ irr_run(size_t cur_cell)
     extern irr_var_struct ***irr_var;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
-    extern option_struct options;
+    extern parameters_struct param;
     
     double moist[MAX_LAYERS];
     double total_moist;
@@ -69,7 +69,7 @@ irr_run(size_t cur_cell)
             if (irr_con[cur_cell][i].ponding){
                 for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
                     all_vars[cur_cell].cell[cur_veg][j].layer[0].Ksat = 
-                            soil_con[cur_cell].Ksat[0] * POND_KSAT_FRAC;
+                            soil_con[cur_cell].Ksat[0] * param.IRR_KPOND;
                 }
             }
         }
@@ -148,15 +148,15 @@ irr_run(size_t cur_cell)
                 // moisture point of all layers with roots are combined
                 
                 if((total_moist + irr_var[cur_cell][i][j].leftover)
-                        < (total_wcr / IRR_CRIT_FRAC)){
+                        < (total_wcr / param.IRR_WIRR)){
                     // moisture content is below critical   
                     irr_var[cur_cell][i][j].requirement = 
-                            (total_wcr / IRR_CAP_FRAC) - 
+                            (total_wcr / param.IRR_WFC) - 
                             (total_moist + irr_var[cur_cell][i][j].leftover);
                 } else if (irr_con[cur_cell][i].ponding &&
                         (irr_var[cur_cell][i][j].pond_storage + 
                             irr_var[cur_cell][i][j].leftover) < 
-                        irr_con[cur_cell][i].pond_capacity * POND_IRR_CRIT_FRAC){
+                        irr_con[cur_cell][i].pond_capacity * param.IRR_WPOND){
                     // pond storage is below critical    
                     irr_var[cur_cell][i][j].requirement = 
                             irr_con[cur_cell][i].pond_capacity - 
@@ -172,7 +172,7 @@ irr_run(size_t cur_cell)
                 for(k = 0; k < options.Nlayer; k++){
                     if(veg_con[cur_cell][cur_veg].root[k] > 0.){
                         if(moist[k] < 
-                                soil_con[cur_cell].Wcr[k] / IRR_CRIT_FRAC){
+                                soil_con[cur_cell].Wcr[k] / param.IRR_WIRR){
                             calc_req = true;
                             break;
                         }
@@ -182,12 +182,12 @@ irr_run(size_t cur_cell)
                 if(calc_req){
                     // moisture content is below critical
                     irr_var[cur_cell][i][j].requirement = 
-                            (total_wcr / IRR_CAP_FRAC) - 
+                            (total_wcr / param.IRR_WFC) - 
                             (total_moist + irr_var[cur_cell][i][j].leftover);
                 } else if (irr_con[cur_cell][i].ponding &&
                         (irr_var[cur_cell][i][j].pond_storage + 
                             irr_var[cur_cell][i][j].leftover) < 
-                        irr_con[cur_cell][i].pond_capacity * POND_IRR_CRIT_FRAC){
+                        irr_con[cur_cell][i].pond_capacity * param.IRR_WPOND){
                     // pond storage is below critical 
                     irr_var[cur_cell][i][j].requirement = 
                             irr_con[cur_cell][i].pond_capacity - 

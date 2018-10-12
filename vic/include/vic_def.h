@@ -614,6 +614,12 @@ typedef struct {
     int ROOT_BRENT_MAXITER;
     double ROOT_BRENT_TSTEP;
     double ROOT_BRENT_T;
+    
+    // Plugins - irrigation
+    double IRR_WIRR;
+    double IRR_WFC;
+    double IRR_WPOND;
+    double IRR_KPOND;
 } parameters_struct;
 
 /******************************************************************************
