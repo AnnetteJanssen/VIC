@@ -114,6 +114,7 @@ wu_run(size_t cur_cell)
         demand += wu_force[cur_cell][i].demand[NR] * 
                 (1 - wu_con[cur_cell].gw_fraction[i]);
     }
+    demand = 0.0;
     
     // Get surface water availability
     available_local[0] = 0.0;
