@@ -7,13 +7,13 @@ gw_history(int           varid,
     extern node *outvar_types;
 
     int          OUT_GW_ZWT = list_search_id(outvar_types, "OUT_GW_ZWT");
-    int          OUT_GW_RECHARGE = list_search_id(outvar_types,
-                                                  "OUT_GW_RECHARGE");
+    int          OUT_RECHARGE = list_search_id(outvar_types,
+                                                  "OUT_RECHARGE");
     int          OUT_GW_WA = list_search_id(outvar_types, "OUT_GW_WA");
     int          OUT_GW_WT = list_search_id(outvar_types, "OUT_GW_WT");
     int          OUT_GW_AVAIL = list_search_id(outvar_types, "OUT_GW_AVAIL");
 
-    if (varid == OUT_GW_RECHARGE) {
+    if (varid == OUT_RECHARGE) {
         (*aggtype) = AGG_TYPE_SUM;
         return true;
     }

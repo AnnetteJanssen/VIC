@@ -622,13 +622,13 @@ collect_wb_gw_terms(cell_data_struct cell,
     size_t                   frost_area;
 
     int                      OUT_GW_ZWT;
-    int                      OUT_GW_RECHARGE;
+    int                      OUT_RECHARGE;
     int                      OUT_GW_WA;
     int                      OUT_GW_WT;
 
 
     OUT_GW_ZWT = list_search_id(outvar_types, "OUT_GW_ZWT");
-    OUT_GW_RECHARGE = list_search_id(outvar_types, "OUT_GW_RECHARGE");
+    OUT_RECHARGE = list_search_id(outvar_types, "OUT_RECHARGE");
     OUT_GW_WA = list_search_id(outvar_types, "OUT_GW_WA");
     OUT_GW_WT = list_search_id(outvar_types, "OUT_GW_WT");
     
@@ -739,7 +739,7 @@ collect_wb_gw_terms(cell_data_struct cell,
     
     /** record groundwater variables **/
     out_data[OUT_GW_ZWT][0] += gw_var.zwt * AreaFactor;
-    out_data[OUT_GW_RECHARGE][0] += gw_var.recharge * AreaFactor;
+    out_data[OUT_RECHARGE][0] += gw_var.recharge * AreaFactor;
     out_data[OUT_GW_WA][0] += gw_var.Wa * AreaFactor;
     out_data[OUT_GW_WT][0] += gw_var.Wt * AreaFactor;
             

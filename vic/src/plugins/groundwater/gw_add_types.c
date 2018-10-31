@@ -37,7 +37,7 @@ gw_add_types(void)
 
     // add outvar_types
     outvar_types = list_prepend(outvar_types, "OUT_GW_ZWT");
-    outvar_types = list_prepend(outvar_types, "OUT_GW_RECHARGE");
+    outvar_types = list_prepend(outvar_types, "OUT_RECHARGE");
     outvar_types = list_prepend(outvar_types, "OUT_GW_WA");
     outvar_types = list_prepend(outvar_types, "OUT_GW_WT");
     outvar_types = list_prepend(outvar_types, "OUT_GW_AVAIL");

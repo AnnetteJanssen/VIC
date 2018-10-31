@@ -7,12 +7,12 @@ gw_set_output_meta_data_info(void)
     extern node            *outvar_types;
 
     int                        OUT_GW_ZWT;
-    int                        OUT_GW_RECHARGE;
+    int                        OUT_RECHARGE;
     int                        OUT_GW_WA;
     int                        OUT_GW_WT;
 
     OUT_GW_ZWT = list_search_id(outvar_types, "OUT_GW_ZWT");
-    OUT_GW_RECHARGE = list_search_id(outvar_types, "OUT_GW_RECHARGE");
+    OUT_RECHARGE = list_search_id(outvar_types, "OUT_RECHARGE");
     OUT_GW_WA = list_search_id(outvar_types, "OUT_GW_WA");
     OUT_GW_WT = list_search_id(outvar_types, "OUT_GW_WT");
 
@@ -22,11 +22,11 @@ gw_set_output_meta_data_info(void)
     strcpy(out_metadata[OUT_GW_ZWT].units, "m");
     strcpy(out_metadata[OUT_GW_ZWT].description, "groundwater table depth");
 
-    strcpy(out_metadata[OUT_GW_RECHARGE].varname, "OUT_GW_RECHARGE");
-    strcpy(out_metadata[OUT_GW_RECHARGE].long_name, "groundwater_recharge");
-    strcpy(out_metadata[OUT_GW_RECHARGE].standard_name, "groundwater_recharge");
-    strcpy(out_metadata[OUT_GW_RECHARGE].units, "mm");
-    strcpy(out_metadata[OUT_GW_RECHARGE].description, "groundwater recharge");
+    strcpy(out_metadata[OUT_RECHARGE].varname, "OUT_RECHARGE");
+    strcpy(out_metadata[OUT_RECHARGE].long_name, "groundwater_recharge");
+    strcpy(out_metadata[OUT_RECHARGE].standard_name, "groundwater_recharge");
+    strcpy(out_metadata[OUT_RECHARGE].units, "mm");
+    strcpy(out_metadata[OUT_RECHARGE].description, "groundwater recharge");
 
     strcpy(out_metadata[OUT_GW_WA].varname, "OUT_GW_WA");
     strcpy(out_metadata[OUT_GW_WA].long_name, "aquifer_storage");
@@ -41,7 +41,7 @@ gw_set_output_meta_data_info(void)
     strcpy(out_metadata[OUT_GW_WT].description, "Groundwater storage relative to the reference (aquifer and soil layers combined)");
 
     out_metadata[OUT_GW_ZWT].nelem = 1;
-    out_metadata[OUT_GW_RECHARGE].nelem = 1;
+    out_metadata[OUT_RECHARGE].nelem = 1;
     out_metadata[OUT_GW_WA].nelem = 1;
     out_metadata[OUT_GW_WT].nelem = 1;
 }
