@@ -492,7 +492,7 @@ runoff_gw(cell_data_struct  *cell,
                     // Water balance was handled in the soil column
                     // Reduce until bottom soil column
                     Wt[fidx] = (GW_REF_DEPTH - z[options.Nlayer - 1]) * 
-                                gw_con->Sy * MM_PER_M;
+                                gw_con->Sy * MM_PER_M + dt_recharge;
                 }
                 
                 Wa[fidx] = Wt[fidx];
