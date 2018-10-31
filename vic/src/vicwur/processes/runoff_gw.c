@@ -330,13 +330,9 @@ runoff_gw(cell_data_struct  *cell,
             lindex = options.Nlayer - 1;
             
             if (lwt == -1) {
-                if(options.GW_CALC_EQ){
-                    Q12[lindex] *= 1000000;
-                } else {
-                    Q12[lindex] = Q12[lindex] *
-                                  (1 - exp(-gw_con->expt * delta_z)) /
-                                  (gw_con->expt * delta_z);
-                }
+                Q12[lindex] = Q12[lindex] *
+                              (1 - exp(-gw_con->expt * delta_z)) /
+                              (gw_con->expt * delta_z);
             }
             else {
                 Q12[lindex] = 0.;

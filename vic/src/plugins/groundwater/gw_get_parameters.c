@@ -18,23 +18,6 @@ gw_get_global_parameters(char *cmdstr)
     else if (strcasecmp("GROUNDWATER_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.groundwater.nc_filename);
     }
-    else if (strcasecmp("GROUNDWATER_INIT", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        if (strcasecmp("DEFAULT", flgstr) == 0) {
-            options.GW_INIT_FROM_FILE = false;
-        }
-        else if (strcasecmp("FROM_FILE", flgstr) == 0) {
-            options.GW_INIT_FROM_FILE = true;
-        }
-        else {
-            log_err(
-                "GROUNDWATER_INIT should be DEFAULT or FROM_FILE; %s is unknown",
-                flgstr);
-        }
-    } else if (strcasecmp("GROUNDWATER_EQ", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        options.GW_CALC_EQ = str_to_bool(flgstr);
-    }
     else {
         return false;
     }

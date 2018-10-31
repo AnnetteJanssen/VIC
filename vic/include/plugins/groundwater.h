@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #define GW_REF_DEPTH 100
-#define GW_DEF_DEPTH 10
 
 typedef struct {
     double recharge;        /**< drainage to groundwater (mm) */

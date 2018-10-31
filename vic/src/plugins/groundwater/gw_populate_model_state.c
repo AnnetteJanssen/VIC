@@ -139,41 +139,30 @@ gw_generate_default_state(void)
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx;
 
-    if (options.GW_INIT_FROM_FILE) {
-        // open parameter file
-        if (mpi_rank == VIC_MPI_ROOT) {
-            status = nc_open(filenames.groundwater.nc_filename, NC_NOWRITE,
-                             &(filenames.groundwater.nc_id));
-            check_nc_status(status, "Error opening %s",
-                            filenames.groundwater.nc_filename);
-        }
+    // open parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_open(filenames.groundwater.nc_filename, NC_NOWRITE,
+                         &(filenames.groundwater.nc_id));
+        check_nc_status(status, "Error opening %s",
+                        filenames.groundwater.nc_filename);
+    }
 
-        get_scatter_nc_field_double(&(filenames.groundwater),
-                                    "zwt_init", d2start, d2count, dvar);
+    get_scatter_nc_field_double(&(filenames.groundwater),
+                                "zwt_init", d2start, d2count, dvar);
 
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            for (j = 0; j < veg_con_map[i].nv_active; j++) {
-                for (k = 0; k < elev_con_map[i].ne_active; k++) {
-                    gw_var[i][j][k].zwt = (double) dvar[i];
-                }
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        for (j = 0; j < veg_con_map[i].nv_active; j++) {
+            for (k = 0; k < elev_con_map[i].ne_active; k++) {
+                gw_var[i][j][k].zwt = (double) dvar[i];
             }
-        }
-
-        // close parameter file
-        if (mpi_rank == VIC_MPI_ROOT) {
-            status = nc_close(filenames.groundwater.nc_id);
-            check_nc_status(status, "Error closing %s",
-                            filenames.groundwater.nc_filename);
         }
     }
-    else {
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            for (j = 0; j < veg_con_map[i].nv_active; j++) {
-                for (k = 0; k < elev_con_map[i].ne_active; k++) {
-                    gw_var[i][j][k].zwt = GW_DEF_DEPTH;
-                }
-            }
-        }
+
+    // close parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_close(filenames.groundwater.nc_id);
+        check_nc_status(status, "Error closing %s",
+                        filenames.groundwater.nc_filename);
     }
 
     gw_calculate_derived_states();
