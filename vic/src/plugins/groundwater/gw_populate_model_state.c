@@ -21,6 +21,8 @@ gw_calculate_derived_states(void)
 
     double                     z_tmp;
     double                     ice;
+    double                     resid_moist;
+    double                     neff_moist;
     double                     eff_porosity;
     bool                       in_column;
 
@@ -39,20 +41,24 @@ gw_calculate_derived_states(void)
                         in_column = true;
 
                         // add water for current layer
+                        resid_moist = soil_con[i].resid_moist[l] *
+                                      soil_con[i].depth[l] * MM_PER_M;
                         ice = 0.0;
                         for (m = 0; m < options.Nfrost; m++) {
                             ice += all_vars[i].cell[j][k].layer[l].ice[m];
                         }
-                        eff_porosity = (soil_con[i].max_moist[l] - ice) /
-                                       (soil_con[i].depth[l] * MM_PER_M);
+                        neff_moist = max(ice, resid_moist);
+                        eff_porosity = (soil_con[i].max_moist[l] - 
+                                        neff_moist) /
+                                       soil_con[i].depth[l];
 
                         gw_var[i][j][k].Wt =
                             (z_tmp - gw_var[i][j][k].zwt) *
-                            eff_porosity * MM_PER_M;
+                            eff_porosity;
                         
                         all_vars[i].cell[j][k].layer[l].moist =
                             (z_tmp - gw_var[i][j][k].zwt) *
-                            eff_porosity * MM_PER_M;
+                            eff_porosity + resid_moist;
                         
                         if (all_vars[i].cell[j][k].layer[l].moist >
                             soil_con[i].max_moist[l]) {
@@ -64,20 +70,24 @@ gw_calculate_derived_states(void)
                         for (n = l + 1; n < options.Nlayer; n++) {
                             z_tmp += soil_con[i].depth[n];
 
+                            resid_moist = soil_con[i].resid_moist[n] *
+                                          soil_con[i].depth[n] * MM_PER_M;
                             ice = 0.0;
                             for (m = 0; m < options.Nfrost; m++) {
                                 ice += all_vars[i].cell[j][k].layer[n].ice[m];
                             }
-                            eff_porosity = (soil_con[i].max_moist[n] - ice) /
-                                           (soil_con[i].depth[n] * MM_PER_M);
+                            neff_moist = max(ice, resid_moist);
+                            eff_porosity = (soil_con[i].max_moist[n] - 
+                                            neff_moist) /
+                                           soil_con[i].depth[n];
 
                             gw_var[i][j][k].Wt +=
                                 soil_con[i].depth[n] *
-                                eff_porosity * MM_PER_M;
+                                eff_porosity;
                         
                             all_vars[i].cell[j][k].layer[n].moist =
                                 soil_con[i].depth[n] *
-                                eff_porosity * MM_PER_M;
+                                eff_porosity + resid_moist;
                             
                             if (all_vars[i].cell[j][k].layer[n].moist >
                                 soil_con[i].max_moist[n]) {

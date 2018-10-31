@@ -104,6 +104,7 @@ runoff_gw(cell_data_struct  *cell,
     double                     Qb[MAX_LAYERS];
     double                     z[MAX_LAYERS];
     double                     eff_porosity[MAX_LAYERS];
+    double                     neff_moist;
 
     // Output
     double                     recharge[MAX_FROST_AREAS];
@@ -208,8 +209,9 @@ runoff_gw(cell_data_struct  *cell,
             }
 
             /** Set Effective Porosity **/
-            eff_porosity[lindex] = (max_moist[lindex] - ice[lindex]) /
-                                   (soil_con->depth[lindex] * MM_PER_M);
+            neff_moist = max(ice[lindex], resid_moist[lindex]);
+            eff_porosity[lindex] = (max_moist[lindex] - neff_moist) /
+                                   soil_con->depth[lindex];
 
             tmp_z += soil_con->depth[lindex];
             z[lindex] = tmp_z;
@@ -481,20 +483,19 @@ runoff_gw(cell_data_struct  *cell,
             /** Update groundwater content **/
             Wt[fidx] = Wt[fidx] +
                        dt_recharge - (dt_baseflow + dt_evaporation);
-
+            
+            if(lwt != -1 && dt_recharge < 0){
+                // Water level was in soil column:
+                // Lack of water caused abstractions from groundwater
+                // Reduce groundwater below soil column
+                Wt[fidx] = (GW_REF_DEPTH - z[options.Nlayer - 1]) * 
+                            gw_con->Sy * MM_PER_M + dt_recharge;
+            }
+            
             /** Calculate groundwater level **/
             if (Wt[fidx] / gw_con->Sy / MM_PER_M < GW_REF_DEPTH -
                 z[options.Nlayer - 1]) {
                 // New water level is below soil column
-                
-                if(lwt != -1){
-                    // Water level was in soil column:
-                    // Water balance was handled in the soil column
-                    // Reduce until bottom soil column
-                    Wt[fidx] = (GW_REF_DEPTH - z[options.Nlayer - 1]) * 
-                                gw_con->Sy * MM_PER_M + dt_recharge;
-                }
-                
                 Wa[fidx] = Wt[fidx];
                 zwt[fidx] = GW_REF_DEPTH - Wt[fidx] / gw_con->Sy / MM_PER_M;
             }
