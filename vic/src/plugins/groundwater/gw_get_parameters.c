@@ -32,6 +32,7 @@ gw_get_global_parameters(char *cmdstr)
 void
 gw_validate_global_parameters(void)
 {
+    extern option_struct    options;
     extern filenames_struct filenames;
 
     if (strcasecmp(filenames.groundwater.nc_filename, MISSING_S) == 0) {
