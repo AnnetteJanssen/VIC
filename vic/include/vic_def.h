@@ -336,6 +336,8 @@ typedef struct {
     bool WATER_USE;
     bool EFR;
 
+    // Groundwater options
+    bool GW_EQUILIBRIUM;
     // Routing options
     int ROUTING_TYPE;
     bool ROUTING_FORCE;

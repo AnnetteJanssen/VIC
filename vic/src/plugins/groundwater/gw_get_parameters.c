@@ -15,6 +15,10 @@ gw_get_global_parameters(char *cmdstr)
         sscanf(cmdstr, "%*s %s", flgstr);
         options.GROUNDWATER = str_to_bool(flgstr);
     }
+    if (strcasecmp("GROUNDWATER_EQUILIBRIUM", optstr) == 0) {
+        sscanf(cmdstr, "%*s %s", flgstr);
+        options.GW_EQUILIBRIUM = str_to_bool(flgstr);
+    }
     else if (strcasecmp("GROUNDWATER_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.groundwater.nc_filename);
     }

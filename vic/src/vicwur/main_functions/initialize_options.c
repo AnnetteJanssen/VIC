@@ -106,6 +106,8 @@ initialize_options()
     options.DAMS = false;
     options.MATRIC = false;
 
+    // Groundwater options
+    options.GW_EQUILIBRIUM = false;
     // Routing options
     options.ROUTING_TYPE = ROUTING_RANDOM;
     options.ROUTING_FORCE = false;
