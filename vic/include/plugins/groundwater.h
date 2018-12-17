@@ -13,6 +13,7 @@ typedef struct {
 } gw_var_struct;
 
 typedef struct {
+    double Qb_max;          /**< Maximum baseflow (m3 s-1) at saturation (zwt = 0) */
     double expt;            /**< exponent a in Niu et al. eqn (2007) for conductivity in groundwater aquifer */
     double Sy;              /**< specific yield of aquifer (m/m) */
 } gw_con_struct;

@@ -12,6 +12,7 @@ initialize_gw_var(gw_var_struct *gw_var)
 void
 initialize_gw_con(gw_con_struct *gw_con)
 {
+    gw_con->Qb_max = 0.0;
     gw_con->expt = 0.0;
     gw_con->Sy = 0.0;
 }

@@ -98,7 +98,7 @@ runoff_gw(cell_data_struct  *cell,
 
     // states
     int                        lwt;
-    double                     Dsmax;
+    double                     Qbmax;
     double                     delta_z;
 
     double                     Qb[MAX_LAYERS];
@@ -204,7 +204,7 @@ runoff_gw(cell_data_struct  *cell,
             max_moist[lindex] = soil_con->max_moist[lindex];
 
             if (options.MATRIC) {
-                /** Set Matric Potential Exponent (Burdine model 1953) **/
+                /** Set Matric Potential Exponent (Campbell, 1979) **/
                 matric_expt[lindex] = (soil_con->expt[lindex] - 3.0) / 2.0;
             }
 
@@ -238,7 +238,7 @@ runoff_gw(cell_data_struct  *cell,
 
         dt_inflow = inflow / (double) runoff_steps_per_dt;
 
-        Dsmax = soil_con->Dsmax / global_param.runoff_steps_per_day;
+        Qbmax = gw_con->Qb_max / global_param.runoff_steps_per_day;
 
         for (time_step = 0; time_step < runoff_steps_per_dt; time_step++) {
             inflow = dt_inflow;
@@ -345,7 +345,7 @@ runoff_gw(cell_data_struct  *cell,
             /**************************************************
                Compute Baseflow
             **************************************************/
-            dt_baseflow = Dsmax * exp(-gw_con->expt * zwt[fidx]);
+            dt_baseflow = Qbmax * exp(-gw_con->expt * zwt[fidx]);
             
             for (lindex = 0; lindex < options.Nlayer; lindex++) {
                 Qb[lindex] = 0.0;
