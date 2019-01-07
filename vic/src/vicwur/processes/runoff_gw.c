@@ -506,7 +506,7 @@ runoff_gw(cell_data_struct  *cell,
                 Wa[fidx] = (GW_REF_DEPTH - z[options.Nlayer - 1]) * 
                             gw_con->Sy * MM_PER_M;
 
-                tmp_Wt = (Wt[fidx] - Wa[fidx]) / MM_PER_M;
+                tmp_Wt = Wt[fidx] - Wa[fidx];
                 for (lindex = options.Nlayer - 1; (int)lindex >= 0; lindex--) {
                     // From bottom to top layer
                     if (tmp_Wt < soil_con->depth[lindex] * eff_porosity[lindex]) {
@@ -519,7 +519,7 @@ runoff_gw(cell_data_struct  *cell,
 
                 // Remove excess water (above soil column)
                 if (tmp_Wt > 0) {
-                    zwt[fidx] = 0.0;
+                    zwt[fidx] = 0.01;
                 }
                 
                 if(lwt == -1){
