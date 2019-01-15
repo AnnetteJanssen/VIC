@@ -116,14 +116,14 @@ gw_calculate_derived_states(void)
                             resid_moist;
                     }
                     
-                    if(options.GW_EQUILIBRIUM &&
-                            all_vars[i].cell[j][k].layer[l].moist < 
-                            resid_moist + 
-                            (soil_con[i].max_moist[l] - resid_moist) * 0.5){
-                        all_vars[i].cell[j][k].layer[l].moist =
-                            resid_moist + 
-                                (soil_con[i].max_moist[l] - resid_moist) * 0.5;
-                    }
+//                    if(options.GW_EQUILIBRIUM &&
+//                            all_vars[i].cell[j][k].layer[l].moist < 
+//                            resid_moist + 
+//                            (soil_con[i].max_moist[l] - resid_moist) * 0.5){
+//                        all_vars[i].cell[j][k].layer[l].moist =
+//                            resid_moist + 
+//                                (soil_con[i].max_moist[l] - resid_moist) * 0.5;
+//                    }
                 }
             }
         }
