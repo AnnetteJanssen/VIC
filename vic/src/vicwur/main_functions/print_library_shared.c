@@ -469,8 +469,6 @@ print_option(option_struct *option)
     // Plugins
     fprintf(LOG_DEST, "\tMATRIC               : %s\n",
             option->MATRIC ? "true" : "false");
-    fprintf(LOG_DEST, "\tGROUNDWATER          : %s\n",
-            option->GROUNDWATER ? "true" : "false");
     fprintf(LOG_DEST, "\tROUTING              : %s\n",
             option->ROUTING ? "true" : "false");
     fprintf(LOG_DEST, "\tROUTING_RVIC         : %s\n",

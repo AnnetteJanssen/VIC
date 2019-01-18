@@ -62,8 +62,4 @@ vic_init(void)
         initialize_irr_local_structures();
         irr_init();
     }
-    if (options.GROUNDWATER) {
-        initialize_gw_local_structures();
-        gw_init();
-    }
 }

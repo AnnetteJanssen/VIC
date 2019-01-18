@@ -258,12 +258,6 @@ display_current_settings(int mode)
     else {
         fprintf(LOG_DEST, "MATRIC\t\tFALSE\n");
     }
-    if (options.GROUNDWATER) {
-        fprintf(LOG_DEST, "GROUNDWATER\t\tTRUE\n");
-    }
-    else {
-        fprintf(LOG_DEST, "GROUNDWATER\t\tFALSE\n");
-    }
     if (options.ROUTING) {
         fprintf(LOG_DEST, "ROUTING\t\tTRUE\n");
     }

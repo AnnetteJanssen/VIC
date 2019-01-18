@@ -65,8 +65,6 @@ get_global_param(FILE *gp)
             }
             else if (matric_get_global_parameters(cmdstr)) {
             }
-            else if (gw_get_global_parameters(cmdstr)) {
-            }
             else if (dam_get_global_parameters(cmdstr)) {
             }
             else if (efr_get_global_parameters(cmdstr)) {
@@ -1053,9 +1051,6 @@ validate_global_param(void)
     }
     if (options.IRRIGATION) {
         irr_validate_global_parameters();
-    }
-    if (options.GROUNDWATER) {
-        gw_validate_global_parameters();
     }
 
     /*********************************

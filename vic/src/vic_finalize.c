@@ -38,9 +38,6 @@ vic_finalize(void)
     if (options.ROUTING_RVIC) {
         routing_rvic_finalize();
     }
-    if (options.GROUNDWATER) {
-        gw_finalize();
-    }
     if (options.ROUTING) {
         rout_finalize();
     }

@@ -62,13 +62,11 @@ wu_run(size_t cur_cell)
     **********************************************************************/
     // Allocate    
     if (options.WU_GW) {
-        if(!options.GROUNDWATER){
-            available_moist = malloc(veg_con_map[cur_cell].nv_active * sizeof(*available_moist));
-            check_alloc_status(available_moist, "Memory allocation error.");
-            for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
-                available_moist[i] = malloc(elev_con_map[cur_cell].ne_active * sizeof(*available_moist[i]));
-                check_alloc_status(available_moist[i], "Memory allocation error.");
-            }
+        available_moist = malloc(veg_con_map[cur_cell].nv_active * sizeof(*available_moist));
+        check_alloc_status(available_moist, "Memory allocation error.");
+        for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
+            available_moist[i] = malloc(elev_con_map[cur_cell].ne_active * sizeof(*available_moist[i]));
+            check_alloc_status(available_moist[i], "Memory allocation error.");
         }
     }
     if (options.WU_REMOTE) {
@@ -173,42 +171,37 @@ wu_run(size_t cur_cell)
     // Get groundwater availability
     available_local[1] = 0.0;
     if (demand > 0) {
-        if(options.GROUNDWATER){
-            log_err("GROUNDWATER WATER USE is not yet implemented for GROUNDWATER");
-        }
-        else {
-            l = options.Nlayer - 1;
-            resid_moist = soil_con[cur_cell].resid_moist[l] * 
-                          soil_con[cur_cell].depth[l] * 
-                          MM_PER_M;
+        l = options.Nlayer - 1;
+        resid_moist = soil_con[cur_cell].resid_moist[l] * 
+                      soil_con[cur_cell].depth[l] * 
+                      MM_PER_M;
 
-            for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
-                for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
-                    moist = cell[i][j].layer[l].moist;
+        for(i = 0; i < veg_con_map[cur_cell].nv_active; i++){
+            for(j = 0; j < elev_con_map[cur_cell].ne_active; j++){
+                moist = cell[i][j].layer[l].moist;
 
-                    ice = 0.0;            
-                    for(k = 0; k < options.Nfrost; k++){
-                        ice += cell[i][j].layer[l].ice[k] *
-                               soil_con[cur_cell].frost_fract[k];
-                    }
-                    liq = moist - ice;
-
-                    available_moist[i][j] = liq;                    
-                    if(options.EFR){
-                        available_moist[i][j] -= efr_var[cur_cell].requirement_moist[i][j];
-                    }
-
-                    available_moist[i][j] = min(available_moist[i][j], moist - resid_moist);
-                    if(available_moist[i][j] < 0.0){
-                        available_moist[i][j] = 0.0;
-                    }
-
-                    available_moist[i][j] *= (local_domain.locations[i].area * 
-                                        soil_con[cur_cell].AreaFract[j] * 
-                                        veg_con[cur_cell][i].Cv) / 
-                                        MM_PER_M;                    
-                    available_local[1] += available_moist[i][j];
+                ice = 0.0;            
+                for(k = 0; k < options.Nfrost; k++){
+                    ice += cell[i][j].layer[l].ice[k] *
+                           soil_con[cur_cell].frost_fract[k];
                 }
+                liq = moist - ice;
+
+                available_moist[i][j] = liq;                    
+                if(options.EFR){
+                    available_moist[i][j] -= efr_var[cur_cell].requirement_moist[i][j];
+                }
+
+                available_moist[i][j] = min(available_moist[i][j], moist - resid_moist);
+                if(available_moist[i][j] < 0.0){
+                    available_moist[i][j] = 0.0;
+                }
+
+                available_moist[i][j] *= (local_domain.locations[i].area * 
+                                    soil_con[cur_cell].AreaFract[j] * 
+                                    veg_con[cur_cell][i].Cv) / 
+                                    MM_PER_M;                    
+                available_local[1] += available_moist[i][j];
             }
         }
     }
@@ -461,24 +454,20 @@ wu_run(size_t cur_cell)
         
     if (withdrawn_local[1] > 0.0) {
         // Modify groundwater
-        if (options.GROUNDWATER) {
-            log_err("GROUNDWATER WATER USE is not yet implemented for GROUNDWATER");
-        }
-        else {
-            for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-                for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-                    if(available_moist[i][j] > 0.0){
-                        withdrawn = withdrawn_local[1] * 
-                                    (available_moist[i][j] / available_local[1]);
-                        withdrawn *= MM_PER_M /
-                                    (local_domain.locations[i].area *
-                                    soil_con[cur_cell].AreaFract[j] *
-                                    veg_con[cur_cell][i].Cv);
-                        
-                        cell[i][j].layer[l].moist -= withdrawn;
-                        if(cell[i][j].layer[l].moist < resid_moist){
-                            cell[i][j].layer[l].moist = resid_moist;
-                        }
+        
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                if(available_moist[i][j] > 0.0){
+                    withdrawn = withdrawn_local[1] * 
+                                (available_moist[i][j] / available_local[1]);
+                    withdrawn *= MM_PER_M /
+                                (local_domain.locations[i].area *
+                                soil_con[cur_cell].AreaFract[j] *
+                                veg_con[cur_cell][i].Cv);
+
+                    cell[i][j].layer[l].moist -= withdrawn;
+                    if(cell[i][j].layer[l].moist < resid_moist){
+                        cell[i][j].layer[l].moist = resid_moist;
                     }
                 }    
             }
@@ -523,12 +512,10 @@ wu_run(size_t cur_cell)
     * 6. Finalize
     **********************************************************************/
     if (options.WU_GW) {
-        if (!options.GROUNDWATER) {
-            for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-                free(available_moist[i]);
-            }
-            free(available_moist);
+        for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+            free(available_moist[i]);
         }
+        free(available_moist);
     }
     if (options.WU_REMOTE) {
         free(available_receiving);

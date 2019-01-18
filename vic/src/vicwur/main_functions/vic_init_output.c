@@ -34,7 +34,6 @@ void
 vic_init_output(dmy_struct *dmy_current)
 {
     extern all_vars_struct   *all_vars;
-    extern gw_var_struct   ***gw_var;
     extern force_data_struct *force;
     extern filenames_struct   filenames;
     extern domain_struct      local_domain;
@@ -67,16 +66,9 @@ vic_init_output(dmy_struct *dmy_current)
 
     // initialize the save data structures
     for (i = 0; i < local_domain.ncells_active; i++) {
-        if (options.GROUNDWATER) {
-            put_gw_data(&(all_vars[i]), gw_var[i], &(force[i]), &(soil_con[i]), veg_con[i],
-                     veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
-                     &timer);
-        }
-        else {
-            put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
-                     veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
-                     &timer);
-        }
+        put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
+                 veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
+                 &timer);
     }
 
     if (mpi_rank == VIC_MPI_ROOT) {

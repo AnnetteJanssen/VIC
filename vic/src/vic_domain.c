@@ -71,9 +71,6 @@ vic_domain(void)
         validate_domain();
         
         // Validate domain of all plugins
-        if (options.GROUNDWATER) {
-            gw_validate_domain();
-        }
         if (options.ROUTING) {
             rout_validate_domain();
         }

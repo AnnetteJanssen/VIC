@@ -34,7 +34,6 @@ vic_run(dmy_struct *dmy_current)
 {
     extern size_t              current;
     extern all_vars_struct    *all_vars;
-    extern gw_var_struct    ***gw_var;
     extern force_data_struct  *force;
     extern domain_struct       local_domain;
     extern option_struct       options;
@@ -45,7 +44,6 @@ vic_run(dmy_struct *dmy_current)
     extern save_data_struct   *save_data;
     extern soil_con_struct    *soil_con;
     extern veg_con_struct    **veg_con;
-    extern gw_con_struct      *gw_con;
     extern veg_hist_struct   **veg_hist;
     extern veg_lib_struct    **veg_lib;
     extern int                 mpi_rank;
@@ -74,17 +72,9 @@ vic_run(dmy_struct *dmy_current)
     for (i = 0; i < local_domain.ncells_active; i++) {
         update_step_vars(&(all_vars[i]), veg_con[i], &soil_con[i], veg_hist[i]);
         
-        if (options.GROUNDWATER) {
-            run_gw_general(&(force[i]), &(all_vars[i]), gw_var[i],
-                       dmy_current, &global_param,
-                       &lake_con, &(soil_con[i]), veg_con[i], veg_lib[i],
-                       &(gw_con[i]));
-        }
-        else {
-            run_general(&(force[i]), &(all_vars[i]),
-                    dmy_current, &global_param,
-                    &lake_con, &(soil_con[i]), veg_con[i], veg_lib[i]);
-        }
+        run_general(&(force[i]), &(all_vars[i]),
+                dmy_current, &global_param,
+                &lake_con, &(soil_con[i]), veg_con[i], veg_lib[i]);
 
         if (options.IRRIGATION) {
             irr_run(i);
@@ -95,16 +85,9 @@ vic_run(dmy_struct *dmy_current)
     // If running with OpenMP, run this for loop using multiple threads
     #pragma omp parallel for default(shared) private(i)
     for (i = 0; i < local_domain.ncells_active; i++) {
-        if (options.GROUNDWATER) {
-            put_gw_data(&(all_vars[i]), gw_var[i], &(force[i]), &(soil_con[i]), veg_con[i],
-                     veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
-                     &timer);
-        }
-        else {
-            put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
-                     veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
-                     &timer);
-        }
+        put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
+                 veg_lib[i], &lake_con, out_data[i], &(save_data[i]),
+                 &timer);
     }
 
     /******************************************************************************

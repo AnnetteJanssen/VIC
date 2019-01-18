@@ -59,9 +59,6 @@ vic_alloc(void)
     if (options.WATER_USE) {
         wu_add_types();
     }
-    if (options.GROUNDWATER) {
-        gw_add_types();
-    }
 
     // Allocate memory for all non specific VIC structures
     alloc_general();
@@ -81,8 +78,5 @@ vic_alloc(void)
     }
     if (options.WATER_USE) {
         wu_alloc();
-    }
-    if (options.GROUNDWATER) {
-        gw_alloc();
     }
 }

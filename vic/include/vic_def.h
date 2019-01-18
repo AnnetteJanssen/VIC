@@ -53,7 +53,6 @@
 #include <matric.h>
 #include <routing.h>
 #include <irrigation.h>
-#include <groundwater.h>
 #include <dams.h>
 #include <efr.h>
 #include <ext_mpi.h>
@@ -327,7 +326,6 @@ typedef struct {
     size_t Noutstreams;  /**< Number of output stream */
 
     // Plugins
-    bool GROUNDWATER;
     bool MATRIC;
     bool ROUTING;
     bool ROUTING_RVIC;
@@ -335,9 +333,7 @@ typedef struct {
     bool IRRIGATION;
     bool WATER_USE;
     bool EFR;
-
-    // Groundwater options
-    bool GW_EQUILIBRIUM;
+    
     // Routing options
     int ROUTING_TYPE;
     bool ROUTING_FORCE;

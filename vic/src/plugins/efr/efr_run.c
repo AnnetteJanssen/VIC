@@ -61,68 +61,19 @@ efr_run(size_t cur_cell)
     double dsmax;
     double bflow;
                 
-    if (options.GROUNDWATER) {
-        log_err("EFR not yet implemented for GROUNDWATER");
-    }
-    else {
-        l = options.Nlayer - 1;
-        res_moist = soil_con[cur_cell].resid_moist[l] * 
-                    soil_con[cur_cell].depth[l] * 
-                    MM_PER_M;
-        max_moist = soil_con[cur_cell].max_moist[l];
-        dsmax = soil_con[cur_cell].Dsmax / global_param.model_steps_per_day;
+    l = options.Nlayer - 1;
+    res_moist = soil_con[cur_cell].resid_moist[l] * 
+                soil_con[cur_cell].depth[l] * 
+                MM_PER_M;
+    max_moist = soil_con[cur_cell].max_moist[l];
+    dsmax = soil_con[cur_cell].Dsmax / global_param.model_steps_per_day;
 
-        for (frac = 1.0; frac >= 0.0; frac -= EFR_FRAC_STEP){
-            calculated_baseflow = 0.0;
+    for (frac = 1.0; frac >= 0.0; frac -= EFR_FRAC_STEP){
+        calculated_baseflow = 0.0;
 
-            for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
-                for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
-                    // Based on VIC baseflow formulation
-                    moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
-
-                    ice = 0.0;
-                    for (k = 0; k < options.Nfrost; k++){
-                        ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
-                                soil_con[cur_cell].frost_fract[k];
-                    }
-                    liq = moist - ice;
-
-                    rel_liq = (liq * frac - res_moist) / (max_moist - res_moist);
-                    bflow = rel_liq * dsmax * soil_con[cur_cell].Ds / 
-                            soil_con[cur_cell].Ws;
-                    
-                    if (rel_liq > soil_con->Ws) {
-                        bflow += dsmax * (1 - soil_con->Ds / soil_con->Ws) * 
-                            pow((rel_liq - soil_con->Ws) / (1 - soil_con->Ws), 
-                                    soil_con->c);
-                    }
-                    
-                    if(bflow < 0){
-                        bflow = 0.0;
-                    }
-
-                    calculated_baseflow += bflow * 
-                                           veg_con[cur_cell][i].Cv * 
-                                           soil_con[cur_cell].AreaFract[j];
-                }
-            }
-
-            if(calculated_baseflow < efr_hist[cur_cell].requirement_baseflow){
-                frac += EFR_FRAC_STEP;
-                if(frac > 1.0){
-                    frac = 1.0;
-                }
-
-                break;
-            }
-        }
-        
-        if(frac < 0){
-            frac = 0.0;
-        }
-        
         for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
             for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+                // Based on VIC baseflow formulation
                 moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
 
                 ice = 0.0;
@@ -131,10 +82,54 @@ efr_run(size_t cur_cell)
                             soil_con[cur_cell].frost_fract[k];
                 }
                 liq = moist - ice;
-                
-                efr_var[cur_cell].requirement_moist[i][j] = liq * frac;
-                        
+
+                rel_liq = (liq * frac - res_moist) / (max_moist - res_moist);
+                bflow = rel_liq * dsmax * soil_con[cur_cell].Ds / 
+                        soil_con[cur_cell].Ws;
+
+                if (rel_liq > soil_con->Ws) {
+                    bflow += dsmax * (1 - soil_con->Ds / soil_con->Ws) * 
+                        pow((rel_liq - soil_con->Ws) / (1 - soil_con->Ws), 
+                                soil_con->c);
+                }
+
+                if(bflow < 0){
+                    bflow = 0.0;
+                }
+
+                calculated_baseflow += bflow * 
+                                       veg_con[cur_cell][i].Cv * 
+                                       soil_con[cur_cell].AreaFract[j];
             }
+        }
+
+        if(calculated_baseflow < efr_hist[cur_cell].requirement_baseflow){
+            frac += EFR_FRAC_STEP;
+            if(frac > 1.0){
+                frac = 1.0;
+            }
+
+            break;
+        }
+    }
+
+    if(frac < 0){
+        frac = 0.0;
+    }
+
+    for (i = 0; i < veg_con_map[cur_cell].nv_active; i++) {
+        for (j = 0; j < elev_con_map[cur_cell].ne_active; j++) {
+            moist = all_vars[cur_cell].cell[i][j].layer[l].moist;
+
+            ice = 0.0;
+            for (k = 0; k < options.Nfrost; k++){
+                ice += all_vars[cur_cell].cell[i][j].layer[l].ice[k] *
+                        soil_con[cur_cell].frost_fract[k];
+            }
+            liq = moist - ice;
+
+            efr_var[cur_cell].requirement_moist[i][j] = liq * frac;
+
         }
     }
 }
