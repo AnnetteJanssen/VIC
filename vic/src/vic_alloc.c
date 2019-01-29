@@ -32,13 +32,9 @@
 void
 vic_alloc(void)
 {
-    extern option_struct options;
-    
     // Allocate memory for all non specific VIC structures
     alloc_general();
 
     // Allocate memory for all plugins
-    if (options.ROUTING) {
-        rout_alloc();
-    }
+    rout_alloc();
 }

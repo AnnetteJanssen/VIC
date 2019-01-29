@@ -506,31 +506,33 @@ rout_init(void)
 
     int                     status;
 
-    // open parameter file
-    if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
-                         &(filenames.routing_params.nc_id));
-        check_nc_status(status, "Error opening %s",
-                        filenames.routing_params.nc_filename);
-    }
+    if (options.ROUTING) {
+        // open parameter file
+        if (mpi_rank == VIC_MPI_ROOT) {
+            status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
+                             &(filenames.routing_params.nc_id));
+            check_nc_status(status, "Error opening %s",
+                            filenames.routing_params.nc_filename);
+        }
 
-    rout_set_uh();
+        rout_set_uh();
 
-    if (options.ROUTING_TYPE == ROUTING_BASIN) {
-        rout_basin_set_downstream();
-        rout_basin_set_upstream();
-        rout_basin_set_order();
-    }
-    else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
-        rout_random_set_downstream();
-        rout_random_set_upstream();
-        rout_random_set_order();
-    }
+        if (options.ROUTING_TYPE == ROUTING_BASIN) {
+            rout_basin_set_downstream();
+            rout_basin_set_upstream();
+            rout_basin_set_order();
+        }
+        else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
+            rout_random_set_downstream();
+            rout_random_set_upstream();
+            rout_random_set_order();
+        }
 
-    // close parameter file
-    if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_close(filenames.routing_params.nc_id);
-        check_nc_status(status, "Error closing %s",
-                        filenames.routing_params.nc_filename);
+        // close parameter file
+        if (mpi_rank == VIC_MPI_ROOT) {
+            status = nc_close(filenames.routing_params.nc_id);
+            check_nc_status(status, "Error closing %s",
+                            filenames.routing_params.nc_filename);
+        }
     }
 }

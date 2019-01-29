@@ -27,8 +27,3 @@ rout_set_output_meta_data_info(void)
     out_metadata[OUT_DISCHARGE].nelem = 1;
     out_metadata[OUT_STREAM_MOIST].nelem = 1;
 }
-
-void
-rout_state_metadata(void)
-{
-}

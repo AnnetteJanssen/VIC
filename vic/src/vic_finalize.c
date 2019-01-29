@@ -32,12 +32,8 @@
 void
 vic_finalize(void)
 {
-    extern option_struct options;
-
     // Free memory for all plugins
-    if (options.ROUTING) {
-        rout_finalize();
-    }
+    rout_finalize();
 
     // Free memory for all non specific VIC structures
     finalize_general();

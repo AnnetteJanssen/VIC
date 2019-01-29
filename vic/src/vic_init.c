@@ -32,13 +32,9 @@
 void
 vic_init(void)
 {
-    extern option_struct options;
-
     // Initialize all non specific VIC structures
     init_general();
     
     // Initialize all plugins
-    if (options.ROUTING) {
-        rout_init();
-    }
+    rout_init();
 }

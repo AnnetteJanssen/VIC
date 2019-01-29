@@ -111,6 +111,7 @@ main(int    argc,
     // decompose domains
     vic_domain();
 
+    // add output types
     vic_add_types();
     
     // allocate memory

@@ -55,9 +55,7 @@ set_output_met_data_info()
 
     // Plugins
     plugin_set_output_meta_data_info();
-    if (options.ROUTING) {
-        rout_set_output_meta_data_info();
-    }
+    rout_set_output_meta_data_info();
 
     // Water Balance Terms - state variables
     /* saturated area fraction */

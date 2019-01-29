@@ -110,6 +110,7 @@ rout_get_global_parameters(char *cmdstr)
 {
     extern option_struct    options;
     extern filenames_struct filenames;
+    extern global_param_struct global_param;
 
     char                    optstr[MAXSTRING];
     char                    flgstr[MAXSTRING];
@@ -128,6 +129,9 @@ rout_get_global_parameters(char *cmdstr)
     }
     else if (strcasecmp("ROUTING_FORCING_FILE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.routing_forcing_pfx);
+    }
+    else if (strcasecmp("ROUT_STEPS_PER_DAY", optstr) == 0) {
+        sscanf(cmdstr, "%*s %zu", &global_param.rout_steps_per_day);
     }
     else {
         return false;
@@ -190,6 +194,28 @@ rout_validate_global_param(void)
             status = nc_close(filenames.routing_forcing.nc_id);
             check_nc_status(status, "Error closing %s",
                             filenames.routing_forcing.nc_filename);
+        }
+        
+        // Validate routing time step
+        if (global_param.rout_steps_per_day == 0) {
+            log_err("Routing time steps per day has not been defined.  Make "
+                    "sure that the global file defines ROUT_STEPS_PER_DAY.");
+        }
+        else if (global_param.rout_steps_per_day != HOURS_PER_DAY) {
+            log_err("The specified number of routing steps per day (%zu) is != "
+                    "24.",
+                    global_param.rout_steps_per_day);
+        }
+        else if (global_param.rout_steps_per_day %
+                 global_param.model_steps_per_day != 0) {
+            log_err("The specified number of routing timesteps (%zu) must be "
+                    "evenly divisible by the number of model timesteps per day "
+                    "(%zu)", global_param.rout_steps_per_day,
+                    global_param.model_steps_per_day);
+        }
+        else {
+            global_param.rout_dt = SEC_PER_DAY /
+                                     (double) global_param.rout_steps_per_day;
         }
     }
 }

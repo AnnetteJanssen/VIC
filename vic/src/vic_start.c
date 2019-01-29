@@ -69,9 +69,7 @@ vic_start(void)
         start_general();
         
         // Start all plugins
-        if (options.ROUTING) {
-            rout_start();
-        }
+        rout_start();
     }
 
     // broadcast option, filenames, global_param and param structures

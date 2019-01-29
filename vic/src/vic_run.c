@@ -64,7 +64,7 @@ vic_run(dmy_struct *dmy_current)
     }
     
     /******************************************************************************
-      VIC & cell operations
+      VIC operations
      *****************************************************************************/
     timer_start(&timer);
     // If running with OpenMP, run this for loop using multiple threads
@@ -87,7 +87,7 @@ vic_run(dmy_struct *dmy_current)
     }
 
     /******************************************************************************
-     Plugins & ordered operations
+     Plugin operations
      *****************************************************************************/
     timer_start(&timer);
     if (options.ROUTING) {
@@ -106,10 +106,7 @@ vic_run(dmy_struct *dmy_current)
     #pragma omp parallel for default(shared) private(i)
     for (i = 0; i < local_domain.ncells_active; i++) {
         plugin_put_data(out_data[i], &timer);
-
-        if (options.ROUTING) {
-            rout_put_data(i);
-        }
+        rout_put_data(i);
     }
     
     /******************************************************************************

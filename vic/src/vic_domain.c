@@ -39,7 +39,6 @@ vic_domain(void)
     size_t                     i;
     extern size_t             *filter_active_cells;
     extern size_t             *mpi_map_mapping_array;
-    extern option_struct       options;
     extern filenames_struct    filenames;
     extern domain_struct       global_domain;
     extern domain_struct       local_domain;
@@ -71,9 +70,7 @@ vic_domain(void)
         validate_domain();
         
         // Validate domain of all plugins
-        if (options.ROUTING) {
-            rout_validate_domain();
-        }
+        rout_validate_domain();
         
         // open parameter file
         status = nc_open(filenames.params.nc_filename, NC_NOWRITE,
