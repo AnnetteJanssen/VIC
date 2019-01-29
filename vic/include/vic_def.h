@@ -52,7 +52,6 @@
 #include <matric.h>
 #include <routing.h>
 #include <ext_mpi.h>
-#include <ext_debug.h>
 #include <plugin.h>
 
 /***** Model Constants *****/

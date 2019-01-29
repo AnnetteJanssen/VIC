@@ -32,7 +32,6 @@
 void
 vic_add_types(void)
 {
-    extern option_struct options;
     extern int           N_STATE_VARS_ALL;
     extern int           N_OUTVAR_TYPES_ALL;
 
@@ -41,7 +40,5 @@ vic_add_types(void)
     
     // Add output types for all plugins
     plugin_add_types();
-    if (options.ROUTING) {
-        rout_add_types();
-    }
+    rout_add_types();
 }
