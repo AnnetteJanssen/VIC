@@ -61,21 +61,9 @@ get_global_param(FILE *gp)
             /*************************************
                Get Model Global Parameters from plugins
             *************************************/
-            if (routing_rvic_get_global_param(cmdstr)) {
-            }
-            else if (matric_get_global_parameters(cmdstr)) {
-            }
-            else if (dam_get_global_parameters(cmdstr)) {
-            }
-            else if (efr_get_global_parameters(cmdstr)) {
-            }
-            else if (wu_get_global_parameters(cmdstr)) {
+            if (matric_get_global_parameters(cmdstr)) {
             }
             else if (rout_get_global_parameters(cmdstr)) {
-            }
-            else if (irr_get_global_parameters(cmdstr)) {
-            }
-            else if (mpi_get_global_parameters(cmdstr)) {
             }
 
             /*************************************
@@ -1038,10 +1026,6 @@ validate_global_param(void)
     }
     
     rout_validate_global_param();
-    efr_validate_global_param();
-    irr_validate_global_param();
-    dam_validate_global_param();
-    wu_validate_global_param();
 
     /*********************************
        Output major options

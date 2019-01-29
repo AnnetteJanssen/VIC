@@ -33,50 +33,12 @@ void
 vic_alloc(void)
 {
     extern option_struct options;
-    extern int           N_STATE_VARS_ALL;
-    extern int           N_OUTVAR_TYPES_ALL;
-
-    N_STATE_VARS_ALL = N_STATE_VARS;
-    N_OUTVAR_TYPES_ALL = N_OUTVAR_TYPES;
-
-    plugin_add_types();
     
-    if (options.ROUTING_RVIC) {
-        routing_rvic_add_types();
-    }
-    if (options.ROUTING) {
-        rout_add_types();
-    }
-    if (options.DAMS) {
-        dam_add_types();
-    }
-    if (options.IRRIGATION) {
-        irr_add_types();
-    }
-    if (options.EFR) {
-        efr_add_types();
-    }
-    if (options.WATER_USE) {
-        wu_add_types();
-    }
-
     // Allocate memory for all non specific VIC structures
     alloc_general();
 
-    // Allocate memory for routing
-    if (options.ROUTING_RVIC) {
-        routing_rvic_alloc();
-    }
-    if (options.DAMS) {
-        dam_alloc();
-    }
+    // Allocate memory for all plugins
     if (options.ROUTING) {
         rout_alloc();
-    }
-    if (options.EFR) {
-        efr_alloc();
-    }
-    if (options.WATER_USE) {
-        wu_alloc();
     }
 }

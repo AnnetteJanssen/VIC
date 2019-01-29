@@ -55,23 +55,8 @@ set_output_met_data_info()
 
     // Plugins
     plugin_set_output_meta_data_info();
-    if (options.ROUTING_RVIC) {
-        routing_rvic_output_metadata();
-    }
     if (options.ROUTING) {
         rout_set_output_meta_data_info();
-    }
-    if (options.DAMS) {
-        dam_set_output_meta_data_info();
-    }
-    if (options.IRRIGATION) {
-        irr_set_output_meta_data_info();
-    }
-    if (options.EFR) {
-        efr_set_output_meta_data_info();
-    }
-    if (options.WATER_USE) {
-        wu_set_output_meta_data_info();
     }
 
     // Water Balance Terms - state variables

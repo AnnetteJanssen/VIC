@@ -36,7 +36,6 @@ initialize_options()
 {
     extern option_struct options;
 
-    size_t               i;
     /** Initialize model option flags **/
 
     // simulation modes
@@ -98,33 +97,12 @@ initialize_options()
     options.Noutstreams = 2;
 
     // plugins
-    options.ROUTING = false;
-    options.WATER_USE = false;
-    options.IRRIGATION = false;
-    options.EFR = false;
-    options.DAMS = false;
     options.MATRIC = false;
+    options.ROUTING = false;
 
     // Routing options
     options.ROUTING_TYPE = ROUTING_RANDOM;
     options.ROUTING_FORCE = false;
     options.IUH_NSTEPS = 0;
     options.RUH_NSTEPS = 0;
-    // Water use options
-    options.WU_REMOTE = false;
-    options.WU_GW = false;
-    options.WU_DAM = false;
-    options.MAXRECEIVING = 0;
-    for (i = 0; i < WU_NSECTORS; i++) {
-        options.WU_INPUT_LOCATION[i] = WU_INPUT_NONE;
-        options.WU_COMPENSATION_TIME[i] = 0;
-        options.WU_PRIORITY[i] = i;
-    }
-    // Irrigation options
-    options.NIRRTYPES = 0;
-    options.NIRRSEASONS = 0;
-    options.IRR_POTENTIAL = false;
-    // EFR options
-    // Dam options
-    options.NDAMSERVICE = 0;
 }

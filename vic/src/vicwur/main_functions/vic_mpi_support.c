@@ -321,7 +321,7 @@ create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in filenames_struct
-    nitems = 8;
+    nitems = 7;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -365,13 +365,8 @@ create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(filenames_struct, log_path);
     mpi_types[i++] = MPI_CHAR;
 
-    // char water_use_forcing_pfx[WU_NSECTORS][MAXSTRING];
-    offsets[i] = offsetof(filenames_struct, water_use_forcing_pfx);
-    blocklengths[i] *= WU_NSECTORS;
-    mpi_types[i++] = MPI_CHAR;
-
-    // char efr_forcing_pfx[MAXSTRING];
-    offsets[i] = offsetof(filenames_struct, efr_forcing_pfx);
+    // char log_path[MAXSTRING];
+    offsets[i] = offsetof(filenames_struct, routing_forcing_pfx);
     mpi_types[i++] = MPI_CHAR;
 
     // make sure that the we have the right number of elements
@@ -511,7 +506,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 77;
+    nitems = 60;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -752,24 +747,6 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool ROUTING;
     offsets[i] = offsetof(option_struct, ROUTING);
     mpi_types[i++] = MPI_C_BOOL;
-    // bool ROUTING_RVIC;
-    offsets[i] = offsetof(option_struct, ROUTING_RVIC);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool WATER_USE;
-    offsets[i] = offsetof(option_struct, WATER_USE);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool IRRIGATION;
-    offsets[i] = offsetof(option_struct, IRRIGATION);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool EFR;
-    offsets[i] = offsetof(option_struct, EFR);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool DAMS;
-    offsets[i] = offsetof(option_struct, DAMS);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool MATRIC;
-    offsets[i] = offsetof(option_struct, MATRIC);
-    mpi_types[i++] = MPI_C_BOOL;
 
     // bool ROUTING_FORCE;
     offsets[i] = offsetof(option_struct, ROUTING_FORCE);
@@ -782,45 +759,6 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     mpi_types[i++] = MPI_AINT;
     // size_t RUH_NSTEPS;
     offsets[i] = offsetof(option_struct, RUH_NSTEPS);
-    mpi_types[i++] = MPI_AINT;
-
-    // bool WU_REMOTE;
-    offsets[i] = offsetof(option_struct, WU_REMOTE);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool WU_GW;
-    offsets[i] = offsetof(option_struct, WU_GW);
-    mpi_types[i++] = MPI_C_BOOL;
-    // bool WU_DAM;
-    offsets[i] = offsetof(option_struct, WU_DAM);
-    mpi_types[i++] = MPI_C_BOOL;
-    // size_t MAXRECEIVING;
-    offsets[i] = offsetof(option_struct, MAXRECEIVING);
-    mpi_types[i++] = MPI_AINT;
-    // int WU_INPUT_LOCATION[WU_NSECTORS];
-    offsets[i] = offsetof(option_struct, WU_INPUT_LOCATION);
-    blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;
-    // int WU_COMPENSATION_TIME[WU_NSECTORS];
-    offsets[i] = offsetof(option_struct, WU_COMPENSATION_TIME);
-    blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;
-    // int WU_PRIORITY;
-    offsets[i] = offsetof(option_struct, WU_PRIORITY);
-    blocklengths[i] = WU_NSECTORS;
-    mpi_types[i++] = MPI_INT;
-
-    // size_t NIRRTYPES;
-    offsets[i] = offsetof(option_struct, NIRRTYPES);
-    mpi_types[i++] = MPI_AINT;
-    // size_t NIRRSEASONS;
-    offsets[i] = offsetof(option_struct, NIRRSEASONS);
-    mpi_types[i++] = MPI_AINT;
-    // bool IRR_POTENTIAL;
-    offsets[i] = offsetof(option_struct, IRR_POTENTIAL);
-    mpi_types[i++] = MPI_C_BOOL;
-    
-    // size_t NDAMSERVICE;
-    offsets[i] = offsetof(option_struct, NDAMSERVICE);
     mpi_types[i++] = MPI_AINT;
 
     // make sure that the we have the right number of elements

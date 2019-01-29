@@ -25,7 +25,6 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
  * @brief    Save model state.
@@ -1271,11 +1270,6 @@ vic_store(dmy_struct *dmy_state,
         }
     }
 
-    // store extension variables
-    if (options.ROUTING_RVIC) {
-        routing_rvic_store(&nc_state_file);
-    }
-
     // close the netcdf file if it is still open
     if (mpi_rank == VIC_MPI_ROOT) {
         if (nc_state_file.open == true) {
@@ -1330,11 +1324,6 @@ set_nc_state_file_info(nc_file_struct *nc_state_file)
     nc_state_file->root_zone_size = options.ROOT_ZONES;
     nc_state_file->time_size = NC_UNLIMITED;
     nc_state_file->veg_size = options.NVEGTYPES;
-
-    // set ids and dimension sizes of the extension variables
-    if (options.ROUTING_RVIC) {
-        routing_rvic_set_nc_state_file_info(nc_state_file);
-    }
 
     // allocate memory for nc_vars
     nc_state_file->nc_vars =
@@ -1548,11 +1537,6 @@ set_nc_state_var_info(nc_file_struct *nc)
             log_err("Too many dimensions specified in variable %zu", i);
         }
     }
-
-    // Plugins
-    if (options.ROUTING_RVIC) {
-        routing_rvic_set_nc_state_var_info(nc);
-    }
 }
 
 /******************************************************************************
@@ -1692,11 +1676,6 @@ initialize_state_file(char           *filename,
                                 nc_state_file->lake_node_size,
                                 &(nc_state_file->lake_node_dimid));
             check_nc_status(status, "Error defining lake_node in %s", filename);
-        }
-
-        // add extension dimensions
-        if (options.ROUTING_RVIC) {
-            routing_rvic_initialize_state_file(filename, nc_state_file);
         }
 
         set_nc_state_var_info(nc_state_file);

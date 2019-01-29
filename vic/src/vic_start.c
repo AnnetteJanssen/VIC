@@ -69,17 +69,8 @@ vic_start(void)
         start_general();
         
         // Start all plugins
-        if (options.IRRIGATION) {
-            irr_start();
-        }
         if (options.ROUTING) {
             rout_start();
-        }
-        if (options.DAMS) {
-            dam_start();
-        }
-        if (options.WATER_USE) {
-            wu_start();
         }
     }
 

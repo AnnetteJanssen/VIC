@@ -25,7 +25,6 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
  * @brief    Set output met data information
@@ -50,11 +49,6 @@ set_state_meta_data_info()
         strcpy(state_metadata[v].description, MISSING_S);
         // Set default number of elements
         state_metadata[v].nelem = 1;
-    }
-
-    // STATE_ROUT_RING
-    if (options.ROUTING_RVIC) {
-        routing_rvic_state_metadata();
     }
 
     // STATE_SOIL_MOISTURE

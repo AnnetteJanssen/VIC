@@ -37,7 +37,6 @@
 
 #include <vic_general.h>
 #include <vic_support.h>
-#include <routing_rvic.h>
 
 typedef struct node {
     int id;

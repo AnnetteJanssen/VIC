@@ -49,12 +49,8 @@
 #include <vic_physical_constants.h>
 #include <vic_log.h>
 
-#include <water_use.h>
 #include <matric.h>
 #include <routing.h>
-#include <irrigation.h>
-#include <dams.h>
-#include <efr.h>
 #include <ext_mpi.h>
 #include <ext_debug.h>
 #include <plugin.h>
@@ -328,33 +324,12 @@ typedef struct {
     // Plugins
     bool MATRIC;
     bool ROUTING;
-    bool ROUTING_RVIC;
-    bool DAMS;
-    bool IRRIGATION;
-    bool WATER_USE;
-    bool EFR;
     
     // Routing options
     int ROUTING_TYPE;
     bool ROUTING_FORCE;
     size_t IUH_NSTEPS;
     size_t RUH_NSTEPS;
-    // Water use options
-    bool WU_REMOTE;
-    bool WU_GW;
-    bool WU_DAM;
-    size_t MAXRECEIVING;
-    int WU_INPUT_LOCATION[WU_NSECTORS];
-    int WU_COMPENSATION_TIME[WU_NSECTORS];
-    int WU_PRIORITY[WU_NSECTORS];
-    // Irrigation options
-    size_t NIRRTYPES;
-    size_t NIRRSEASONS;
-    bool IRR_POTENTIAL;
-    // Dam options
-    size_t NLDAMTYPES;
-    size_t NGDAMTYPES;
-    size_t NDAMSERVICE;
 } option_struct;
 
 /******************************************************************************

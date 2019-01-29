@@ -467,22 +467,6 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tLAKES                : %s\n",
             option->LAKES ? "true" : "false");
 
-    // Plugins
-    fprintf(LOG_DEST, "\tMATRIC               : %s\n",
-            option->MATRIC ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING              : %s\n",
-            option->ROUTING ? "true" : "false");
-    fprintf(LOG_DEST, "\tROUTING_RVIC         : %s\n",
-            option->ROUTING_RVIC ? "true" : "false");
-    fprintf(LOG_DEST, "\tDAMS                 : %s\n",
-            option->DAMS ? "true" : "false");
-    fprintf(LOG_DEST, "\tEFR                  : %s\n",
-            option->EFR ? "true" : "false");
-    fprintf(LOG_DEST, "\tIRRIGATION           : %s\n",
-            option->IRRIGATION ? "true" : "false");
-    fprintf(LOG_DEST, "\tWATER_USE            : %s\n",
-            option->WATER_USE ? "true" : "false");
-
     fprintf(LOG_DEST, "\tNcanopy              : %zu\n", option->Ncanopy);
     fprintf(LOG_DEST, "\tNfrost               : %zu\n", option->Nfrost);
     fprintf(LOG_DEST, "\tNlakenode            : %zu\n", option->Nlakenode);
@@ -532,23 +516,16 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tSAVE_STATE           : %s\n",
             option->SAVE_STATE ? "true" : "false");
     fprintf(LOG_DEST, "\tNoutstreams          : %zu\n", option->Noutstreams);
-    
+
     // Plugins
+    fprintf(LOG_DEST, "\tMATRIC               : %s\n",
+            option->MATRIC ? "true" : "false");
+    fprintf(LOG_DEST, "\tROUTING              : %s\n",
+            option->ROUTING ? "true" : "false");
+    
     fprintf(LOG_DEST, "\tROUTING_TYPE         : %d\n", option->ROUTING_TYPE);
     fprintf(LOG_DEST, "\tIUH_NSTEPS           : %zu\n", option->IUH_NSTEPS);
     fprintf(LOG_DEST, "\tRUH_NSTEPS           : %zu\n", option->RUH_NSTEPS);
-    fprintf(LOG_DEST, "\tWU_REMOTE            : %s\n",
-            option->WU_REMOTE ? "true" : "false");
-    fprintf(LOG_DEST, "\tWU_GW                : %s\n",
-            option->WU_GW ? "true" : "false");
-    fprintf(LOG_DEST, "\tWU_DAM               : %s\n",
-            option->WU_DAM ? "true" : "false");
-    fprintf(LOG_DEST, "\tMAXRECEIVING         : %zu\n", option->MAXRECEIVING);
-    fprintf(LOG_DEST, "\tNIRRTYPES            : %zu\n", option->NIRRTYPES);
-    fprintf(LOG_DEST, "\tNIRRSEASONS          : %zu\n", option->NIRRSEASONS);
-    fprintf(LOG_DEST, "\tIRR_POTENTIAL        : %s\n",
-            option->IRR_POTENTIAL ? "true" : "false");
-    fprintf(LOG_DEST, "\tMAXSERVICE           : %zu\n", option->NDAMSERVICE);
 }
 
 /******************************************************************************

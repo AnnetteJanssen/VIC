@@ -38,28 +38,7 @@ vic_init(void)
     init_general();
     
     // Initialize all plugins
-    if (options.ROUTING_RVIC) {
-        routing_rvic_init();
-    }
-    if (options.DAMS) {
-        initialize_dam_local_structures();
-        dam_init();
-    }
     if (options.ROUTING) {
-        initialize_rout_local_structures();
         rout_init();
-    }
-    if (options.EFR) {
-        initialize_efr_local_structures();
-    }
-    if (options.WATER_USE) {
-        wu_late_alloc();
-        initialize_wu_local_structures();
-        wu_init();
-    }
-    if (options.IRRIGATION) {
-        irr_late_alloc();
-        initialize_irr_local_structures();
-        irr_init();
     }
 }

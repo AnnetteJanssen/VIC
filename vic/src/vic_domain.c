@@ -74,18 +74,6 @@ vic_domain(void)
         if (options.ROUTING) {
             rout_validate_domain();
         }
-        if (options.DAMS) {
-            dam_validate_domain();
-        }
-        if (options.IRRIGATION) {
-            irr_validate_domain();
-        }
-        if (options.WATER_USE) {
-            wu_validate_domain();
-        }
-        if (options.EFR) {
-            efr_validate_domain();
-        }
         
         // open parameter file
         status = nc_open(filenames.params.nc_filename, NC_NOWRITE,

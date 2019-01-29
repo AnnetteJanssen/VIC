@@ -38,12 +38,6 @@ vic_force(void)
     force_general();
     
     // Force all plugins
-    if(options.WATER_USE){
-        wu_forcing();
-    }
-    if(options.EFR){
-        efr_forcing();
-    }
     if(options.ROUTING_FORCE){
         rout_forcing();
     }

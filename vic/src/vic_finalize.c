@@ -35,23 +35,8 @@ vic_finalize(void)
     extern option_struct options;
 
     // Free memory for all plugins
-    if (options.ROUTING_RVIC) {
-        routing_rvic_finalize();
-    }
     if (options.ROUTING) {
         rout_finalize();
-    }
-    if (options.DAMS) {
-        dam_finalize();
-    }
-    if (options.IRRIGATION) {
-        irr_finalize();
-    }
-    if (options.EFR) {
-        efr_finalize();
-    }
-    if (options.WATER_USE) {
-        wu_finalize();
     }
 
     // Free memory for all non specific VIC structures

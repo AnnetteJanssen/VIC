@@ -456,18 +456,18 @@ mpi_map_decomp_domain_basin(size_t   ncells,
     size_t                 *basin_to_node;
 
     // open extension routing file
-    status = nc_open(filenames.routing.nc_filename, NC_NOWRITE,
-                     &(filenames.routing.nc_id));
+    status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
+                     &(filenames.routing_params.nc_id));
     check_nc_status(status, "Error opening %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
         
-    compare_ncdomain_with_global_domain(&filenames.routing);
+    compare_ncdomain_with_global_domain(&filenames.routing_params);
     get_basins_routing(&basins);
 
     // close extension routing file
-    status = nc_close(filenames.routing.nc_id);
+    status = nc_close(filenames.routing_params.nc_id);
     check_nc_status(status, "Error closing %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
 
     node_ids = malloc(mpi_size * sizeof(*node_ids));
     check_alloc_status(node_ids, "Memory allocation error.");

@@ -644,9 +644,6 @@ typedef struct {
     size_t time_size;
     size_t veg_size;
 
-    int sector_dimid;
-    size_t sector_size;
-
     bool open;
     nc_var_struct *nc_vars;
 } nc_file_struct;
@@ -700,18 +697,11 @@ typedef struct {
     char log_path[MAXSTRING];   /**< Location to write log file to */
 
     // Plugins
-    nameid_struct mpi;
-    nameid_struct routing;
-    nameid_struct routing_forcing;
-    char routing_forcing_pfx[MAXSTRING];
-    nameid_struct rout_params;  /**< routing parameters file name and nc_id */
-    nameid_struct water_use;
-    nameid_struct water_use_forcing[WU_NSECTORS];
-    char water_use_forcing_pfx[WU_NSECTORS][MAXSTRING];
-    nameid_struct irrigation;
-    nameid_struct dams;
-    nameid_struct efr_forcing;
-    char efr_forcing_pfx[MAXSTRING];
+    nameid_struct mpi;             /**< mpi parameters file name and nc_id */
+    nameid_struct routing_params;  /**< routing parameters file name and nc_id */
+    nameid_struct routing_forcing; /**< routing forcing files */
+    char routing_forcing_pfx[MAXSTRING]; /**< path and prefix for
+                                                    routing forcing files */
 } filenames_struct;
 
 double air_density(double t, double p);
@@ -964,6 +954,9 @@ void start_general(void);
 // domain
 void vic_domain(void);
 void validate_domain(void);
+
+// output types
+void vic_add_types(void);
 
 // allocation
 void vic_alloc(void);

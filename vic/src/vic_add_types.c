@@ -1,7 +1,7 @@
 /******************************************************************************
  * @section DESCRIPTION
  *
- * Save model state.
+ * Allocate memory for VIC structures.
  *
  * @section LICENSE
  *
@@ -25,25 +25,23 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
- * @brief    Save model state.
+ * @brief    Allocate memory for VIC structures.
  *****************************************************************************/
 void
-irr_add_types(void)
+vic_add_types(void)
 {
-    extern node *outvar_types;
-    extern int   N_OUTVAR_TYPES_ALL;
+    extern option_struct options;
+    extern int           N_STATE_VARS_ALL;
+    extern int           N_OUTVAR_TYPES_ALL;
 
-    // add outvar_types
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_REQUIREMENT");
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_NEED");
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_POND_STORAGE");
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_LEFTOVER");
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_DEFICIT");
-    outvar_types = list_prepend(outvar_types, "OUT_IRR_SHORTAGE");
-
-    outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
-    N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;
+    N_STATE_VARS_ALL = N_STATE_VARS;
+    N_OUTVAR_TYPES_ALL = N_OUTVAR_TYPES;
+    
+    // Add output types for all plugins
+    plugin_add_types();
+    if (options.ROUTING) {
+        rout_add_types();
+    }
 }

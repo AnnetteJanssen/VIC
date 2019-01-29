@@ -90,52 +90,13 @@ vic_run(dmy_struct *dmy_current)
      Plugins & ordered operations
      *****************************************************************************/
     timer_start(&timer);
-    
-    // If running with OpenMP, run this for loop using multiple threads
-    //#pragma omp parallel for default(shared) private(i)
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        if (options.IRRIGATION) {
-            irr_run(i);
-        }
-        if (options.DAMS) {
-            local_dam_run(i);
-        }
-    }
-    
-    if (options.ROUTING_RVIC) {
-        routing_rvic_run();
-    }
-    else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_RANDOM) {
-        rout_random_run();
-    }
-    else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_BASIN) {
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            cur_cell = routing_order[i];
-                     
-            rout_basin_run(cur_cell);
-            
-            if (options.EFR) {
-                efr_run(cur_cell);
-            }
-            if (options.DAMS) {
-                global_dam_run(cur_cell);
-            }
-
-            if (options.WATER_USE) {
-                if (options.IRRIGATION && 
-                        options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
-                        WU_INPUT_CALCULATE) {
-                    irr_set_demand(cur_cell);
-                }
-
-                wu_run(cur_cell);
-
-                if (options.IRRIGATION && 
-                        options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
-                        WU_INPUT_CALCULATE) {
-                    irr_get_withdrawn(cur_cell);
-                    irr_run_ponding_leftover(cur_cell);
-                }
+    if (options.ROUTING) {
+        if (options.ROUTING_TYPE == ROUTING_RANDOM) {
+            rout_random_run();
+        } else {
+            for (i = 0; i < local_domain.ncells_active; i++) {
+                cur_cell = routing_order[i];            
+                rout_basin_run(cur_cell);
             }
         }
     }
@@ -148,18 +109,6 @@ vic_run(dmy_struct *dmy_current)
 
         if (options.ROUTING) {
             rout_put_data(i);
-        }
-        if (options.EFR) {
-            efr_put_data(i);
-        }
-        if (options.IRRIGATION) {
-            irr_put_data(i);
-        }
-        if (options.WATER_USE) {
-            wu_put_data(i);
-        }
-        if (options.DAMS) {
-            dam_put_data(i);
         }
     }
     

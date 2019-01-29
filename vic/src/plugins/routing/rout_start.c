@@ -9,20 +9,20 @@ rout_start(void)
     int                     status;
 
     // open routing parameter file
-    status = nc_open(filenames.routing.nc_filename, NC_NOWRITE,
-                     &(filenames.routing.nc_id));
+    status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
+                     &(filenames.routing_params.nc_id));
     check_nc_status(status, "Error opening %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
 
-    options.IUH_NSTEPS = get_nc_dimension(&(filenames.routing),
+    options.IUH_NSTEPS = get_nc_dimension(&(filenames.routing_params),
                                            "time_uh_inflow");
-    options.RUH_NSTEPS = get_nc_dimension(&(filenames.routing),
+    options.RUH_NSTEPS = get_nc_dimension(&(filenames.routing_params),
                                            "time_uh_runoff");
 
     // close routing parameter file
-    status = nc_close(filenames.routing.nc_id);
+    status = nc_close(filenames.routing_params.nc_id);
     check_nc_status(status, "Error closing %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
 }
 
 void
@@ -33,15 +33,15 @@ rout_validate_domain(void)
     int                     status;
 
     // open routing parameter file
-    status = nc_open(filenames.routing.nc_filename, NC_NOWRITE,
-                     &(filenames.routing.nc_id));
+    status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
+                     &(filenames.routing_params.nc_id));
     check_nc_status(status, "Error opening %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
     
-    compare_ncdomain_with_global_domain(&filenames.routing);
+    compare_ncdomain_with_global_domain(&filenames.routing_params);
 
     // close routing parameter file
-    status = nc_close(filenames.routing.nc_id);
+    status = nc_close(filenames.routing_params.nc_id);
     check_nc_status(status, "Error closing %s",
-                    filenames.routing.nc_filename);
+                    filenames.routing_params.nc_filename);
 }

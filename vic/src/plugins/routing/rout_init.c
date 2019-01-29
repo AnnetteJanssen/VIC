@@ -30,7 +30,7 @@ rout_set_uh(void)
     for (j = 0; j < options.IUH_NSTEPS; j++) {
         d3start[0] = j;
 
-        get_scatter_nc_field_double(&(filenames.routing),
+        get_scatter_nc_field_double(&(filenames.routing_params),
                                     "uh_inflow", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             rout_con[i].inflow_uh[j] = dvar[i];
@@ -40,7 +40,7 @@ rout_set_uh(void)
     for (j = 0; j < options.RUH_NSTEPS; j++) {
         d3start[0] = j;
 
-        get_scatter_nc_field_double(&(filenames.routing),
+        get_scatter_nc_field_double(&(filenames.routing_params),
                                     "uh_runoff", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             rout_con[i].runoff_uh[j] = dvar[i];
@@ -80,10 +80,10 @@ rout_basin_set_downstream(void)
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx;
 
-    get_scatter_nc_field_int(&(filenames.routing), "downstream_id", 
+    get_scatter_nc_field_int(&(filenames.routing_params), "downstream_id", 
                              d2start, d2count, id);
     
-    get_scatter_nc_field_int(&(filenames.routing), "downstream", 
+    get_scatter_nc_field_int(&(filenames.routing_params), "downstream", 
                              d2start, d2count, downstream);
     
     rout_count = 0;
@@ -157,10 +157,10 @@ rout_random_set_downstream(void)
         d2count[0] = global_domain.n_ny;
         d2count[1] = global_domain.n_nx;
 
-        get_active_nc_field_int(&(filenames.routing), "downstream_id", 
+        get_active_nc_field_int(&(filenames.routing_params), "downstream_id", 
                                  d2start, d2count, id);
 
-        get_active_nc_field_int(&(filenames.routing), "downstream", 
+        get_active_nc_field_int(&(filenames.routing_params), "downstream", 
                                  d2start, d2count, downstream);
 
         rout_count = 0;
@@ -508,10 +508,10 @@ rout_init(void)
 
     // open parameter file
     if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_open(filenames.routing.nc_filename, NC_NOWRITE,
-                         &(filenames.routing.nc_id));
+        status = nc_open(filenames.routing_params.nc_filename, NC_NOWRITE,
+                         &(filenames.routing_params.nc_id));
         check_nc_status(status, "Error opening %s",
-                        filenames.routing.nc_filename);
+                        filenames.routing_params.nc_filename);
     }
 
     rout_set_uh();
@@ -529,8 +529,8 @@ rout_init(void)
 
     // close parameter file
     if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_close(filenames.routing.nc_id);
+        status = nc_close(filenames.routing_params.nc_id);
         check_nc_status(status, "Error closing %s",
-                        filenames.routing.nc_filename);
+                        filenames.routing_params.nc_filename);
     }
 }

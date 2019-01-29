@@ -26,10 +26,10 @@ set_basins_downstream(size_t *downstream_basin){
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx;
 
-    get_active_nc_field_int(&(filenames.routing), "downstream_id", 
+    get_active_nc_field_int(&(filenames.routing_params), "downstream_id", 
                              d2start, d2count, id);
     
-    get_active_nc_field_int(&(filenames.routing), "downstream", 
+    get_active_nc_field_int(&(filenames.routing_params), "downstream", 
                              d2start, d2count, downstream);
     
     for (i = 0; i < global_domain.ncells_active; i++) {

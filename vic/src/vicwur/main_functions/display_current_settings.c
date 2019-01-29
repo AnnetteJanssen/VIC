@@ -26,7 +26,6 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
  * @brief    Display the current settings of options defined in the header
@@ -264,30 +263,6 @@ display_current_settings(int mode)
     else {
         fprintf(LOG_DEST, "ROUTING\t\tFALSE\n");
     }
-    if (options.DAMS) {
-        fprintf(LOG_DEST, "DAMS\t\tTRUE\n");
-    }
-    else {
-        fprintf(LOG_DEST, "DAMS\t\tFALSE\n");
-    }
-    if (options.IRRIGATION) {
-        fprintf(LOG_DEST, "IRRIGATION\t\tTRUE\n");
-    }
-    else {
-        fprintf(LOG_DEST, "IRRIGATION\t\tFALSE\n");
-    }
-    if (options.EFR) {
-        fprintf(LOG_DEST, "EFR\t\tTRUE\n");
-    }
-    else {
-        fprintf(LOG_DEST, "EFR\t\tFALSE\n");
-    }
-    if (options.WATER_USE) {
-        fprintf(LOG_DEST, "WATER_USE\t\tTRUE\n");
-    }
-    else {
-        fprintf(LOG_DEST, "WATER_USE\t\tFALSE\n");
-    }
 
     fprintf(LOG_DEST, "\n");
     fprintf(LOG_DEST, "Input Forcing Data:\n");
@@ -416,11 +391,6 @@ display_current_settings(int mode)
     }
     else {
         fprintf(LOG_DEST, "LAKE_PROFILE\t\tFALSE\n");
-    }
-
-    // Plugins
-    if (options.ROUTING_RVIC) {
-        fprintf(LOG_DEST, "ROUTING_RVIC\t\tTRUE\n");
     }
 
     fprintf(LOG_DEST, "\n");

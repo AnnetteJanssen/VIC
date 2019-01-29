@@ -25,7 +25,6 @@
  *****************************************************************************/
 
 #include <vic.h>
-#include <routing_rvic.h>
 
 /******************************************************************************
  * @brief    Read initial model state.
@@ -979,11 +978,6 @@ vic_restore(void)
         for (i = 0; i < local_domain.ncells_active; i++) {
             all_vars[i].lake_var.sdepth = dvar[i];
         }
-    }
-
-    // routing ring
-    if (options.ROUTING_RVIC) {
-        routing_rvic_restore(&(filenames.init_state), state_metadata);
     }
 
     free(ivar);

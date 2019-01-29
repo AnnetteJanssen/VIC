@@ -119,15 +119,12 @@ rout_get_global_parameters(char *cmdstr)
     if (strcasecmp("ROUTING", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.ROUTING = str_to_bool(flgstr);
-        if(options.ROUTING && options.ROUTING_RVIC){
-            log_err("Multiple routing types selected");
-        }
     } else if (strcasecmp("ROUTING_FORCE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.ROUTING_FORCE = str_to_bool(flgstr);
     }
     else if (strcasecmp("ROUTING_PARAMETERS", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", filenames.routing.nc_filename);
+        sscanf(cmdstr, "%*s %s", filenames.routing_params.nc_filename);
     }
     else if (strcasecmp("ROUTING_FORCING_FILE", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.routing_forcing_pfx);
@@ -151,7 +148,7 @@ rout_validate_global_param(void)
     
     if(options.ROUTING){
         // File
-        if (strcasecmp(filenames.routing.nc_filename, MISSING_S) == 0) {
+        if (strcasecmp(filenames.routing_params.nc_filename, MISSING_S) == 0) {
             log_err("ROUTING = TRUE but ROUTING_PARAMETERS is missing");
         }
         
