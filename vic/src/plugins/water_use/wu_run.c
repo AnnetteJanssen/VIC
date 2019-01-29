@@ -16,7 +16,6 @@ wu_run(size_t cur_cell)
     extern veg_con_map_struct *veg_con_map;
     extern veg_con_struct **veg_con;
     extern efr_var_struct *efr_var;
-    extern efr_hist_struct *efr_hist;
     extern size_t NR;
     
     double liq;
@@ -119,7 +118,7 @@ wu_run(size_t cur_cell)
         available_local[0] = rout_var[cur_cell].discharge * global_param.dt; 
 
         if(options.EFR){
-            available_local[0] -= efr_hist[cur_cell].requirement_discharge 
+            available_local[0] -= efr_force[cur_cell].req_discharge[NR] 
                     * global_param.dt;
             if(available_local[0] < 0.0){
                 available_local[0] = 0.0;
@@ -263,7 +262,7 @@ wu_run(size_t cur_cell)
                         global_param.dt;
 
                 if(options.EFR){
-                    available_receiving[i] -= efr_hist[rec_cell].requirement_discharge 
+                    available_receiving[i] -= efr_force[rec_cell].req_discharge[NR] 
                             * global_param.dt;
                     if(available_receiving[i] < 0.0){
                         available_receiving[i] = 0.0;
@@ -368,51 +367,51 @@ wu_run(size_t cur_cell)
     * 5. Dam abstractions
     **********************************************************************/
     if(options.WU_DAM && !satisfaction){
-        // Get demand
-        demand = 0.0;
-        for(i = 0; i < WU_NSECTORS; i++){
-            demand += wu_var[cur_cell][i].demand;
-        }
-        
-        // Get availability
-        available_dam = 0.0;
-        if(demand > 0) {
-            for(i = 0; i < wu_con[cur_cell].nservice; i++){
-                ser_cell = wu_con[cur_cell].service[i];
-                ser_idx = wu_con[cur_cell].service_idx[i];
-
-                available_servicing[i] = dam_var[ser_cell][ser_idx].volume;
-                available_dam += available_servicing[i];
-            }
-        }
-    
-        // Calculate withdrawal
-        if(available_dam > 0){
-                
-            // Calculate fraction
-            fraction = available_dam / demand;
-            if(fraction >= 1){
-                fraction = 1.0;
-            }
-
-            // Calculate withdrawal
-            for(i = 0; i < WU_NSECTORS; i++){
-                withdrawn = wu_var[cur_cell][i].demand * fraction;
-
-                wu_var[cur_cell][i].demand -= withdrawn;
-                withdrawn_sec[i] += withdrawn;
-                withdrawn_dam += withdrawn;
-            }
-    
-            // Check if withdrawal exceeds availability
-            fraction = withdrawn_dam / available_dam;
-            if(fraction > 1){
-                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
-                        log_err("fraction > 1.0 [%.16f]?", fraction);
-                }
-                withdrawn_dam = available_dam;
-            }
-        }
+//        // Get demand
+//        demand = 0.0;
+//        for(i = 0; i < WU_NSECTORS; i++){
+//            demand += wu_var[cur_cell][i].demand;
+//        }
+//        
+//        // Get availability
+//        available_dam = 0.0;
+//        if(demand > 0) {
+//            for(i = 0; i < wu_con[cur_cell].nservice; i++){
+//                ser_cell = wu_con[cur_cell].service[i];
+//                ser_idx = wu_con[cur_cell].service_idx[i];
+//
+//                available_servicing[i] = dam_var[ser_cell][ser_idx].storage;
+//                available_dam += available_servicing[i];
+//            }
+//        }
+//    
+//        // Calculate withdrawal
+//        if(available_dam > 0){
+//                
+//            // Calculate fraction
+//            fraction = available_dam / demand;
+//            if(fraction >= 1){
+//                fraction = 1.0;
+//            }
+//
+//            // Calculate withdrawal
+//            for(i = 0; i < WU_NSECTORS; i++){
+//                withdrawn = wu_var[cur_cell][i].demand * fraction;
+//
+//                wu_var[cur_cell][i].demand -= withdrawn;
+//                withdrawn_sec[i] += withdrawn;
+//                withdrawn_dam += withdrawn;
+//            }
+//    
+//            // Check if withdrawal exceeds availability
+//            fraction = withdrawn_dam / available_dam;
+//            if(fraction > 1){
+//                if(fabs(fraction - 1.0) > DBL_EPSILON * WU_NSECTORS){
+//                        log_err("fraction > 1.0 [%.16f]?", fraction);
+//                }
+//                withdrawn_dam = available_dam;
+//            }
+//        }
     }
     
     /**********************************************************************
@@ -494,18 +493,18 @@ wu_run(size_t cur_cell)
     
     if(withdrawn_dam > 0){
         // Modify volume
-        for(i = 0; i < wu_con[cur_cell].nservice; i++){
-            ser_cell = wu_con[cur_cell].service[i];
-            ser_idx = wu_con[cur_cell].service_idx[i];
-            
-            withdrawn = withdrawn_dam *
-                        (available_servicing[i] / available_dam);
-            
-            dam_var[ser_cell][ser_idx].volume -= withdrawn;
-            if(dam_var[ser_cell][ser_idx].volume < 0.0){
-                dam_var[ser_cell][ser_idx].volume = 0.0;
-            }
-        }
+//        for(i = 0; i < wu_con[cur_cell].nservice; i++){
+//            ser_cell = wu_con[cur_cell].service[i];
+//            ser_idx = wu_con[cur_cell].service_idx[i];
+//            
+//            withdrawn = withdrawn_dam *
+//                        (available_servicing[i] / available_dam);
+//            
+//            dam_var[ser_cell][ser_idx].storage -= withdrawn;
+//            if(dam_var[ser_cell][ser_idx].storage < 0.0){
+//                dam_var[ser_cell][ser_idx].storage = 0.0;
+//            }
+//        }
     }
     
     /**********************************************************************

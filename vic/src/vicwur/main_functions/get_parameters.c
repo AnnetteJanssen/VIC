@@ -538,11 +538,11 @@ get_parameters(FILE *paramfile)
             else if (strcasecmp("IRR_WFC", optstr) == 0) {
                 sscanf(cmdstr, "%*s %lf", &param.IRR_WFC);
             }
-            else if (strcasecmp("IRR_WPOND", optstr) == 0) {
-                sscanf(cmdstr, "%*s %lf", &param.IRR_WPOND);
+            else if (strcasecmp("IRR_KPUDDLE", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.IRR_KPUDDLE);
             }
-            else if (strcasecmp("IRR_KPOND", optstr) == 0) {
-                sscanf(cmdstr, "%*s %lf", &param.IRR_KPOND);
+            else if (strcasecmp("DAM_ALPHA", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &param.DAM_ALPHA);
             }
             else {
                 log_warn("Unrecognized option in the parameter file:  %s "

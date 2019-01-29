@@ -511,7 +511,7 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in option_struct
-    nitems = 79;
+    nitems = 77;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
 
@@ -818,15 +818,9 @@ create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool IRR_POTENTIAL;
     offsets[i] = offsetof(option_struct, IRR_POTENTIAL);
     mpi_types[i++] = MPI_C_BOOL;
-    // bool IRR_POND;
-    offsets[i] = offsetof(option_struct, IRR_POND);
-    mpi_types[i++] = MPI_C_BOOL;
     
-    // size_t MAXSERVICE;
-    offsets[i] = offsetof(option_struct, MAXSERVICE);
-    mpi_types[i++] = MPI_AINT;
-    // size_t MAXDAMS;
-    offsets[i] = offsetof(option_struct, MAXDAMS);
+    // size_t NDAMSERVICE;
+    offsets[i] = offsetof(option_struct, NDAMSERVICE);
     mpi_types[i++] = MPI_AINT;
 
     // make sure that the we have the right number of elements
@@ -1516,12 +1510,12 @@ create_MPI_param_struct_type(MPI_Datatype *mpi_type)
     offsets[i] = offsetof(parameters_struct, IRR_WFC);
     mpi_types[i++] = MPI_DOUBLE;
 
-    // double IRR_WPOND
-    offsets[i] = offsetof(parameters_struct, IRR_WPOND);
+    // double IRR_KPUDDLE
+    offsets[i] = offsetof(parameters_struct, IRR_KPUDDLE);
     mpi_types[i++] = MPI_DOUBLE;
 
-    // double IRR_KPOND
-    offsets[i] = offsetof(parameters_struct, IRR_KPOND);
+    // double DAM_ALPHA
+    offsets[i] = offsetof(parameters_struct, DAM_ALPHA);
     mpi_types[i++] = MPI_DOUBLE;
 
     // make sure that the we have the right number of elements

@@ -113,9 +113,6 @@ efr_get_global_parameters(char *cmdstr)
 
     char                 optstr[MAXSTRING];
     char                 flgstr[MAXSTRING];
-    char                 method[MAXSTRING];
-
-    strcpy(method, "MISSING");
     
     sscanf(cmdstr, "%s", optstr);
 
@@ -134,30 +131,33 @@ efr_get_global_parameters(char *cmdstr)
 }
 
 void
-efr_validate_global_parameters(void)
+efr_validate_global_param(void)
 {
+    extern option_struct options;
     extern filenames_struct filenames;
     extern global_param_struct global_param;
     
     int status;
     
-    if(strcasecmp(filenames.efr_forcing_pfx, MISSING_S) == 0){
-        log_err("EFR = TRUE but EFR_FORCING_FILE is missing");
+    if(options.EFR){
+        if(strcasecmp(filenames.efr_forcing_pfx, MISSING_S) == 0){
+            log_err("EFR = TRUE but EFR_FORCING_FILE is missing");
+        }
+
+        // Open first-year forcing files and get info
+        sprintf(filenames.efr_forcing.nc_filename, "%s%4d.nc",
+                filenames.efr_forcing_pfx, global_param.startyear);
+        status = nc_open(filenames.efr_forcing.nc_filename, NC_NOWRITE,
+                         &(filenames.efr_forcing.nc_id));
+        check_nc_status(status, "Error opening %s",
+                        filenames.efr_forcing.nc_filename);  
+
+        // Get information from the forcing file(s)
+        get_efr_forcing_files_info(); 
+
+        // Close first-year forcing files
+        status = nc_close(filenames.efr_forcing.nc_id);
+        check_nc_status(status, "Error closing %s",
+                        filenames.efr_forcing.nc_filename);
     }
-                        
-    // Open first-year forcing files and get info
-    sprintf(filenames.efr_forcing.nc_filename, "%s%4d.nc",
-            filenames.efr_forcing_pfx, global_param.startyear);
-    status = nc_open(filenames.efr_forcing.nc_filename, NC_NOWRITE,
-                     &(filenames.efr_forcing.nc_id));
-    check_nc_status(status, "Error opening %s",
-                    filenames.efr_forcing.nc_filename);  
-
-    // Get information from the forcing file(s)
-    get_efr_forcing_files_info(); 
-
-    // Close first-year forcing files
-    status = nc_close(filenames.efr_forcing.nc_id);
-    check_nc_status(status, "Error closing %s",
-                    filenames.efr_forcing.nc_filename);
 }

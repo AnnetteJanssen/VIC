@@ -6,70 +6,75 @@ dam_set_info(void)
     extern domain_struct       local_domain;
     extern domain_struct       global_domain;
     extern filenames_struct    filenames;
-    extern option_struct       options;
-    extern dam_con_map_struct *dam_con_map;
-    extern dam_con_struct    **dam_con;
+    extern dam_con_struct     *local_dam_con;
+    extern dam_con_struct     *global_dam_con;
 
     int                       *ivar;
     double                    *dvar;
 
     size_t                     i;
-    size_t                     j;
 
-    size_t                     d3count[3];
-    size_t                     d3start[3];
+    size_t                     d2count[2];
+    size_t                     d2start[2];
 
-    d3start[0] = 0;
-    d3start[1] = 0;
-    d3start[2] = 0;
-    d3count[0] = 1;
-    d3count[1] = global_domain.n_ny;
-    d3count[2] = global_domain.n_nx;
+    d2start[0] = 0;
+    d2start[1] = 0;
+    d2count[0] = global_domain.n_ny;
+    d2count[1] = global_domain.n_nx;
 
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error.");
 
     dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
     check_alloc_status(dvar, "Memory allocation error.");
+    
+    get_scatter_nc_field_int(&(filenames.dams), 
+                             "run_local", d2start, d2count, ivar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        local_dam_con[i].run = ivar[i];
+    }
+    
+    get_scatter_nc_field_int(&(filenames.dams), 
+                             "year_local", d2start, d2count, ivar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        local_dam_con[i].year = ivar[i];
+    }
 
-    for (j = 0; j < (size_t)options.MAXDAMS; j++) {
-        d3start[0] = j;
-        
-        get_scatter_nc_field_int(&(filenames.dams), 
-                "id", d3start, d3count, ivar);
-        
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].id = ivar[i];
-            }
-        }
-        
-        get_scatter_nc_field_int(&(filenames.dams), 
-                		 "year", d3start, d3count, ivar);
-        
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].year = ivar[i];
-            }
-        }
+    get_scatter_nc_field_double(&(filenames.dams),
+                                "capacity_local", d2start, d2count, dvar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        local_dam_con[i].capacity = dvar[i];
+    }
 
-        get_scatter_nc_field_double(&(filenames.dams),
-                                    "volume", d3start, d3count, dvar);
+    get_scatter_nc_field_double(&(filenames.dams),
+                                "inflow_frac_local", d2start, d2count, dvar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        local_dam_con[i].inflow_frac = dvar[i];
+    }
+    
+    
+    get_scatter_nc_field_int(&(filenames.dams), 
+                             "run_global", d2start, d2count, ivar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        global_dam_con[i].run = ivar[i];
+    }
+    
+    get_scatter_nc_field_int(&(filenames.dams), 
+                             "year_global", d2start, d2count, ivar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        global_dam_con[i].year = ivar[i];
+    }
 
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].max_volume = dvar[i] * pow(M_PER_KM, 2);
-            }
-        }
+    get_scatter_nc_field_double(&(filenames.dams),
+                                "capacity_global", d2start, d2count, dvar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        global_dam_con[i].capacity = dvar[i];
+    }
 
-        get_scatter_nc_field_int(&(filenames.dams),
-                                 "type", d3start, d3count, ivar);
-
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            if (j < dam_con_map[i].nd_active) {
-                dam_con[i][j].function = ivar[i];
-            }
-        }
+    get_scatter_nc_field_double(&(filenames.dams),
+                                "inflow_frac_global", d2start, d2count, dvar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        global_dam_con[i].inflow_frac = dvar[i];
     }
     
     free(ivar);
@@ -83,100 +88,115 @@ dam_set_service(void)
     extern domain_struct global_domain;
     extern filenames_struct filenames;
     extern option_struct options;
-    extern dam_con_map_struct *dam_con_map;
-    extern dam_con_struct **dam_con;
+    extern dam_con_struct     *local_dam_con;
+    extern dam_con_struct     *global_dam_con;
     
-    int *service_var;
+    int *service_id;
     int *ivar;
     double *dvar;
-    int **adjustment;
+    int *adjustment;
     size_t                  service_count;
     bool done;
     
     size_t i;
     size_t j;
     size_t k;
-    size_t l;
     
     size_t  d2count[2];
     size_t  d2start[2];
-    size_t  d4count[4];
-    size_t  d4start[4];
+    size_t  d3count[3];
+    size_t  d3start[3];
         
     d2start[0] = 0;
     d2start[1] = 0;
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx; 
     
-    d4start[0] = 0;
-    d4start[1] = 0;
-    d4start[2] = 0;
-    d4start[3] = 0;
-    d4count[0] = 1;
-    d4count[1] = 1;
-    d4count[2] = global_domain.n_ny;
-    d4count[3] = global_domain.n_nx; 
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx; 
     
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error.");    
     dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
     check_alloc_status(dvar, "Memory allocation error.");   
-    service_var = malloc(local_domain.ncells_active * sizeof(*service_var));
-    check_alloc_status(service_var, "Memory allocation error."); 
+    service_id = malloc(local_domain.ncells_active * sizeof(*service_id));
+    check_alloc_status(service_id, "Memory allocation error."); 
     adjustment = malloc(local_domain.ncells_active * sizeof(*adjustment));
-    check_alloc_status(adjustment, "Memory allocation error."); 
-    for(i = 0; i < local_domain.ncells_active; i++){
-        adjustment[i] = malloc(options.MAXDAMS * sizeof(*adjustment[i]));
-        check_alloc_status(adjustment[i], "Memory allocation error.");
-    }
-    
-    for(i = 0; i < local_domain.ncells_active; i++){
-        for(j = 0; j < (size_t)options.MAXDAMS; j++){
-            adjustment[i][j] = 0;
-        }
-    }
+    check_alloc_status(adjustment, "Memory allocation error.");
     
     get_scatter_nc_field_int(&(filenames.dams), 
-            "service_id", d2start, d2count, service_var);
+            "service_id", d2start, d2count, service_id);
             
     service_count = 0;
-    for(k = 0; k < (size_t)options.MAXSERVICE; k++){
-        d4start[0] = k;
-        
-        for(j = 0; j < (size_t)options.MAXDAMS; j++){
-            d4start[1] = j;
+    
+    for(i = 0; i < local_domain.ncells_active; i++){
+        adjustment[i] = 0;
+    }
+    for(j = 0; j < (size_t)options.NDAMSERVICE; j++){
+        d3start[0] = j;
                         
-            get_scatter_nc_field_int(&(filenames.dams), 
-                    "service", d4start, d4count, ivar);
-            get_scatter_nc_field_double(&(filenames.dams), 
-                    "serve_factor", d4start, d4count, dvar);
-            
-            for(i = 0; i < local_domain.ncells_active; i++){
-                if(j < dam_con_map[i].nd_active){
-                    if(k < dam_con[i][j].nservice){
-                        
-                        done = false;
-                        for(l = 0; l < local_domain.ncells_active; l++){
-                            if(ivar[i] == service_var[l]){
-                                dam_con[i][j].service[k - adjustment[i][j]] = l;
-                                done = true;
-                                break;
-                            }
-                        }
-                        dam_con[i][j].serve_factor[k - adjustment[i][j]] = 
-                                dvar[i];
-                                
-                        if(!done){
-                            service_count++;
-                            dam_con[i][j].nservice--;
-                            adjustment[i][j]++;
-                        }
+        get_scatter_nc_field_int(&(filenames.dams), 
+                "service_local", d3start, d3count, ivar);
+        get_scatter_nc_field_double(&(filenames.dams), 
+                "serve_factor_local", d3start, d3count, dvar);
+
+        for(i = 0; i < local_domain.ncells_active; i++){
+            if(j < local_dam_con[i].nservice){
+
+                done = false;
+                for(k = 0; k < local_domain.ncells_active; k++){
+                    if(ivar[i] == service_id[k]){
+                        local_dam_con[i].service[j - adjustment[i]] = k;
+                        local_dam_con[i].service_frac[j - adjustment[i]] = dvar[i];
+                        done = true;
                     }
+                }
+
+                if(!done){
+                    service_count++;
+                    local_dam_con[i].nservice--;
+                    adjustment[i]++;
                 }
             }
         }
     }
-     
+    
+    for(i = 0; i < local_domain.ncells_active; i++){
+        adjustment[i] = 0;
+    }
+    for(j = 0; j < (size_t)options.NDAMSERVICE; j++){
+        d3start[0] = j;
+                        
+        get_scatter_nc_field_int(&(filenames.dams), 
+                "service_global", d3start, d3count, ivar);
+        get_scatter_nc_field_double(&(filenames.dams), 
+                "serve_factor_global", d3start, d3count, dvar);
+
+        for(i = 0; i < local_domain.ncells_active; i++){
+            if(j < global_dam_con[i].nservice){
+
+                done = false;
+                for(k = 0; k < local_domain.ncells_active; k++){
+                    if(ivar[i] == service_id[k]){
+                        global_dam_con[i].service[j - adjustment[i]] = k;
+                        global_dam_con[i].service_frac[j - adjustment[i]] = dvar[i];
+                        done = true;
+                    }
+                }
+
+                if(!done){
+                    service_count++;
+                    global_dam_con[i].nservice--;
+                    adjustment[i]++;
+                }
+            }
+        }
+    }
+    
     if(service_count > 0){
         log_err("Dams service cell id not found for %zu cells; "
                 "Probably the ID was outside of the mask or "
@@ -184,12 +204,10 @@ dam_set_service(void)
                 "Removing from dam service", service_count);
     }
     
-    for(i = 0; i < local_domain.ncells_active; i++){
-        free(adjustment[i]);
-    }
-    free(adjustment);
     free(ivar);
-    free(service_var);
+    free(dvar);
+    free(service_id);
+    free(adjustment);
 }
 
 void

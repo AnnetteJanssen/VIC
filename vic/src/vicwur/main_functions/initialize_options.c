@@ -123,10 +123,8 @@ initialize_options()
     // Irrigation options
     options.NIRRTYPES = 0;
     options.NIRRSEASONS = 0;
-    options.IRR_POND = false;
     options.IRR_POTENTIAL = false;
     // EFR options
     // Dam options
-    options.MAXSERVICE = 0;
-    options.MAXDAMS = 0;
+    options.NDAMSERVICE = 0;
 }

@@ -351,10 +351,10 @@ typedef struct {
     size_t NIRRTYPES;
     size_t NIRRSEASONS;
     bool IRR_POTENTIAL;
-    bool IRR_POND;
     // Dam options
-    size_t MAXSERVICE;
-    size_t MAXDAMS;
+    size_t NLDAMTYPES;
+    size_t NGDAMTYPES;
+    size_t NDAMSERVICE;
 } option_struct;
 
 /******************************************************************************
@@ -613,8 +613,9 @@ typedef struct {
     // Plugins - irrigation
     double IRR_WIRR;
     double IRR_WFC;
-    double IRR_WPOND;
-    double IRR_KPOND;
+    double IRR_KPUDDLE;
+    // Plugins - dams
+    double DAM_ALPHA;
 } parameters_struct;
 
 /******************************************************************************
@@ -892,8 +893,8 @@ typedef struct {
     double pot_evap;                   /**< potential evaporation (mm) */
     double baseflow;                   /**< baseflow from current cell (mm/TS) */
     double runoff;                     /**< runoff from current cell (mm/TS) */
-    double inflow;                     /**< moisture that reaches the top of
-                                          the soil column (mm) */
+    double inflow;                     /**< moisture that reaches the top of the soil column (mm) */
+    double recharge;                   /**< moisture that reaches the third layer (mm/TS) */
     double RhLitter;                   /**< soil respiration from litter pool [gC/m2] */
     double RhLitter2Atm;               /**< soil respiration from litter pool [gC/m2] that goes to atmosphere */
     double RhInter;                    /**< soil respiration from intermediate pool [gC/m2] */

@@ -37,16 +37,34 @@ dam_add_types(void)
     extern int   N_OUTVAR_TYPES_ALL;
 
     // add outvar_types
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_VOLUME");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_DISCHARGE");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_INFLOW");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_DEMAND");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_DISCHARGE");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_DISCHARGE_IRR");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_VOLUME");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_OP_MONTH");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_HIST_DEMAND");
-    outvar_types = list_prepend(outvar_types, "OUT_DAM_HIST_FLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_INFLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_DEMAND");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_EFR");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_RELEASE");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_STORAGE");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_HIST_DEMAND");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_HIST_INFLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_HIST_EFR");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_OP_RELEASE");
+    outvar_types = list_prepend(outvar_types, "OUT_LDAM_OP_STORAGE");
+    
+    
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_INFLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_DEMAND");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_EFR");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_RELEASE");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_STORAGE");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_HIST_DEMAND");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_HIST_INFLOW");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_HIST_EFR");
+    
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_OP_RELEASE");
+    outvar_types = list_prepend(outvar_types, "OUT_GDAM_OP_STORAGE");
 
     outvar_types = list_add_ids(outvar_types, N_OUTVAR_TYPES);
     N_OUTVAR_TYPES_ALL = list_count(outvar_types) + N_OUTVAR_TYPES;

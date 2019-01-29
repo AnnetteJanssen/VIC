@@ -1037,21 +1037,11 @@ validate_global_param(void)
         options.STATE_FORMAT = NETCDF4_CLASSIC;
     }
     
-    if (options.DAMS) {
-        dam_validate_global_parameters();
-    }
-    if (options.ROUTING) {
-        rout_validate_global_parameters();
-    }
-    if (options.EFR) {
-        efr_validate_global_parameters();
-    }
-    if (options.WATER_USE) {
-        wu_validate_global_parameters();
-    }
-    if (options.IRRIGATION) {
-        irr_validate_global_parameters();
-    }
+    rout_validate_global_param();
+    efr_validate_global_param();
+    irr_validate_global_param();
+    dam_validate_global_param();
+    wu_validate_global_param();
 
     /*********************************
        Output major options

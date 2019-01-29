@@ -5,119 +5,273 @@ dam_set_output_meta_data_info(void)
 {    
     extern metadata_struct *out_metadata;
     extern node            *outvar_types;
-    extern option_struct    options;
-
-    int OUT_DAM_VOLUME; 
-    int OUT_DAM_DISCHARGE; 
-    int OUT_DAM_INFLOW;
-    int OUT_DAM_DEMAND;
-    int OUT_DAM_OP_DISCHARGE; 
-    int OUT_DAM_OP_DISCHARGE_IRR; 
-    int OUT_DAM_OP_VOLUME; 
-    int OUT_DAM_OP_MONTH; 
-    int OUT_DAM_HIST_DEMAND; 
-    int OUT_DAM_HIST_FLOW;
+ 
+    int OUT_LDAM_INFLOW;
+    int OUT_LDAM_DEMAND;
+    int OUT_LDAM_EFR;
+    int OUT_LDAM_STORAGE;
+    int OUD_LDAM_RELEASE;
+    int OUT_LDAM_HIST_INFLOW;
+    int OUT_LDAM_HIST_DEMAND;
+    int OUT_LDAM_HIST_EFR;
+    int OUT_LDAM_OP_RELEASE;
+    int OUT_LDAM_OP_STORAGE;
     
-    OUT_DAM_VOLUME = list_search_id(outvar_types, "OUT_DAM_VOLUME");
-    OUT_DAM_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_DISCHARGE");
-    OUT_DAM_INFLOW = list_search_id(outvar_types, "OUT_DAM_INFLOW");
-    OUT_DAM_DEMAND = list_search_id(outvar_types, "OUT_DAM_DEMAND");
-    OUT_DAM_OP_DISCHARGE = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE");
-    OUT_DAM_OP_DISCHARGE_IRR = list_search_id(outvar_types, "OUT_DAM_OP_DISCHARGE_IRR");
-    OUT_DAM_OP_VOLUME = list_search_id(outvar_types, "OUT_DAM_OP_VOLUME");
-    OUT_DAM_OP_MONTH = list_search_id(outvar_types, "OUT_DAM_OP_MONTH");
-    OUT_DAM_HIST_DEMAND = list_search_id(outvar_types, "OUT_DAM_HIST_DEMAND");
-    OUT_DAM_HIST_FLOW = list_search_id(outvar_types, "OUT_DAM_HIST_FLOW");
+    int OUT_GDAM_INFLOW;
+    int OUT_GDAM_DEMAND;
+    int OUT_GDAM_EFR;
+    int OUT_GDAM_STORAGE;
+    int OUD_GDAM_RELEASE;
+    int OUT_GDAM_HIST_INFLOW;
+    int OUT_GDAM_HIST_DEMAND;
+    int OUT_GDAM_HIST_EFR;
+    int OUT_GDAM_OP_RELEASE;
+    int OUT_GDAM_OP_STORAGE;
     
-    strcpy(out_metadata[OUT_DAM_VOLUME].varname, "OUT_DAM_VOLUME");
-    strcpy(out_metadata[OUT_DAM_VOLUME].long_name, "dam_water_volume");
-    strcpy(out_metadata[OUT_DAM_VOLUME].standard_name,
-           "dam_water_volume");
-    strcpy(out_metadata[OUT_DAM_VOLUME].units, "mcm");
-    strcpy(out_metadata[OUT_DAM_VOLUME].description,
-           "dam volume");
+    OUT_LDAM_INFLOW = list_search_id(outvar_types, "OUT_LDAM_INFLOW");
+    OUT_LDAM_DEMAND = list_search_id(outvar_types, "OUT_LDAM_DEMAND");
+    OUT_LDAM_EFR = list_search_id(outvar_types, "OUT_LDAM_EFR");
+    OUT_LDAM_STORAGE = list_search_id(outvar_types, "OUT_LDAM_STORAGE");
+    OUD_LDAM_RELEASE = list_search_id(outvar_types, "OUD_LDAM_RELEASE");
+    OUT_LDAM_HIST_INFLOW = list_search_id(outvar_types, "OUT_LDAM_HIST_INFLOW");
+    OUT_LDAM_HIST_DEMAND = list_search_id(outvar_types, "OUT_LDAM_HIST_DEMAND");
+    OUT_LDAM_HIST_EFR = list_search_id(outvar_types, "OUT_LDAM_HIST_EFR");
+    OUT_LDAM_OP_RELEASE = list_search_id(outvar_types, "OUT_LDAM_OP_RELEASE");
+    OUT_LDAM_OP_STORAGE = list_search_id(outvar_types, "OUT_LDAM_OP_STORAGE");
+    
+    OUT_GDAM_INFLOW = list_search_id(outvar_types, "OUT_GDAM_INFLOW");
+    OUT_GDAM_DEMAND = list_search_id(outvar_types, "OUT_GDAM_DEMAND");
+    OUT_GDAM_EFR = list_search_id(outvar_types, "OUT_GDAM_EFR");
+    OUT_GDAM_STORAGE = list_search_id(outvar_types, "OUT_GDAM_STORAGE");
+    OUD_GDAM_RELEASE = list_search_id(outvar_types, "OUD_GDAM_RELEASE");
+    OUT_GDAM_HIST_INFLOW = list_search_id(outvar_types, "OUT_GDAM_HIST_INFLOW");
+    OUT_GDAM_HIST_DEMAND = list_search_id(outvar_types, "OUT_GDAM_HIST_DEMAND");
+    OUT_GDAM_HIST_EFR = list_search_id(outvar_types, "OUT_GDAM_HIST_EFR");
+    OUT_GDAM_OP_RELEASE = list_search_id(outvar_types, "OUT_GDAM_OP_RELEASE");
+    OUT_GDAM_OP_STORAGE = list_search_id(outvar_types, "OUT_GDAM_OP_STORAGE");
+    
+    //OUT_LDAM_INFLOW
+    strcpy(out_metadata[OUT_LDAM_INFLOW].varname, "OUT_LDAM_INFLOW");
+    strcpy(out_metadata[OUT_LDAM_INFLOW].long_name, 
+            "local_dam_inflow");
+    strcpy(out_metadata[OUT_LDAM_INFLOW].standard_name,
+           "local_dam_inflow");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].description,
+           "current reservoir inflow");
 
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].varname, "OUT_DAM_DISCHARGE");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].long_name, "dam_discharge");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].standard_name,
-           "dam_discharge");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].description,
-           "flow out dam reservoir");
+    //OUT_LDAM_DEMAND
+    strcpy(out_metadata[OUT_LDAM_DEMAND].varname, "OUT_LDAM_DEMAND");
+    strcpy(out_metadata[OUT_LDAM_DEMAND].long_name, 
+            "local_dam_demand");
+    strcpy(out_metadata[OUT_LDAM_DEMAND].standard_name,
+           "local_dam_demand");
+    strcpy(out_metadata[OUT_LDAM_DEMAND].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_DEMAND].description,
+           "current service cells demand");
 
-    strcpy(out_metadata[OUT_DAM_INFLOW].varname, "OUT_DAM_INFLOW");
-    strcpy(out_metadata[OUT_DAM_INFLOW].long_name, "dam_inflow");
-    strcpy(out_metadata[OUT_DAM_INFLOW].standard_name,
-           "dam_inflow");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_DISCHARGE].description,
-           "flow in dam reservoir");
+    //OUT_LDAM_EFR
+    strcpy(out_metadata[OUT_LDAM_EFR].varname, "OUT_LDAM_EFR");
+    strcpy(out_metadata[OUT_LDAM_EFR].long_name, 
+            "local_dam_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_LDAM_EFR].standard_name,
+           "local_dam_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_LDAM_EFR].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_EFR].description,
+           "current environmental flow requirement");
+    
+    //OUT_LDAM_STORAGE
+    strcpy(out_metadata[OUT_LDAM_STORAGE].varname, "OUT_LDAM_STORAGE");
+    strcpy(out_metadata[OUT_LDAM_STORAGE].long_name, 
+            "local_dam_storage");
+    strcpy(out_metadata[OUT_LDAM_STORAGE].standard_name,
+           "local_dam_storage");
+    strcpy(out_metadata[OUT_LDAM_STORAGE].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_STORAGE].description,
+           "current reservoir storage");
 
-    strcpy(out_metadata[OUT_DAM_DEMAND].varname, "OUT_DAM_DEMAND");
-    strcpy(out_metadata[OUT_DAM_DEMAND].long_name, "dam_demand");
-    strcpy(out_metadata[OUT_DAM_DEMAND].standard_name,
-           "dam_demand");
-    strcpy(out_metadata[OUT_DAM_DEMAND].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_DEMAND].description,
-           "demand of downstream irrigation");
+    //OUD_LDAM_RELEASE
+    strcpy(out_metadata[OUD_LDAM_RELEASE].varname, "OUD_LDAM_RELEASE");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].long_name, 
+            "local_dam_release");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].standard_name,
+           "local_dam_release");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUD_LDAM_RELEASE].description,
+           "current reservoir release");
 
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].varname, "OUT_DAM_OP_DISCHARGE");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].long_name, "dam_operational_discharge");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].standard_name,
-           "dam_operational_discharge");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE].description,
-           "dam_operational_discharge");
+    //OUT_LDAM_OP_RELEASE
+    strcpy(out_metadata[OUT_LDAM_OP_RELEASE].varname, "OUT_LDAM_OP_RELEASE");
+    strcpy(out_metadata[OUT_LDAM_OP_RELEASE].long_name, 
+            "local_dam_operational_release");
+    strcpy(out_metadata[OUT_LDAM_OP_RELEASE].standard_name,
+           "local_dam_operational_release");
+    strcpy(out_metadata[OUT_LDAM_OP_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_OP_RELEASE].description,
+           "operational reservoir release");
 
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE_IRR].varname, "OUT_DAM_OP_DISCHARGE_IRR");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE_IRR].long_name, "dam_operational_discharge");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE_IRR].standard_name,
-           "dam_operational_discharge");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE_IRR].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_OP_DISCHARGE_IRR].description,
-           "dam_operational_discharge");
+    //OUT_LDAM_OP_STORAGE
+    strcpy(out_metadata[OUT_LDAM_OP_STORAGE].varname, "OUT_LDAM_OP_STORAGE");
+    strcpy(out_metadata[OUT_LDAM_OP_STORAGE].long_name, 
+            "local_dam_operational_storage");
+    strcpy(out_metadata[OUT_LDAM_OP_STORAGE].standard_name,
+           "local_dam_operational_storage");
+    strcpy(out_metadata[OUT_LDAM_OP_STORAGE].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_OP_STORAGE].description,
+           "operational reservoir storage");
 
-    strcpy(out_metadata[OUT_DAM_OP_VOLUME].varname, "OUT_DAM_OP_VOLUME");
-    strcpy(out_metadata[OUT_DAM_OP_VOLUME].long_name, "dam_operational_volume");
-    strcpy(out_metadata[OUT_DAM_OP_VOLUME].standard_name,
-           "dam_operational_volume");
-    strcpy(out_metadata[OUT_DAM_OP_VOLUME].units, "km3");
-    strcpy(out_metadata[OUT_DAM_OP_VOLUME].description,
-           "dam_operational_volume");
+    //OUT_LDAM_HIST_INFLOW
+    strcpy(out_metadata[OUT_LDAM_HIST_INFLOW].varname, "OUT_LDAM_HIST_INFLOW");
+    strcpy(out_metadata[OUT_LDAM_HIST_INFLOW].long_name, 
+            "local_dam_historical_inflow");
+    strcpy(out_metadata[OUT_LDAM_HIST_INFLOW].standard_name,
+           "local_dam_historical_inflow");
+    strcpy(out_metadata[OUT_LDAM_HIST_INFLOW].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_HIST_INFLOW].description,
+           "historical reservoir inflow");
 
-    strcpy(out_metadata[OUT_DAM_OP_MONTH].varname, "OUT_DAM_OP_MONTH");
-    strcpy(out_metadata[OUT_DAM_OP_MONTH].long_name, "dam_operational_month");
-    strcpy(out_metadata[OUT_DAM_OP_MONTH].standard_name,
-           "dam_operational_month");
-    strcpy(out_metadata[OUT_DAM_OP_MONTH].units, "#");
-    strcpy(out_metadata[OUT_DAM_OP_MONTH].description,
-           "dam_operational_month");
+    //OUT_LDAM_HIST_DEMAND
+    strcpy(out_metadata[OUT_LDAM_HIST_DEMAND].varname, "OUT_LDAM_HIST_DEMAND");
+    strcpy(out_metadata[OUT_LDAM_HIST_DEMAND].long_name, 
+            "local_dam_historical_demand");
+    strcpy(out_metadata[OUT_LDAM_HIST_DEMAND].standard_name,
+           "local_dam_historical_demand");
+    strcpy(out_metadata[OUT_LDAM_HIST_DEMAND].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_HIST_DEMAND].description,
+           "historical service cells demand");
 
-    strcpy(out_metadata[OUT_DAM_HIST_DEMAND].varname, "OUT_DAM_HIST_DEMAND");
-    strcpy(out_metadata[OUT_DAM_HIST_DEMAND].long_name, "dam_historical_demand");
-    strcpy(out_metadata[OUT_DAM_HIST_DEMAND].standard_name,
-           "dam_historical_demand");
-    strcpy(out_metadata[OUT_DAM_HIST_DEMAND].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_HIST_DEMAND].description,
-           "dam_historical_demand");
+    //OUT_LDAM_HIST_INFLOW
+    strcpy(out_metadata[OUT_LDAM_HIST_EFR].varname, "OUT_LDAM_HIST_EFR");
+    strcpy(out_metadata[OUT_LDAM_HIST_EFR].long_name, 
+            "local_dam_historical_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_LDAM_HIST_EFR].standard_name,
+           "local_dam_historical_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_LDAM_HIST_EFR].units, "hm3");
+    strcpy(out_metadata[OUT_LDAM_HIST_EFR].description,
+           "historical environmental flow requirement");
+    
+    
+    //OUT_GDAM_INFLOW
+    strcpy(out_metadata[OUT_GDAM_INFLOW].varname, "OUT_GDAM_INFLOW");
+    strcpy(out_metadata[OUT_GDAM_INFLOW].long_name, 
+            "global_dam_inflow");
+    strcpy(out_metadata[OUT_GDAM_INFLOW].standard_name,
+           "global_dam_inflow");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].description,
+           "current reservoir inflow");
 
-    strcpy(out_metadata[OUT_DAM_HIST_FLOW].varname, "OUT_DAM_HIST_FLOW");
-    strcpy(out_metadata[OUT_DAM_HIST_FLOW].long_name, "dam_historical_inflow");
-    strcpy(out_metadata[OUT_DAM_HIST_FLOW].standard_name,
-           "dam_historical_inflow");
-    strcpy(out_metadata[OUT_DAM_HIST_FLOW].units, "m3/s");
-    strcpy(out_metadata[OUT_DAM_HIST_FLOW].description,
-           "dam_historical_inflow");
+    //OUT_GDAM_DEMAND
+    strcpy(out_metadata[OUT_GDAM_DEMAND].varname, "OUT_GDAM_DEMAND");
+    strcpy(out_metadata[OUT_GDAM_DEMAND].long_name, 
+            "global_dam_demand");
+    strcpy(out_metadata[OUT_GDAM_DEMAND].standard_name,
+           "global_dam_demand");
+    strcpy(out_metadata[OUT_GDAM_DEMAND].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_DEMAND].description,
+           "current service cells demand");
 
-    out_metadata[OUT_DAM_VOLUME].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_DISCHARGE].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_INFLOW].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_OP_DISCHARGE].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_OP_DISCHARGE_IRR].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_OP_VOLUME].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_OP_MONTH].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_HIST_DEMAND].nelem = options.MAXDAMS;
-    out_metadata[OUT_DAM_HIST_FLOW].nelem = options.MAXDAMS;
+    //OUT_GDAM_EFR
+    strcpy(out_metadata[OUT_GDAM_EFR].varname, "OUT_GDAM_EFR");
+    strcpy(out_metadata[OUT_GDAM_EFR].long_name, 
+            "global_dam_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_GDAM_EFR].standard_name,
+           "global_dam_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_GDAM_EFR].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_EFR].description,
+           "current environmental flow requirement");
+    
+    //OUT_GDAM_STORAGE
+    strcpy(out_metadata[OUT_GDAM_STORAGE].varname, "OUT_GDAM_STORAGE");
+    strcpy(out_metadata[OUT_GDAM_STORAGE].long_name, 
+            "global_dam_storage");
+    strcpy(out_metadata[OUT_GDAM_STORAGE].standard_name,
+           "global_dam_storage");
+    strcpy(out_metadata[OUT_GDAM_STORAGE].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_STORAGE].description,
+           "current reservoir storage");
+
+    //OUD_GDAM_RELEASE
+    strcpy(out_metadata[OUD_GDAM_RELEASE].varname, "OUD_GDAM_RELEASE");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].long_name, 
+            "global_dam_release");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].standard_name,
+           "global_dam_release");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUD_GDAM_RELEASE].description,
+           "current reservoir release");
+
+    //OUT_GDAM_OP_RELEASE
+    strcpy(out_metadata[OUT_GDAM_OP_RELEASE].varname, "OUT_GDAM_OP_RELEASE");
+    strcpy(out_metadata[OUT_GDAM_OP_RELEASE].long_name, 
+            "global_dam_operational_release");
+    strcpy(out_metadata[OUT_GDAM_OP_RELEASE].standard_name,
+           "global_dam_operational_release");
+    strcpy(out_metadata[OUT_GDAM_OP_RELEASE].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_OP_RELEASE].description,
+           "operational reservoir release");
+
+    //OUT_GDAM_OP_STORAGE
+    strcpy(out_metadata[OUT_GDAM_OP_STORAGE].varname, "OUT_GDAM_OP_STORAGE");
+    strcpy(out_metadata[OUT_GDAM_OP_STORAGE].long_name, 
+            "global_dam_operational_storage");
+    strcpy(out_metadata[OUT_GDAM_OP_STORAGE].standard_name,
+           "global_dam_operational_storage");
+    strcpy(out_metadata[OUT_GDAM_OP_STORAGE].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_OP_STORAGE].description,
+           "operational reservoir storage");
+
+    //OUT_GDAM_HIST_INFLOW
+    strcpy(out_metadata[OUT_GDAM_HIST_INFLOW].varname, "OUT_GDAM_HIST_INFLOW");
+    strcpy(out_metadata[OUT_GDAM_HIST_INFLOW].long_name, 
+            "global_dam_historical_inflow");
+    strcpy(out_metadata[OUT_GDAM_HIST_INFLOW].standard_name,
+           "global_dam_historical_inflow");
+    strcpy(out_metadata[OUT_GDAM_HIST_INFLOW].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_HIST_INFLOW].description,
+           "historical reservoir inflow");
+
+    //OUT_GDAM_HIST_DEMAND
+    strcpy(out_metadata[OUT_GDAM_HIST_DEMAND].varname, "OUT_GDAM_HIST_DEMAND");
+    strcpy(out_metadata[OUT_GDAM_HIST_DEMAND].long_name, 
+            "global_dam_historical_demand");
+    strcpy(out_metadata[OUT_GDAM_HIST_DEMAND].standard_name,
+           "global_dam_historical_demand");
+    strcpy(out_metadata[OUT_GDAM_HIST_DEMAND].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_HIST_DEMAND].description,
+           "historical service cells demand");
+
+    //OUT_GDAM_HIST_INFLOW
+    strcpy(out_metadata[OUT_GDAM_HIST_EFR].varname, "OUT_GDAM_HIST_EFR");
+    strcpy(out_metadata[OUT_GDAM_HIST_EFR].long_name, 
+            "global_dam_historical_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_GDAM_HIST_EFR].standard_name,
+           "global_dam_historical_environmental_flow_requirement");
+    strcpy(out_metadata[OUT_GDAM_HIST_EFR].units, "hm3");
+    strcpy(out_metadata[OUT_GDAM_HIST_EFR].description,
+           "historical environmental flow requirement");
+
+    out_metadata[OUT_LDAM_INFLOW].nelem = 1;
+    out_metadata[OUT_LDAM_DEMAND].nelem = 1;
+    out_metadata[OUT_LDAM_EFR].nelem = 1;
+    out_metadata[OUT_LDAM_STORAGE].nelem = 1;
+    out_metadata[OUD_LDAM_RELEASE].nelem = 1;
+    out_metadata[OUT_LDAM_HIST_DEMAND].nelem = 1;
+    out_metadata[OUT_LDAM_HIST_INFLOW].nelem = 1;
+    out_metadata[OUT_LDAM_HIST_EFR].nelem = 1;
+    out_metadata[OUT_LDAM_OP_RELEASE].nelem = 1;
+    out_metadata[OUT_LDAM_OP_STORAGE].nelem = 1;
+    
+    out_metadata[OUT_GDAM_INFLOW].nelem = 1;
+    out_metadata[OUT_GDAM_DEMAND].nelem = 1;
+    out_metadata[OUT_GDAM_EFR].nelem = 1;
+    out_metadata[OUT_GDAM_STORAGE].nelem = 1;
+    out_metadata[OUD_GDAM_RELEASE].nelem = 1;
+    out_metadata[OUT_GDAM_HIST_DEMAND].nelem = 1;
+    out_metadata[OUT_GDAM_HIST_INFLOW].nelem = 1;
+    out_metadata[OUT_GDAM_HIST_EFR].nelem = 1;
+    out_metadata[OUT_GDAM_OP_RELEASE].nelem = 1;
+    out_metadata[OUT_GDAM_OP_STORAGE].nelem = 1;
 }
 
 void

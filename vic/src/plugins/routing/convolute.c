@@ -1,7 +1,7 @@
 #include <vic.h>
 
 void
-rout(double  quantity,
+convolute(double  quantity,
      double *uh,
      double *discharge,
      size_t  length,

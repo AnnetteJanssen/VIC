@@ -9,21 +9,16 @@
 #define VFM_HIGH_DEMAND_FRAC 0.3
 
 typedef struct {
-    double *requirement_discharge;
+    double *req_discharge;
     double *requirement_baseflow;
 } efr_force_struct;
-
-typedef struct {
-    double requirement_discharge;
-    double requirement_baseflow;
-} efr_hist_struct;
 
 typedef struct {
     double **requirement_moist;
 } efr_var_struct;
 
 bool efr_get_global_parameters(char *cmdstr);
-void efr_validate_global_parameters(void);
+void efr_validate_global_param(void);
 void efr_validate_domain(void);
 void efr_set_output_meta_data_info(void);
 void efr_set_state_meta_data_info(void);
@@ -36,7 +31,6 @@ void efr_finalize(void);
 void efr_add_types(void);
 
 efr_var_struct *efr_var;
-efr_hist_struct *efr_hist;
 efr_force_struct *efr_force;
 
 #endif /* EFR_H */

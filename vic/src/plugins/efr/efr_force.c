@@ -10,7 +10,6 @@ efr_forcing(void)
     extern dmy_struct         *dmy;
     extern filenames_struct filenames;
     extern efr_force_struct *efr_force;
-    extern efr_hist_struct *efr_hist;
     extern size_t NF;
     extern int mpi_rank;
     
@@ -72,7 +71,7 @@ efr_forcing(void)
             "discharge", d3start, d3count, dvar);
 
         for (i = 0; i < local_domain.ncells_active; i++) {
-            efr_force[i].requirement_discharge[j] = dvar[i];
+            efr_force[i].req_discharge[j] = dvar[i];
         }
 
         get_scatter_nc_field_double(&(filenames.efr_forcing), 
@@ -85,11 +84,11 @@ efr_forcing(void)
 
     // Average forcing data
     for (i = 0; i < local_domain.ncells_active; i++) {
-        efr_hist[i].requirement_discharge = 
-                average(efr_force[i].requirement_discharge, NF);
+        efr_force[i].req_discharge[NR] = 
+                average(efr_force[i].req_discharge, NF);
     }       
     for (i = 0; i < local_domain.ncells_active; i++) {
-        efr_hist[i].requirement_baseflow = 
+        efr_force[i].requirement_baseflow[NR] = 
                 average(efr_force[i].requirement_baseflow, NF);
     }       
 

@@ -73,6 +73,8 @@ runoff(cell_data_struct  *cell,
     double                     tmp_dt_runoff[MAX_FROST_AREAS];
     double                     baseflow[MAX_FROST_AREAS];
     double                     dt_baseflow;
+    double                     recharge[MAX_FROST_AREAS];
+    double                     dt_recharge;
     double                     rel_moist;
     double                     evap[MAX_LAYERS][MAX_FROST_AREAS];
     double                     sum_liq;
@@ -98,12 +100,14 @@ runoff(cell_data_struct  *cell,
     cell->runoff = 0;
     cell->baseflow = 0;
     cell->asat = 0;
+    cell->recharge = 0;
 
     runoff_steps_per_dt = global_param.runoff_steps_per_day /
                           global_param.model_steps_per_day;
 
     for (fidx = 0; fidx < (int)options.Nfrost; fidx++) {
         baseflow[fidx] = 0;
+        recharge[fidx] = 0;
     }
 
     for (lindex = 0; lindex < options.Nlayer; lindex++) {
@@ -370,6 +374,9 @@ runoff(cell_data_struct  *cell,
                 dt_baseflow = 0;
             }
 
+            /** Compute recharge **/
+            dt_recharge = Q12[lindex - 1];
+            
             /** Extract baseflow from the bottom soil layer **/
 
             liq[lindex] +=
@@ -392,6 +399,7 @@ runoff(cell_data_struct  *cell,
                 /* soil moisture above maximum */
                 tmp_moist = ((liq[lindex] + ice[lindex]) - max_moist[lindex]);
                 liq[lindex] = max_moist[lindex] - ice[lindex];
+                dt_recharge -= tmp_moist;
                 tmplayer = lindex;
                 while (tmp_moist > 0) {
                     tmplayer--;
@@ -418,6 +426,7 @@ runoff(cell_data_struct  *cell,
             }
 
             baseflow[fidx] += dt_baseflow;
+            recharge[fidx] += dt_recharge;
         } /* end of sub-dt time step loop */
 
         /** If negative baseflow, reduce evap accordingly **/
@@ -445,6 +454,7 @@ runoff(cell_data_struct  *cell,
         cell->asat += A * frost_fract[fidx];
         cell->runoff += runoff[fidx] * frost_fract[fidx];
         cell->baseflow += baseflow[fidx] * frost_fract[fidx];
+        cell->recharge += recharge[fidx] * frost_fract[fidx];
     }
 
     /** Compute water table depth **/

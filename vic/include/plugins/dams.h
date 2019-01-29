@@ -3,75 +3,48 @@
 
 #include <vic_physical_constants.h>
 #include <stdbool.h>
-#define DAM_HIST_YEARS 3
 
-#define DAM_AMP_STEP_POS 0.05
-#define DAM_AMP_STEP_NEG -0.05
-
-#define DAM_SAMP_FLO 0.75
-#define DAM_SAMP_HYD 0
-#define DAM_SAMP_SUP 1
-#define DAM_EAMP_FLO 1
-#define DAM_EAMP_HYD 1
-#define DAM_EAMP_SUP 0
-
-#define DAM_PREF_VOL_HYD 0.85
-#define DAM_PREF_VOL_FLO 0.5
-#define DAM_PREF_VOL_SUP 0.85
-#define DAM_MIN_VOL_HYD 0.1
-#define DAM_MIN_VOL_FLO 0
-#define DAM_MIN_VOL_SUP 0.1
-
-#define DAM_PREF_DEM_SUP 0.2
-
-#define DAM_MOD_VOL_FRAC 0.005
-#define DAM_MOD_DIS_FRAC 0.4
-
-#define DAM_FUN_HYD 1
-#define DAM_FUN_IRR 2
-#define DAM_FUN_WAS 3
-#define DAM_FUN_FLO 4
-#define DAM_FUN_OTH 5
-
-#define DAYS_PER_MONTH_AVG 30.42
-#define DAYS_PER_WEEK 7
+#define DAM_HIST_YEARS 5
 
 typedef struct {
-    size_t nd_active;
-} dam_con_map_struct;
-
-typedef struct {
-    int id;
+    bool run;
+    
     int year;
-    int function;
-    double max_volume;
+    double capacity;
+    double inflow_frac;
+    
     size_t nservice;
     size_t *service;
-    double *serve_factor;
+    double *service_frac;
 } dam_con_struct;
 
 typedef struct {
-    double volume;
-    double discharge;
+    bool active;
+    
     double inflow;
     double demand;
-
-    double history_flow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
-    double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];
+    double efr;
     
-    double op_discharge[MONTHS_PER_YEAR];
-    double op_volume[MONTHS_PER_YEAR];
+    double release;
+    double storage;
 
-    double total_flow;
+    double history_inflow[MONTHS_PER_YEAR * DAM_HIST_YEARS];
+    double history_demand[MONTHS_PER_YEAR * DAM_HIST_YEARS];
+    double history_efr[MONTHS_PER_YEAR * DAM_HIST_YEARS];
+    
+    double op_release[MONTHS_PER_YEAR];
+    double op_storage[MONTHS_PER_YEAR];
+
+    double total_inflow;
     double total_demand;
-    size_t total_steps;
+    double total_efr;
 
     int op_year;
     size_t months_running;
 } dam_var_struct;
 
 bool dam_get_global_parameters(char *cmdstr);
-void dam_validate_global_parameters(void);
+void dam_validate_global_param(void);
 void dam_start(void);
 void dam_validate_domain(void);
 void dam_alloc(void);
@@ -80,17 +53,27 @@ void dam_init(void);
 void dam_set_output_meta_data_info(void);
 void dam_set_state_meta_data_info(void);
 void dam_generate_default_state(void);
-void dam_history(size_t cur_cell);
-void dam_run(size_t cur_cell);
-double dam_area(double volume, double max_volume, double max_area,
-                double max_height);
-double dam_height(double area, double max_height);
+
+void local_dam_history(dam_con_struct *, dam_var_struct *, size_t cur_cell);
+void global_dam_history(dam_con_struct *, dam_var_struct *, size_t cur_cell);
+void local_dam_run(size_t cur_cell);
+void global_dam_run(size_t cur_cell);
+
+void dam_calc_opt_release(double *, double *, double *, double *, size_t);
+void dam_corr_opt_release(double *, double *, size_t, double, double);
+double dam_corr_release(double, double, double);
+double dam_calc_k_factor(double, double);
+double dam_calc_c_factor(double *, double, size_t);
+void dam_calc_opt_storage(double *, double *, double *, size_t, double);
+double dam_area(double, double, double, double);
+double dam_height(double, double);
+
 void dam_put_data(size_t);
 void dam_finalize(void);
 void dam_add_types(void);
 
-dam_var_struct    **dam_var;
-dam_con_struct    **dam_con;
-dam_con_map_struct *dam_con_map;
-
+dam_var_struct     *local_dam_var;
+dam_var_struct     *global_dam_var;
+dam_con_struct     *local_dam_con;
+dam_con_struct     *global_dam_con;
 #endif /* DAMS_H */

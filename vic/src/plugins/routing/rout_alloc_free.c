@@ -9,7 +9,6 @@ rout_alloc(void)
     extern option_struct    options;
     extern rout_var_struct *rout_var;
     extern rout_con_struct *rout_con;
-    extern rout_hist_struct *rout_hist;
     extern rout_force_struct *rout_force;
     extern size_t          *routing_order;
     extern global_param_struct global_param;
@@ -26,25 +25,6 @@ rout_alloc(void)
 
     rout_con = malloc(local_domain.ncells_active * sizeof(*rout_con));
     check_alloc_status(rout_con, "Memory allocation error");
-    
-    if (options.ROUTING_FORCE) {
-        rout_hist = malloc(local_domain.ncells_active * sizeof(*rout_hist));
-        check_alloc_status(rout_hist, "Memory allocation error");
-
-        rout_force = malloc(local_domain.ncells_active * sizeof(*rout_force));
-        check_alloc_status(rout_force, "Memory allocation error");
-    }
-    
-    if (options.ROUTING_TYPE == ROUTING_BASIN) {
-        routing_order =
-            malloc(local_domain.ncells_active * sizeof(*routing_order));
-        check_alloc_status(routing_order, "Memory allocation error");
-    }
-    else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
-        routing_order =
-            malloc(global_domain.ncells_active * sizeof(*routing_order));
-        check_alloc_status(routing_order, "Memory allocation error");
-    }
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         rout_con[i].inflow_uh =
@@ -58,11 +38,27 @@ rout_alloc(void)
         rout_var[i].dt_discharge =
             malloc((options.IUH_NSTEPS + rout_steps_per_dt) * sizeof(*rout_var[i].dt_discharge));
         check_alloc_status(rout_var[i].dt_discharge, "Memory allocation error");
+    }
+    
+    if (options.ROUTING_FORCE) {
+        rout_force = malloc(local_domain.ncells_active * sizeof(*rout_force));
+        check_alloc_status(rout_force, "Memory allocation error");
         
-        if (options.ROUTING_FORCE) {
+        for (i = 0; i < local_domain.ncells_active; i++) {
             rout_force[i].discharge = malloc(NF * sizeof(*rout_force[i].discharge));
             check_alloc_status(rout_force[i].discharge, "Memory allocation error");
         }
+    }
+    
+    if (options.ROUTING_TYPE == ROUTING_BASIN) {
+        routing_order =
+            malloc(local_domain.ncells_active * sizeof(*routing_order));
+        check_alloc_status(routing_order, "Memory allocation error");
+    }
+    else if (options.ROUTING_TYPE == ROUTING_RANDOM) {
+        routing_order =
+            malloc(global_domain.ncells_active * sizeof(*routing_order));
+        check_alloc_status(routing_order, "Memory allocation error");
     }
 }
 
@@ -73,7 +69,6 @@ rout_finalize(void)
     extern rout_var_struct *rout_var;
     extern rout_con_struct *rout_con;
     extern size_t          *routing_order;
-    extern rout_hist_struct *rout_hist;
     extern rout_force_struct *rout_force;
     extern option_struct    options;
 
@@ -84,17 +79,16 @@ rout_finalize(void)
         free(rout_con[i].runoff_uh);
         free(rout_con[i].upstream);
         free(rout_var[i].dt_discharge);
-        
-        if(options.ROUTING_FORCE){
-            free(rout_force[i].discharge);
-        }
     }
     free(rout_var);
     free(rout_con);
-    free(routing_order);
     
     if(options.ROUTING_FORCE){
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            free(rout_force[i].discharge);
+        }
         free(rout_force);
-        free(rout_hist);
     }
+    
+    free(routing_order);
 }

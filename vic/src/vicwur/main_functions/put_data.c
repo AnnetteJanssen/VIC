@@ -554,7 +554,7 @@ put_data(all_vars_struct   *all_vars,
 
     // Store total storage for next timestep
     save_data->total_moist_storage = storage;
-
+    
     /********************
        Check Energy Balance
     ********************/
@@ -654,6 +654,9 @@ collect_wb_terms(cell_data_struct cell,
 
     /** record baseflow **/
     out_data[OUT_BASEFLOW][0] += cell.baseflow * AreaFactor;
+    
+    /** record recharge **/
+    out_data[OUT_RECHARGE][0] += cell.recharge * AreaFactor;
 
     /** record inflow **/
     out_data[OUT_INFLOW][0] += (cell.inflow) * AreaFactor;

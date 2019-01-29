@@ -133,6 +133,7 @@ enum
     OUT_ZWT_LUMPED,       /**< lumped water table position [cm] (zwt of total moisture across all layers, lumped together) */
     // Water Balance Terms - fluxes
     OUT_BASEFLOW,         /**< baseflow out of the bottom layer  [mm] */
+    OUT_RECHARGE,         /**< recharge to the bottom layer  [mm] */
     OUT_DELINTERCEPT,     /**< change in canopy interception storage  [mm] */
     OUT_DELSOILMOIST,     /**< change in soil water content  [mm] */
     OUT_DELSURFSTOR,      /**< change in surface liquid water storage  [mm] */
@@ -644,9 +645,7 @@ typedef struct {
     size_t veg_size;
 
     int sector_dimid;
-    int dam_dimid;
     size_t sector_size;
-    size_t dam_size;
 
     bool open;
     nc_var_struct *nc_vars;
@@ -871,6 +870,7 @@ void strpdmy(const char *s, const char *format, dmy_struct *dmy);
 double time_delta(dmy_struct *dmy_current, unsigned short int freq, int n);
 bool between_dmy(dmy_struct, dmy_struct, dmy_struct);
 double between_jday(double, double, double);
+unsigned short int days_per_month(unsigned short int, unsigned short int, unsigned short int);
 void timer_continue(timer_struct *t);
 void timer_init(timer_struct *t);
 void timer_start(timer_struct *t);

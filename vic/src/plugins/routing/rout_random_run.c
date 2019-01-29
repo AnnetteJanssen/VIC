@@ -1,4 +1,5 @@
 #include <vic.h>
+
 void
 rout_random_run()
 {
@@ -8,7 +9,7 @@ rout_random_run()
     extern option_struct       options;
     extern rout_var_struct    *rout_var;
     extern rout_con_struct    *rout_con;
-    extern rout_hist_struct   *rout_hist;
+    extern rout_force_struct  *rout_force;
     extern double           ***out_data;
     extern size_t             *routing_order;
     extern int                 mpi_rank;
@@ -20,7 +21,8 @@ rout_random_run()
     double                    *run_global;
     double                   **dt_dis_global;
     double                    *dis_global;
-    double                    *hist_global;
+    double                    *stream_global;
+    double                    *force_global;
 
     size_t                    *nup_local;
     size_t                   **up_local;
@@ -29,7 +31,8 @@ rout_random_run()
     double                    *run_local;
     double                   **dt_dis_local;
     double                    *dis_local;
-    double                    *hist_local;
+    double                    *stream_local;
+    double                    *force_local;
 
     size_t                     cur_cell;
     double                     inflow;
@@ -37,6 +40,7 @@ rout_random_run()
     double                     runoff;
     double                     dt_runoff;
     size_t                     rout_steps_per_dt;
+    double                     prev_stream;
 
     size_t                     i;
     size_t                     j;
@@ -59,6 +63,8 @@ rout_random_run()
     check_alloc_status(dt_dis_global, "Memory allocation error");
     dis_global = malloc(global_domain.ncells_active * sizeof(*dis_global));
     check_alloc_status(dis_global, "Memory allocation error");
+    stream_global = malloc(global_domain.ncells_active * sizeof(*stream_global));
+    check_alloc_status(stream_global, "Memory allocation error");
 
     for (i = 0; i < global_domain.ncells_active; i++) {
         up_global[i] = malloc(MAX_UPSTREAM * sizeof(*up_global[i]));
@@ -85,6 +91,8 @@ rout_random_run()
     check_alloc_status(dt_dis_local, "Memory allocation error");
     dis_local = malloc(local_domain.ncells_active * sizeof(*dis_local));
     check_alloc_status(dis_local, "Memory allocation error");
+    stream_local = malloc(local_domain.ncells_active * sizeof(*stream_local));
+    check_alloc_status(stream_local, "Memory allocation error");
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         up_local[i] = malloc(MAX_UPSTREAM * sizeof(*up_local[i]));
@@ -98,10 +106,10 @@ rout_random_run()
     }
     
     if (options.ROUTING_FORCE) {
-        hist_global = malloc(global_domain.ncells_active * sizeof(*hist_global));
-        check_alloc_status(hist_global, "Memory allocation error");
-        hist_local = malloc(local_domain.ncells_active * sizeof(*hist_local));
-        check_alloc_status(hist_local, "Memory allocation error");
+        force_global = malloc(global_domain.ncells_active * sizeof(*force_global));
+        check_alloc_status(force_global, "Memory allocation error");
+        force_local = malloc(local_domain.ncells_active * sizeof(*force_local));
+        check_alloc_status(force_local, "Memory allocation error");
     }
 
     // Get
@@ -126,8 +134,9 @@ rout_random_run()
         }
         
         dis_local[i] = rout_var[i].discharge;
+        stream_local[i] = rout_var[i].stream;
         if (options.ROUTING_FORCE) {
-            hist_local[i] = rout_hist[i].discharge;
+            force_local[i] = rout_force[i].discharge[NR];
         }
     }
 
@@ -139,44 +148,63 @@ rout_random_run()
     gather_double(run_global, run_local);
     gather_double_2d(dt_dis_global, dt_dis_local, options.IUH_NSTEPS + rout_steps_per_dt);
     gather_double(dis_global, dis_local);
+    gather_double(stream_global, stream_local);
     if (options.ROUTING_FORCE) {
-        gather_double(hist_global, hist_local);
+        gather_double(force_global, force_local);
     }
 
     // Calculate
     if (mpi_rank == VIC_MPI_ROOT) {
         for (i = 0; i < global_domain.ncells_active; i++) {
             cur_cell = routing_order[i];
-            
-            for(j = 0; j < rout_steps_per_dt; j++){
-                dt_dis_global[cur_cell][0] = 0.0;
-                cshift(dt_dis_global[cur_cell], options.IUH_NSTEPS + rout_steps_per_dt, 1, 0, 1);
-            }
 
+            // Gather inflow from upstream cells
             inflow = 0;
             for (j = 0; j < nup_global[cur_cell]; j++) {
                 inflow += dis_global[up_global[cur_cell][j]];
             }
             if (options.ROUTING_FORCE) {
-                inflow += hist_global[cur_cell];
+                inflow += force_global[cur_cell];
             }
-            dt_inflow = inflow / rout_steps_per_dt;
-
+            
+            // Gather runoff from VIC
             runoff = run_global[cur_cell];
+            
+            // Calculate delta-time inflow & runoff (equal contribution)
+            dt_inflow = inflow / rout_steps_per_dt;
             dt_runoff = runoff / rout_steps_per_dt;
             
-            dis_global[cur_cell] = 0.0;
+            // Shift and clear previous discharge data
             for(j = 0; j < rout_steps_per_dt; j++){
-                rout(dt_inflow, iuh_global[cur_cell], dt_dis_global[cur_cell],
-                     options.IUH_NSTEPS, j);
-                rout(dt_runoff, ruh_global[cur_cell], dt_dis_global[cur_cell],
-                     options.RUH_NSTEPS, j);
-                
-                dis_global[cur_cell] += dt_dis_global[cur_cell][0];
+                dt_dis_global[cur_cell][0] = 0.0;
                 cshift(dt_dis_global[cur_cell], options.IUH_NSTEPS + rout_steps_per_dt, 1, 0, 1);
             }
+            
+            // Convolute current inflow & runoff
             for(j = 0; j < rout_steps_per_dt; j++){
-                cshift(dt_dis_global[cur_cell], 1, options.IUH_NSTEPS + rout_steps_per_dt, 1, -1);
+                convolute(dt_inflow, iuh_global[cur_cell], dt_dis_global[cur_cell],
+                     options.IUH_NSTEPS, j);
+                convolute(dt_runoff, ruh_global[cur_cell], dt_dis_global[cur_cell],
+                     options.RUH_NSTEPS, j);
+            }
+    
+            // Aggregate current timestep discharge & stream moisture
+            dis_global[cur_cell] = 0.0;
+            prev_stream = stream_global[cur_cell];
+            stream_global[cur_cell] = 0.0;
+            for(j = 0; j < options.IUH_NSTEPS + rout_steps_per_dt; j++){
+                if (j < rout_steps_per_dt) {
+                    dis_global[cur_cell] += dt_dis_global[cur_cell][j];
+                } else {
+                    stream_global[cur_cell] += dt_dis_global[cur_cell][j];
+                }
+            }
+
+            // Check water balance
+            if(abs(prev_stream + (inflow + runoff) - 
+                    (dis_global[cur_cell] + stream_global[cur_cell])) >
+                    DBL_EPSILON){
+                log_err("Discharge water balance error");
             }
         }
     }
@@ -184,6 +212,7 @@ rout_random_run()
     // Scatter discharge
     scatter_double_2d(dt_dis_global, dt_dis_local, options.IUH_NSTEPS + rout_steps_per_dt);
     scatter_double(dis_global, dis_local);
+    scatter_double(stream_global, stream_local);
 
     // Set discharge
     for (i = 0; i < local_domain.ncells_active; i++) {
@@ -191,14 +220,7 @@ rout_random_run()
             rout_var[i].dt_discharge[j] = dt_dis_local[i][j];
         }
         rout_var[i].discharge = dis_local[i];
-        
-        rout_var[i].moist = 0.0;
-        for(j = 0; j < options.IUH_NSTEPS + rout_steps_per_dt; j++){
-            rout_var[i].moist += rout_var[i].dt_discharge[j] *
-                                          global_param.dt /
-                                          local_domain.locations[i].area *
-                                          MM_PER_M;
-        }
+        rout_var[i].stream = stream_local[i];
     }
 
     // Free
@@ -215,6 +237,7 @@ rout_random_run()
     free(run_global);
     free(dt_dis_global);
     free(dis_global);
+    free(stream_global);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         free(up_local[i]);
@@ -229,75 +252,10 @@ rout_random_run()
     free(run_local);
     free(dt_dis_local);
     free(dis_local);
+    free(stream_local);
     
     if (options.ROUTING_FORCE){
-        free(hist_global);
-        free(hist_local);
-    }
-}
-
-void
-rout_basin_run(size_t cur_cell)
-{
-    extern domain_struct       local_domain;
-    extern global_param_struct global_param;
-    extern option_struct       options;
-    extern rout_var_struct    *rout_var;
-    extern rout_con_struct    *rout_con;
-    extern rout_hist_struct    *rout_hist;
-    extern double           ***out_data;
-
-    double                     inflow;
-    double                     dt_inflow;
-    double                     runoff;
-    double                     dt_runoff;
-    size_t                     rout_steps_per_dt;
-
-    size_t                     i;
-
-    rout_steps_per_dt = global_param.rout_steps_per_day /
-                          global_param.model_steps_per_day;
-    
-    for(i = 0; i < rout_steps_per_dt; i++){
-        rout_var[cur_cell].dt_discharge[0] = 0.0;
-        cshift(rout_var[cur_cell].dt_discharge, options.IUH_NSTEPS + rout_steps_per_dt, 1, 0, 1);
-    }
-    
-    inflow = 0;
-    for (i = 0; i < rout_con[cur_cell].Nupstream; i++) {
-        inflow += rout_var[rout_con[cur_cell].upstream[i]].discharge;
-    }
-    if(options.ROUTING_FORCE){
-        inflow += rout_hist[cur_cell].discharge;
-    }
-    dt_inflow = inflow / rout_steps_per_dt;
-
-    runoff =
-        (out_data[cur_cell][OUT_RUNOFF][0] +
-         out_data[cur_cell][OUT_BASEFLOW][0]) *
-        local_domain.locations[cur_cell].area /
-        (global_param.dt * MM_PER_M);
-    dt_runoff = runoff / rout_steps_per_dt;
-    
-    rout_var[cur_cell].discharge = 0;
-    for(i = 0; i < rout_steps_per_dt; i++){
-        rout(dt_inflow, rout_con[cur_cell].inflow_uh, rout_var[cur_cell].dt_discharge,
-             options.IUH_NSTEPS, i);
-        rout(dt_runoff, rout_con[cur_cell].runoff_uh, rout_var[cur_cell].dt_discharge,
-             options.RUH_NSTEPS, i);
-        
-        rout_var[cur_cell].discharge += rout_var[cur_cell].dt_discharge[0];
-        cshift(rout_var[cur_cell].dt_discharge, options.IUH_NSTEPS + rout_steps_per_dt, 1, 0, 1);
-    }
-    for(i = 0; i < rout_steps_per_dt; i++){
-        cshift(rout_var[cur_cell].dt_discharge, 1, options.IUH_NSTEPS + rout_steps_per_dt, 1, -1);
-    }
-    
-    rout_var[cur_cell].moist = 0.0;
-    for(i = 0; i < options.IUH_NSTEPS + rout_steps_per_dt; i++){
-        rout_var[cur_cell].moist += rout_var[cur_cell].dt_discharge[i] *
-                                      global_param.dt /
-                                      local_domain.locations[cur_cell].area *
-                                      MM_PER_M;
+        free(force_global);
+        free(force_local);
     }
 }

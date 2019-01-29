@@ -18,10 +18,6 @@ irr_get_global_parameters(char *cmdstr)
     else if (strcasecmp("IRRIGATION_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", filenames.irrigation.nc_filename);
     }
-    else if (strcasecmp("POND_IRRIGATION", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", flgstr);
-        options.IRR_POND = str_to_bool(flgstr);
-    }
     else if (strcasecmp("POTENTIAL_IRRIGATION", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", flgstr);
         options.IRR_POTENTIAL = str_to_bool(flgstr);
@@ -34,16 +30,18 @@ irr_get_global_parameters(char *cmdstr)
 }
 
 void
-irr_validate_global_parameters(void)
+irr_validate_global_param(void)
 {
     extern filenames_struct filenames;
     extern option_struct options;
     
-    if(strcasecmp(filenames.irrigation.nc_filename, MISSING_S) == 0){
-        log_err("IRRIGATION = TRUE but IRRIGATION_PARAMETERS is missing");
-    }
-    
-    if(options.IRR_POTENTIAL && options.WATER_USE){
-        log_err("POTENTIAL_IRRIGATION = TRUE but WATER_USE = TRUE");
+    if(options.IRRIGATION){
+        if(strcasecmp(filenames.irrigation.nc_filename, MISSING_S) == 0){
+            log_err("IRRIGATION = TRUE but IRRIGATION_PARAMETERS is missing");
+        }
+
+        if(options.IRR_POTENTIAL && options.WATER_USE){
+            log_err("POTENTIAL_IRRIGATION = TRUE but WATER_USE = TRUE");
+        }
     }
 }

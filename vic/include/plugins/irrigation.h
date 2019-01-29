@@ -17,7 +17,6 @@ typedef struct {
     int veg_index;
 
     bool ponding;
-    double pond_capacity;
 
     size_t nseasons;
     double *season_start;
@@ -39,7 +38,7 @@ typedef struct {
 } irr_var_struct;
 
 bool irr_get_global_parameters(char *cmdstr);
-void irr_validate_global_parameters(void);
+void irr_validate_global_param(void);
 void irr_start(void);
 void irr_validate_domain(void);
 void irr_set_output_meta_data_info(void);

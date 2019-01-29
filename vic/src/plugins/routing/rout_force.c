@@ -10,7 +10,6 @@ rout_forcing(void)
     extern dmy_struct         *dmy;
     extern filenames_struct filenames;
     extern rout_force_struct *rout_force;
-    extern rout_hist_struct *rout_hist;
     extern size_t NF;
     extern int mpi_rank;
     
@@ -78,8 +77,7 @@ rout_forcing(void)
 
     // Average forcing data
     for (i = 0; i < local_domain.ncells_active; i++) {
-        rout_hist[i].discharge = 
-                average(rout_force[i].discharge, NF);
+        rout_force[i].discharge[NR] = average(rout_force[i].discharge, NF);
     }   
 
     // Close forcing file if it is the last time step

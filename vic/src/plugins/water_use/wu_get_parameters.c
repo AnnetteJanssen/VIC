@@ -191,7 +191,7 @@ wu_get_global_parameters(char *cmdstr)
 }
 
 void
-wu_validate_global_parameters(void)
+wu_validate_global_param(void)
 {
     extern filenames_struct filenames;
     extern option_struct options;
@@ -200,46 +200,48 @@ wu_validate_global_parameters(void)
     size_t i;
     int status;
     
-    if(!options.ROUTING){
-        log_err("WATER_USE = TRUE but ROUTING = FALSE");
-    }
-    
-    if(options.WU_REMOTE){
-        if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
-            log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
+    if(options.WATER_USE){
+        if(!options.ROUTING){
+            log_err("WATER_USE = TRUE but ROUTING = FALSE");
         }
-    }
-    
-    if(options.WU_DAM && !options.DAMS){
-        log_err("WATER_USE_DAM = TRUE but DAMS = FALSE");
-    }
-    
-    for(i = 0; i < WU_NSECTORS; i ++){
-        if(options.WU_INPUT_LOCATION[i] == WU_INPUT_FROM_FILE){
-            if(strcasecmp(filenames.water_use_forcing_pfx[i], MISSING_S) == 0){
-                log_err("WATER_USE SOURCE = FROM_FILE but WATER_USE_FORCING is missing");
+
+        if(options.WU_REMOTE){
+            if(strcasecmp(filenames.water_use.nc_filename, MISSING_S) == 0){
+                log_err("WATER_USE_REMOTE = TRUE but WATER_USE_PARAMETERS is missing");
             }
-                        
-            // Open first-year forcing files and get info
-            sprintf(filenames.water_use_forcing[i].nc_filename, "%s%4d.nc",
-                    filenames.water_use_forcing_pfx[i], global_param.startyear);
-            status = nc_open(filenames.water_use_forcing[i].nc_filename, NC_NOWRITE,
-                             &(filenames.water_use_forcing[i].nc_id));
-            check_nc_status(status, "Error opening %s",
-                            filenames.water_use_forcing[i].nc_filename);  
-            
-            // Get information from the forcing file(s)
-            get_wu_forcing_files_info(i); 
-            
-            // Close first-year forcing files
-            status = nc_close(filenames.water_use_forcing[i].nc_id);
-            check_nc_status(status, "Error closing %s",
-                            filenames.water_use_forcing[i].nc_filename);
-            
-        } else if(options.WU_INPUT_LOCATION[i] == WU_INPUT_CALCULATE){
-            if(i == WU_IRRIGATION && !options.IRRIGATION){
-                log_warn("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing. "
-                        "ignoring IRRIGATION for now...");
+        }
+
+        if(options.WU_DAM && !options.DAMS){
+            log_err("WATER_USE_DAM = TRUE but DAMS = FALSE");
+        }
+
+        for(i = 0; i < WU_NSECTORS; i ++){
+            if(options.WU_INPUT_LOCATION[i] == WU_INPUT_FROM_FILE){
+                if(strcasecmp(filenames.water_use_forcing_pfx[i], MISSING_S) == 0){
+                    log_err("WATER_USE SOURCE = FROM_FILE but WATER_USE_FORCING is missing");
+                }
+
+                // Open first-year forcing files and get info
+                sprintf(filenames.water_use_forcing[i].nc_filename, "%s%4d.nc",
+                        filenames.water_use_forcing_pfx[i], global_param.startyear);
+                status = nc_open(filenames.water_use_forcing[i].nc_filename, NC_NOWRITE,
+                                 &(filenames.water_use_forcing[i].nc_id));
+                check_nc_status(status, "Error opening %s",
+                                filenames.water_use_forcing[i].nc_filename);  
+
+                // Get information from the forcing file(s)
+                get_wu_forcing_files_info(i); 
+
+                // Close first-year forcing files
+                status = nc_close(filenames.water_use_forcing[i].nc_id);
+                check_nc_status(status, "Error closing %s",
+                                filenames.water_use_forcing[i].nc_filename);
+
+            } else if(options.WU_INPUT_LOCATION[i] == WU_INPUT_CALCULATE){
+                if(i == WU_IRRIGATION && !options.IRRIGATION){
+                    log_warn("WATER_USE SOURCE = CALCULATE but IRRIGATION = FALSE is missing. "
+                            "ignoring IRRIGATION for now...");
+                }
             }
         }
     }

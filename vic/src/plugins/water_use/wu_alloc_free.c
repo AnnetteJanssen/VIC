@@ -53,25 +53,25 @@ wu_set_nreceiving(void)
 void
 wu_set_nservice(void)
 {
-    extern domain_struct local_domain;
-    extern wu_con_struct *wu_con;
-    extern dam_con_map_struct *dam_con_map;
-    extern dam_con_struct **dam_con;
-    
-    size_t cur_ser;
-    size_t i;
-    size_t j;
-    size_t k;
-    
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for(j = 0; j < dam_con_map[i].nd_active; j++){
-            for(k = 0; k < dam_con[i][j].nservice; k++){
-                cur_ser = dam_con[i][j].service[k];
-
-                wu_con[cur_ser].nservice++;
-            }
-        }
-    }
+//    extern domain_struct local_domain;
+//    extern wu_con_struct *wu_con;
+//    extern dam_con_map_struct *dam_con_map;
+//    extern dam_con_struct **dam_con;
+//    
+//    size_t cur_ser;
+//    size_t i;
+//    size_t j;
+//    size_t k;
+//    
+//    for (i = 0; i < local_domain.ncells_active; i++) {
+//        for(j = 0; j < dam_con_map[i].nd_active; j++){
+//            for(k = 0; k < dam_con[i][j].nservice; k++){
+//                cur_ser = dam_con[i][j].service[k];
+//
+//                wu_con[cur_ser].nservice++;
+//            }
+//        }
+//    }
 }
 
 void

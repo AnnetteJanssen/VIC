@@ -140,7 +140,7 @@ rout_get_global_parameters(char *cmdstr)
 }
 
 void
-rout_validate_global_parameters(void)
+rout_validate_global_param(void)
 {
     extern option_struct       options;
     extern filenames_struct    filenames;
@@ -148,46 +148,51 @@ rout_validate_global_parameters(void)
     extern global_param_struct global_param;
     
     int status;
-
-    if (mpi_decomposition == MPI_DECOMPOSITION_RANDOM) {
-        options.ROUTING_TYPE = ROUTING_RANDOM;
-    }
-    else if (mpi_decomposition == MPI_DECOMPOSITION_BASIN) {
-        options.ROUTING_TYPE = ROUTING_BASIN;
-    }
-    else if (mpi_decomposition == MPI_DECOMPOSITION_FILE) {
-        log_info("MPI_DECOMPOSITION = FILE and ROUTING = TRUE; "
-                 "Make sure that the decomposition file follows the routing "
-                 "flow paths, otherwise errors might occur.");
-        options.ROUTING_TYPE = ROUTING_BASIN;
-    }
-    else {
-        log_err("Unknown mpi_decomposition for routing");
-    }
-
-    if (strcasecmp(filenames.routing.nc_filename, MISSING_S) == 0) {
-        log_err("ROUTING = TRUE but ROUTING_PARAMETERS is missing");
-    }
     
-    if (options.ROUTING_FORCE){
-        if (strcasecmp(filenames.routing_forcing_pfx, MISSING_S) == 0) {
-            log_err("ROUTING_FORCE = TRUE but ROUTING_FORCING_FILE is missing");
+    if(options.ROUTING){
+        // File
+        if (strcasecmp(filenames.routing.nc_filename, MISSING_S) == 0) {
+            log_err("ROUTING = TRUE but ROUTING_PARAMETERS is missing");
         }
-                        
-        // Open first-year forcing files and get info
-        sprintf(filenames.routing_forcing.nc_filename, "%s%4d.nc",
-                filenames.routing_forcing_pfx, global_param.startyear);
-        status = nc_open(filenames.routing_forcing.nc_filename, NC_NOWRITE,
-                         &(filenames.routing_forcing.nc_id));
-        check_nc_status(status, "Error opening %s",
-                        filenames.routing_forcing.nc_filename);  
+        
+        // MPI decomposition
+        if (mpi_decomposition == MPI_DECOMPOSITION_RANDOM) {
+            options.ROUTING_TYPE = ROUTING_RANDOM;
+        }
+        else if (mpi_decomposition == MPI_DECOMPOSITION_BASIN) {
+            options.ROUTING_TYPE = ROUTING_BASIN;
+        }
+        else if (mpi_decomposition == MPI_DECOMPOSITION_FILE) {
+            log_info("MPI_DECOMPOSITION = FILE and ROUTING = TRUE; "
+                     "Make sure that the decomposition file follows the routing "
+                     "flow paths, otherwise errors might occur.");
+            options.ROUTING_TYPE = ROUTING_BASIN;
+        }
+        else {
+            log_err("Unknown mpi_decomposition for routing");
+        }
 
-        // Get information from the forcing file(s)
-        get_rout_forcing_files_info(); 
+        if (options.ROUTING_FORCE){
+            // File
+            if (strcasecmp(filenames.routing_forcing_pfx, MISSING_S) == 0) {
+                log_err("ROUTING_FORCE = TRUE but ROUTING_FORCING_FILE is missing");
+            }
 
-        // Close first-year forcing files
-        status = nc_close(filenames.routing_forcing.nc_id);
-        check_nc_status(status, "Error closing %s",
-                        filenames.routing_forcing.nc_filename);
+            // Open first-year forcing files and get info
+            sprintf(filenames.routing_forcing.nc_filename, "%s%4d.nc",
+                    filenames.routing_forcing_pfx, global_param.startyear);
+            status = nc_open(filenames.routing_forcing.nc_filename, NC_NOWRITE,
+                             &(filenames.routing_forcing.nc_id));
+            check_nc_status(status, "Error opening %s",
+                            filenames.routing_forcing.nc_filename);  
+
+            // Get information from the forcing file(s)
+            get_rout_forcing_files_info(); 
+
+            // Close first-year forcing files
+            status = nc_close(filenames.routing_forcing.nc_id);
+            check_nc_status(status, "Error closing %s",
+                            filenames.routing_forcing.nc_filename);
+        }
     }
 }

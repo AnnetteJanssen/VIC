@@ -130,32 +130,32 @@ wu_set_receiving(void)
 void
 wu_set_service(void)
 {
-    extern domain_struct local_domain;
-    extern wu_con_struct *wu_con;
-    extern dam_con_map_struct *dam_con_map;
-    extern dam_con_struct **dam_con;
-    
-    size_t cur_ser;
-    size_t i;
-    size_t j;
-    size_t k;
-    size_t l;
-    
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for(j = 0; j < dam_con_map[i].nd_active; j++){
-            for(k = 0; k < dam_con[i][j].nservice; k++){
-                cur_ser = dam_con[i][j].service[k];
-
-                for(l = 0; l < wu_con[cur_ser].nservice; l++){
-                    if(wu_con[cur_ser].service[l] == MISSING_USI){
-                        wu_con[cur_ser].service[l] = i;
-                        wu_con[cur_ser].service_idx[l] = j;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+//    extern domain_struct local_domain;
+//    extern wu_con_struct *wu_con;
+//    extern dam_con_map_struct *dam_con_map;
+//    extern dam_con_struct **dam_con;
+//    
+//    size_t cur_ser;
+//    size_t i;
+//    size_t j;
+//    size_t k;
+//    size_t l;
+//    
+//    for (i = 0; i < local_domain.ncells_active; i++) {
+//        for(j = 0; j < dam_con_map[i].nd_active; j++){
+//            for(k = 0; k < dam_con[i][j].nservice; k++){
+//                cur_ser = dam_con[i][j].service[k];
+//
+//                for(l = 0; l < wu_con[cur_ser].nservice; l++){
+//                    if(wu_con[cur_ser].service[l] == MISSING_USI){
+//                        wu_con[cur_ser].service[l] = i;
+//                        wu_con[cur_ser].service_idx[l] = j;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 void

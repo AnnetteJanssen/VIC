@@ -89,16 +89,20 @@ irr_set_seasons(void)
                     irr_con[i][irr_con_map[i].iidx[j]].season_end[k] = dvar[i];
                 }
             }
+        }
+    }
 
-            get_scatter_nc_field_double(&(filenames.irrigation),
-                                        "offset", d3start,
-                                        d3count,
-                                        dvar);
+    for (j = 0; j < (size_t)options.NIRRTYPES; j++) {
+        d3start[0] = j;
+        
+        get_scatter_nc_field_double(&(filenames.irrigation),
+                                    "offset", d3start,
+                                    d3count,
+                                    dvar);
 
-            for (i = 0; i < local_domain.ncells_active; i++) {
-                if (irr_con_map[i].iidx[j] != NODATA_VEG) {
-                    irr_con[i][irr_con_map[i].iidx[j]].season_offset = dvar[i];
-                }
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            if (irr_con_map[i].iidx[j] != NODATA_VEG) {
+                irr_con[i][irr_con_map[i].iidx[j]].season_offset = dvar[i];
             }
         }
     }
@@ -130,6 +134,7 @@ void
 irr_set_ponding(void)
 {
     extern domain_struct       local_domain;
+    extern domain_struct       global_domain;
     extern filenames_struct    filenames;
     extern option_struct       options;
     extern irr_con_map_struct *irr_con_map;
@@ -167,8 +172,6 @@ irr_set_ponding(void)
         for (j = 0; j < (size_t)options.NIRRTYPES; j++) {
             if (ivar[j] == 1 && irr_con_map[i].iidx[j] != NODATA_VEG) {
                 irr_con[i][irr_con_map[i].iidx[j]].ponding = true;
-                irr_con[i][irr_con_map[i].iidx[j]].pond_capacity = 
-                        POND_CAPACITY;
             }
         }
     }
@@ -195,10 +198,7 @@ irr_init(void)
 
     irr_set_vegetation();
     irr_set_seasons();
-    
-    if (options.IRR_POND) {
-        irr_set_ponding();
-    }
+    irr_set_ponding();
 
     // close parameter file
     if (mpi_rank == VIC_MPI_ROOT) {

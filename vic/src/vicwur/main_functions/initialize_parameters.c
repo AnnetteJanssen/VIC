@@ -241,6 +241,7 @@ initialize_parameters()
     // Plugins - irrigation
     param.IRR_WIRR = 0.99;
     param.IRR_WFC = 0.7;
-    param.IRR_WPOND = 0.1;
-    param.IRR_KPOND = 0.05;
+    param.IRR_KPUDDLE = 0.33;
+    // Plugins - dams
+    param.DAM_ALPHA = 0.85;
 }

@@ -62,6 +62,7 @@ print_cell_data(cell_data_struct *cell,
     fprintf(LOG_DEST, "\tbaseflow    : %f\n", cell->baseflow);
     fprintf(LOG_DEST, "\tinflow      : %f\n", cell->inflow);
     fprintf(LOG_DEST, "\trunoff      : %f\n", cell->runoff);
+    fprintf(LOG_DEST, "\trecharge      : %f\n", cell->recharge);
     fprintf(LOG_DEST, "\tRhLitter    : %f\n", cell->RhLitter);
     fprintf(LOG_DEST, "\tRhLitter2Atm: %f\n", cell->RhLitter2Atm);
     fprintf(LOG_DEST, "\tRhInter     : %f\n", cell->RhInter);
@@ -547,10 +548,7 @@ print_option(option_struct *option)
     fprintf(LOG_DEST, "\tNIRRSEASONS          : %zu\n", option->NIRRSEASONS);
     fprintf(LOG_DEST, "\tIRR_POTENTIAL        : %s\n",
             option->IRR_POTENTIAL ? "true" : "false");
-    fprintf(LOG_DEST, "\tIRR_POND             : %s\n",
-            option->IRR_POND ? "true" : "false");
-    fprintf(LOG_DEST, "\tMAXSERVICE           : %zu\n", option->MAXSERVICE);
-    fprintf(LOG_DEST, "\tMAXDAMS              : %zu\n", option->MAXDAMS);
+    fprintf(LOG_DEST, "\tMAXSERVICE           : %zu\n", option->NDAMSERVICE);
 }
 
 /******************************************************************************

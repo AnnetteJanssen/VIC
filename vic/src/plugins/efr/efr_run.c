@@ -1,42 +1,9 @@
 #include <vic.h>
 
-#include "efr.h"
-
-double
-calc_efr_vfm(double ay_flow, double discharge)
-{
-    /* Variable Monthly Flow (VMF) method (Pastor et al., 2014) */
-    if(ay_flow > 0){
-        if(discharge < ay_flow * VFM_LOW_FLOW_FRAC){
-            return  discharge * VFM_LOW_DEMAND_FRAC;
-        }else if(discharge > ay_flow * VFM_HIGH_FLOW_FRAC){
-            return discharge * VFM_HIGH_DEMAND_FRAC;
-        }else{
-            return discharge * linear_interp(discharge,
-                    ay_flow * VFM_LOW_FLOW_FRAC,
-                    ay_flow * VFM_HIGH_FLOW_FRAC,
-                    VFM_LOW_DEMAND_FRAC, VFM_HIGH_DEMAND_FRAC);
-        }    
-    }else{
-        return 0.0;
-    }
-}
-
-void
-calc_efrs_vfm(double ay_flow, double *discharges, size_t length, double *efrs)
-{
-    size_t i;
-    
-    for (i = 0; i < length; i++) {
-        efrs[i] = calc_efr_vfm(ay_flow, discharges[i]);
-    }
-}
-
 void 
 efr_run(size_t cur_cell)
 {
     extern efr_var_struct *efr_var;
-    extern efr_hist_struct *efr_hist;
     extern all_vars_struct *all_vars;
     extern veg_con_map_struct *veg_con_map;
     extern elev_con_map_struct *elev_con_map;
@@ -44,6 +11,7 @@ efr_run(size_t cur_cell)
     extern veg_con_struct **veg_con;
     extern global_param_struct global_param;
     extern option_struct options;
+    extern size_t NR;
     
     double frac;
     size_t i;
@@ -103,7 +71,7 @@ efr_run(size_t cur_cell)
             }
         }
 
-        if(calculated_baseflow < efr_hist[cur_cell].requirement_baseflow){
+        if(calculated_baseflow < efr_force[cur_cell].requirement_baseflow[NR]){
             frac += EFR_FRAC_STEP;
             if(frac > 1.0){
                 frac = 1.0;

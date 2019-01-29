@@ -75,10 +75,6 @@ vic_run(dmy_struct *dmy_current)
         run_general(&(force[i]), &(all_vars[i]),
                 dmy_current, &global_param,
                 &lake_con, &(soil_con[i]), veg_con[i], veg_lib[i]);
-
-        if (options.IRRIGATION) {
-            irr_run(i);
-        }
     }
     timer_stop(&timer);
 
@@ -94,17 +90,23 @@ vic_run(dmy_struct *dmy_current)
      Plugins & ordered operations
      *****************************************************************************/
     timer_start(&timer);
+    
+    // If running with OpenMP, run this for loop using multiple threads
+    //#pragma omp parallel for default(shared) private(i)
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        if (options.IRRIGATION) {
+            irr_run(i);
+        }
+        if (options.DAMS) {
+            local_dam_run(i);
+        }
+    }
+    
     if (options.ROUTING_RVIC) {
         routing_rvic_run();
-        if(options.DAMS || options.EFR || options.WATER_USE){
-            log_err("Plugins not yet implemented for ROUTING_RVIC");
-        }
     }
     else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_RANDOM) {
         rout_random_run();
-        if(options.DAMS || options.EFR || options.WATER_USE){
-            log_err("Plugins not yet implemented for ROUTING_RANDOM");
-        }
     }
     else if (options.ROUTING && options.ROUTING_TYPE == ROUTING_BASIN) {
         for (i = 0; i < local_domain.ncells_active; i++) {
@@ -112,31 +114,28 @@ vic_run(dmy_struct *dmy_current)
                      
             rout_basin_run(cur_cell);
             
-            if(options.DAMS || options.EFR || options.WATER_USE){
-                if (options.EFR) {
-                    efr_run(cur_cell);
+            if (options.EFR) {
+                efr_run(cur_cell);
+            }
+            if (options.DAMS) {
+                global_dam_run(cur_cell);
+            }
+
+            if (options.WATER_USE) {
+                if (options.IRRIGATION && 
+                        options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
+                        WU_INPUT_CALCULATE) {
+                    irr_set_demand(cur_cell);
                 }
-                if (options.DAMS) {
-                    dam_history(cur_cell);
-                    dam_run(cur_cell);
+
+                wu_run(cur_cell);
+
+                if (options.IRRIGATION && 
+                        options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
+                        WU_INPUT_CALCULATE) {
+                    irr_get_withdrawn(cur_cell);
+                    irr_run_ponding_leftover(cur_cell);
                 }
-
-                if (options.WATER_USE) {
-                    if (options.IRRIGATION && 
-                            options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
-                            WU_INPUT_CALCULATE) {
-                        irr_set_demand(cur_cell);
-                    }
-
-                    wu_run(cur_cell);
-
-                    if (options.IRRIGATION && 
-                            options.WU_INPUT_LOCATION[WU_IRRIGATION] == 
-                            WU_INPUT_CALCULATE) {
-                        irr_get_withdrawn(cur_cell);
-                        irr_run_ponding_leftover(cur_cell);
-                    }
-                }     
             }
         }
     }

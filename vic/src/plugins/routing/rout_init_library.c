@@ -1,12 +1,6 @@
 #include <vic.h>
 
 void
-initialize_rout_hist(rout_hist_struct *rout_hist)
-{
-    rout_hist->discharge = 0.0;
-}
-
-void
 initialize_rout_force(rout_force_struct *rout_force)
 {
     extern size_t NF;
@@ -30,7 +24,7 @@ initialize_rout_var(rout_var_struct *rout_var)
     rout_steps_per_dt = global_param.rout_steps_per_day /
                           global_param.model_steps_per_day;
 
-    rout_var->moist = 0.0;
+    rout_var->stream = 0.0;
     rout_var->discharge = 0.0;
     for (i = 0; i < options.IUH_NSTEPS + rout_steps_per_dt; i++) {
         rout_var->dt_discharge[i] = 0.0;
@@ -63,7 +57,6 @@ initialize_rout_local_structures(void)
     extern domain_struct    local_domain;
     extern rout_var_struct *rout_var;
     extern rout_con_struct *rout_con;
-    extern rout_hist_struct *rout_hist;
     extern rout_force_struct *rout_force;
     extern option_struct options;
 
@@ -72,9 +65,10 @@ initialize_rout_local_structures(void)
     for (i = 0; i < local_domain.ncells_active; i++) {
         initialize_rout_con(&rout_con[i]);
         initialize_rout_var(&(rout_var[i]));
+    }
         
-        if(options.ROUTING_FORCE){
-            initialize_rout_hist(&(rout_hist[i]));
+    if(options.ROUTING_FORCE){
+        for (i = 0; i < local_domain.ncells_active; i++) {
             initialize_rout_force(&(rout_force[i]));
         }
     }

@@ -15,9 +15,9 @@ rout_start(void)
                     filenames.routing.nc_filename);
 
     options.IUH_NSTEPS = get_nc_dimension(&(filenames.routing),
-                                           "time_inflow");
+                                           "time_uh_inflow");
     options.RUH_NSTEPS = get_nc_dimension(&(filenames.routing),
-                                           "time_runoff");
+                                           "time_uh_runoff");
 
     // close routing parameter file
     status = nc_close(filenames.routing.nc_id);

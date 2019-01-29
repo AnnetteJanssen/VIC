@@ -11,15 +11,8 @@ initialize_efr_force(efr_force_struct *efr_force)
     
     for(i = 0; i < NF; i++){
         efr_force->requirement_baseflow[i] = 0.0;
-        efr_force->requirement_discharge[i] = 0.0;
+        efr_force->req_discharge[i] = 0.0;
     }
-}
-
-void
-initialize_efr_hist(efr_hist_struct *efr_hist)
-{
-    efr_hist->requirement_baseflow = 0.0;
-    efr_hist->requirement_discharge = 0.0;
 }
 
 void
@@ -43,13 +36,11 @@ initialize_efr_local_structures(void)
     extern domain_struct   local_domain;
     extern efr_var_struct *efr_var;
     extern efr_force_struct *efr_force;
-    extern efr_hist_struct *efr_hist;
 
     size_t                 i;
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         initialize_efr_var(&efr_var[i], veg_con_map[i].nv_active, elev_con_map[i].ne_active);
         initialize_efr_force(&efr_force[i]);
-        initialize_efr_hist(&efr_hist[i]);
     }
 }

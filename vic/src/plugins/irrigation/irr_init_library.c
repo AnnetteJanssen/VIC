@@ -20,7 +20,6 @@ initialize_irr_con(irr_con_struct *irr_con)
 
     irr_con->veg_index = NODATA_VEG;
     irr_con->ponding = false;
-    irr_con->pond_capacity = 0.0;
     irr_con->season_offset = 0.0;
     for (i = 0; i < irr_con->nseasons; i++) {
         irr_con->season_start[i] = 0.0;

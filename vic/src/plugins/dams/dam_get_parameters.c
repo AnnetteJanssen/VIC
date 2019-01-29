@@ -26,15 +26,17 @@ dam_get_global_parameters(char *cmdstr)
 }
 
 void
-dam_validate_global_parameters(void)
+dam_validate_global_param(void)
 {
     extern option_struct    options;
     extern filenames_struct filenames;
 
-    if (!options.ROUTING) {
-        log_err("DAMS = TRUE but ROUTING = FALSE");
-    }
-    if (strcasecmp(filenames.dams.nc_filename, MISSING_S) == 0) {
-        log_err("DAMS = TRUE but DAMS_PARAMETERS is missing");
+    if  (options.DAMS){
+        if (!options.ROUTING) {
+            log_err("DAMS = TRUE but ROUTING = FALSE");
+        }
+        if (strcasecmp(filenames.dams.nc_filename, MISSING_S) == 0) {
+            log_err("DAMS = TRUE but DAMS_PARAMETERS is missing");
+        }
     }
 }

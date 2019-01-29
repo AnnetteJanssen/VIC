@@ -13,12 +13,9 @@ dam_start(void)
                      &(filenames.dams.nc_id));
     check_nc_status(status, "Error opening %s",
                     filenames.dams.nc_filename);
-
-    options.MAXSERVICE = get_nc_dimension(&(filenames.dams), 
+    
+    options.NDAMSERVICE = get_nc_dimension(&(filenames.dams), 
                                           "max_service");
-
-    options.MAXDAMS = get_nc_dimension(&(filenames.dams), 
-                                       "max_dams");
 
     // close routing parameter file
     status = nc_close(filenames.dams.nc_id);

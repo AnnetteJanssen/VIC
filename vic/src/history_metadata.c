@@ -341,6 +341,14 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_BASEFLOW].units, "mm");
     strcpy(out_metadata[OUT_BASEFLOW].description,
            "baseflow out of the bottom layer");
+    
+    /* recharge to the bottom layer [mm] */
+    strcpy(out_metadata[OUT_RECHARGE].varname, "OUT_RECHARGE");
+    strcpy(out_metadata[OUT_RECHARGE].long_name, "recharge");
+    strcpy(out_metadata[OUT_RECHARGE].standard_name, "recharge_amount");
+    strcpy(out_metadata[OUT_RECHARGE].units, "mm");
+    strcpy(out_metadata[OUT_RECHARGE].description,
+           "recharge to the bottom layer");
 
     /* change in canopy interception storage [mm] */
     strcpy(out_metadata[OUT_DELINTERCEPT].varname, "OUT_DELINTERCEPT");
