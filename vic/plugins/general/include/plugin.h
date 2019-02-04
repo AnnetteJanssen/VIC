@@ -3,6 +3,7 @@
 
 #include <vic_driver_shared_image.h>
 #include <routing.h>
+#include <dams.h>
 #include <support.h>
 
 enum {
@@ -33,10 +34,13 @@ typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
+    bool DAMS;
     
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
+    short unsigned int NDAMTYPES;
+    short unsigned int NDAMSERVICE;
 } plugin_option_struct;
 
 typedef struct {
@@ -51,6 +55,7 @@ typedef struct {
     // parameters
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
+    nameid_struct dams;     /**< dams parameter file */
     
     // forcing
     nameid_struct routing_forcing;  /**< routing forcing files */
