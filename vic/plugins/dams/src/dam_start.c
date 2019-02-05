@@ -6,7 +6,6 @@ dam_start(void)
 {
     extern plugin_option_struct    plugin_options;
     extern plugin_filenames_struct plugin_filenames;
-    extern global_param_struct     global_param;
 
     int                     status;
     

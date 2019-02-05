@@ -7,8 +7,11 @@ plugin_initialize_options(void)
     
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
+    plugin_options.DAMS = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
+    plugin_options.NDAMTYPES = 0;
+    plugin_options.NDAMSERVICE = 0;
 }
 
 void
@@ -24,6 +27,8 @@ void
 plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
+    
+    plugin_param.DAM_ALPHA = 0.85;
 }
 
 void
@@ -33,6 +38,7 @@ plugin_initialize_filenames(void)
     
     strcpy(plugin_filenames.routing.nc_filename, MISSING_S);
     strcpy(plugin_filenames.decomposition.nc_filename, MISSING_S);
+    strcpy(plugin_filenames.dams.nc_filename, MISSING_S);
     strcpy(plugin_filenames.routing_forcing.nc_filename, MISSING_S);
     strcpy(plugin_filenames.rf_path_pfx, MISSING_S);
 }

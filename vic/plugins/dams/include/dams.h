@@ -1,13 +1,15 @@
 #ifndef DAMS_H
 #define DAMS_H
 
+#include <plugin.h>
+
 #define NODATA_DAM    -1
 #define DAM_HIST_YEARS 5
 
 typedef struct {
     size_t nd_types;
     size_t nd_active;
-    size_t *didx;
+    int *didx;
 } dam_con_map_struct;
 
 typedef struct {
@@ -42,6 +44,28 @@ typedef struct {
     int op_year;
     size_t months_running;
 } dam_var_struct;
+
+bool dam_get_global_param(char *);
+void dam_validate_global_param(void);
+bool dam_get_parameters(char *);
+void dam_validate_parameters(void);
+void dam_start(void);
+
+void dam_alloc(void);
+void dam_initialize_local_structures(void);
+
+void dam_init(void);
+void dam_generate_default_state(void);
+
+void dam_set_output_met_data_info(void);
+void dam_initialize_nc_file(nc_file_struct *);
+void dam_add_hist_dim(nc_file_struct *, stream_struct *);
+void dam_set_nc_var_info(unsigned int, nc_file_struct *, nc_var_struct *);
+void dam_set_nc_var_dimids(unsigned int, nc_file_struct *, nc_var_struct *);
+void dam_history(unsigned int, unsigned int *);
+void dam_put_data(size_t);
+
+void dam_finalize(void);
 
 dam_con_map_struct *global_dam_con_map;
 dam_var_struct    **global_dam_var;
