@@ -66,7 +66,7 @@ plugin_create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in global_param_struct
-    nitems = 1;
+    nitems = 2;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
     offsets = malloc(nitems * sizeof(*offsets));
@@ -83,6 +83,9 @@ plugin_create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
 
     // char rf_path_pfx[MAXSTRING];
     offsets[i] = offsetof(plugin_filenames_struct, rf_path_pfx);
+    mpi_types[i++] = MPI_CHAR;
+    // char wf_path_pfx[MAXSTRING];
+    offsets[i] = offsetof(plugin_filenames_struct, wf_path_pfx);
     mpi_types[i++] = MPI_CHAR;
 
     // make sure that the we have the right number of elements
@@ -113,7 +116,7 @@ plugin_create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in global_param_struct
-    nitems = 4;
+    nitems = 5;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
     offsets = malloc(nitems * sizeof(*offsets));
@@ -134,12 +137,18 @@ plugin_create_MPI_option_struct_type(MPI_Datatype *mpi_type)
     // bool ROUTING;
     offsets[i] = offsetof(plugin_option_struct, ROUTING);
     mpi_types[i++] = MPI_C_BOOL;
+    // bool WATERUSE;
+    offsets[i] = offsetof(plugin_option_struct, WATERUSE);
+    mpi_types[i++] = MPI_C_BOOL;
     // short unsigned int UH_LENGTH;
     offsets[i] = offsetof(plugin_option_struct, UH_LENGTH);
     mpi_types[i++] = MPI_UNSIGNED_SHORT;
     // bool FORCE_ROUTING;
     offsets[i] = offsetof(plugin_option_struct, FORCE_ROUTING);
     mpi_types[i++] = MPI_C_BOOL;
+    // int WU_INPUT;
+    offsets[i] = offsetof(plugin_option_struct, WU_INPUT);
+    mpi_types[i++] = MPI_INT;
 
     // make sure that the we have the right number of elements
     if (i != (size_t) nitems) {

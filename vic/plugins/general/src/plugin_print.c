@@ -26,16 +26,24 @@ plugin_print_global_param(plugin_global_param_struct *gp)
 void
 plugin_print_options(plugin_option_struct *op)
 {
+    size_t i;
+    
     fprintf(LOG_DEST, "plugin option:\n");
     fprintf(LOG_DEST, "\tDECOMPOSITION        : %d\n",
             op->DECOMPOSITION);
     fprintf(LOG_DEST, "\tROUTING              : %s\n",
             op->ROUTING ? "true" : "false");
+    fprintf(LOG_DEST, "\tWATERUSE             : %s\n",
+            op->WATERUSE ? "true" : "false");
     fprintf(LOG_DEST, "\tFORCE_ROUTING        : %s\n",
             op->FORCE_ROUTING ? "true" : "false");
     
     fprintf(LOG_DEST, "\tUH_LENGTH            : %d\n",
             op->UH_LENGTH);
+    for(i = 0; i < WU_NSECTORS; i++){
+        fprintf(LOG_DEST, "\tWU_INPUT             : %d\n",
+                op->WU_INPUT[i]);
+    }
 }
 
 void

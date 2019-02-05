@@ -4,6 +4,7 @@
 #include <vic_driver_shared_image.h>
 #include <routing.h>
 #include <support.h>
+#include <wateruse.h>
 
 enum {
     RANDOM_DECOMPOSITION,
@@ -33,10 +34,12 @@ typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
+    bool WATERUSE;
     
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
+    int WU_INPUT[WU_NSECTORS];
 } plugin_option_struct;
 
 typedef struct {
@@ -51,10 +54,13 @@ typedef struct {
     // parameters
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
+    nameid_struct wateruse;        /**< water-use parameter file */
     
     // forcing
     nameid_struct routing_forcing;  /**< routing forcing files */
+    nameid_struct wateruse_forcing; /**< water-use forcing files */
     char rf_path_pfx[MAXSTRING]; /**< path and prefix for routing forcing files */
+    char wf_path_pfx[MAXSTRING]; /**< path and prefix for water-use forcing files */
 } plugin_filenames_struct;
 
 // Setup
