@@ -1,0 +1,22 @@
+#ifndef WATERUSE_H
+#define WATERUSE_H
+
+enum {
+    WU_INPUT_FROM_FILE,
+    WU_INPUT_CALCULATE,
+    WU_INPUT_SKIP,
+    WU_INPUT_NLOCATIONS
+};
+
+enum {
+    WU_MUNICIPAL,
+    WU_MANUFACTURING,
+    WU_ENERGY,
+    WU_IRRIGATION,
+    WU_NSECTORS
+};
+
+
+
+#endif /* WATERUSE_H */
+
