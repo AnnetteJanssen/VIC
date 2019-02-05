@@ -96,7 +96,8 @@ dam_corr_release(double release,
 // Make sure all inputs have the same units & length
 double
 dam_calc_k_factor(double max_capacity,
-                  double cur_storage){
+                  double cur_storage)
+{
     extern plugin_parameters_struct plugin_param;
     
     return(cur_storage / (max_capacity * plugin_param.DAM_ALPHA));
@@ -146,7 +147,8 @@ dam_calc_opt_storage(double *inflow,
 
 // Calculate surface area based on Kaveh et al 2013
 double
-dam_area(double volume, double max_volume, double max_area, double max_height){
+dam_area(double volume, double max_volume, double max_area, double max_height)
+{
     double N = ( 2 * max_volume ) / ( max_height * max_area );
     double area = max_area * pow(( volume / max_volume ), ((2-N)/N));
     
@@ -159,7 +161,8 @@ dam_area(double volume, double max_volume, double max_area, double max_height){
 
 // Calculate dam height based on Liebe et al 2005
 double
-dam_height(double area, double max_height){
+dam_height(double area, double max_height)
+{
     double height = sqrt(area) * (1 / 19.45);
     
     if(height > max_height){

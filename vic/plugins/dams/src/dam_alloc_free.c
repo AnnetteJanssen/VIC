@@ -28,7 +28,7 @@ dam_set_ndamtypes(void)
     check_alloc_status(ivar, "Memory allocation error.");
     
     get_scatter_nc_field_int(&(plugin_filenames.dams), 
-            "Nservice_local", d2start, d2count, ivar);
+            "Ndam_local", d2start, d2count, ivar);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         local_dam_con_map[i].nd_types = plugin_options.NDAMTYPES;
@@ -44,7 +44,7 @@ dam_set_ndamtypes(void)
     }
 
     get_scatter_nc_field_int(&(plugin_filenames.dams), 
-            "Nservice_global", d2start, d2count, ivar);
+            "Ndam_global", d2start, d2count, ivar);
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         global_dam_con_map[i].nd_types = plugin_options.NDAMTYPES;
@@ -58,6 +58,8 @@ dam_set_ndamtypes(void)
             }
         }
     }
+    
+    free(ivar);
 }
 
 void
@@ -148,6 +150,10 @@ dam_alloc(void)
     check_alloc_status(local_dam_con, "Memory allocation error");
     local_dam_var = malloc(local_domain.ncells_active * sizeof(*local_dam_var));
     check_alloc_status(local_dam_var, "Memory allocation error");
+    for(i=0; i<local_domain.ncells_active; i++){
+        local_dam_con_map[i].didx = malloc(plugin_options.NDAMTYPES * sizeof(*local_dam_con_map[i].didx));
+        check_alloc_status(local_dam_con_map[i].didx, "Memory allocation error");
+    }
 
     global_dam_con_map = malloc(local_domain.ncells_active * sizeof(*global_dam_con_map));
     check_alloc_status(global_dam_con_map, "Memory allocation error");
@@ -155,6 +161,10 @@ dam_alloc(void)
     check_alloc_status(global_dam_con, "Memory allocation error");
     global_dam_var = malloc(local_domain.ncells_active * sizeof(*global_dam_var));
     check_alloc_status(global_dam_var, "Memory allocation error");
+    for(i=0; i<local_domain.ncells_active; i++){
+        global_dam_con_map[i].didx = malloc(plugin_options.NDAMTYPES * sizeof(*global_dam_con_map[i].didx));
+        check_alloc_status(global_dam_con_map[i].didx, "Memory allocation error");
+    }
     
     dam_set_ndamtypes();
     
@@ -183,7 +193,7 @@ dam_alloc(void)
 
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_con[i][j].service = malloc(global_dam_con[i][j].nservice * sizeof(*global_dam_con[i][j].service));
-                check_alloc_status(local_dam_con[i][j].service,"Memory allocation error");
+                check_alloc_status(global_dam_con[i][j].service,"Memory allocation error");
                 global_dam_con[i][j].service_frac = malloc(global_dam_con[i][j].nservice * sizeof(*global_dam_con[i][j].service_frac));
                 check_alloc_status(global_dam_con[i][j].service_frac,"Memory allocation error");
             }
@@ -227,8 +237,10 @@ dam_finalize(void)
             }
         }
         
+        free(local_dam_con_map[i].didx);
         free(local_dam_con[i]);
         free(local_dam_var[i]);
+        free(global_dam_con_map[i].didx);
         free(global_dam_con[i]);
         free(global_dam_var[i]);
     }

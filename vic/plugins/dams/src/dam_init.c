@@ -19,15 +19,15 @@ dam_set_info(void)
     size_t                     i;
     size_t                     j;
 
-    size_t                     d4count[3];
-    size_t                     d4start[3];
+    size_t                     d3count[3];
+    size_t                     d3start[3];
 
-    d4start[0] = 0;
-    d4start[1] = 0;
-    d4start[2] = 0;
-    d4count[0] = 1;
-    d4count[1] = global_domain.n_ny;
-    d4count[2] = global_domain.n_nx;
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx;
 
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error.");
@@ -37,7 +37,7 @@ dam_set_info(void)
     
     for(j = 0; j < plugin_options.NDAMTYPES; j++){
         get_scatter_nc_field_int(&(plugin_filenames.dams), 
-                                 "year_local", d4start, d4count, ivar);
+                                 "year_local", d3start, d3count, ivar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(local_dam_con_map[i].didx[j] != NODATA_DAM){
                 local_dam_con[i][j].year = ivar[i];
@@ -45,7 +45,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_double(&(plugin_filenames.dams),
-                                    "capacity_local", d4start, d4count, dvar);
+                                    "capacity_local", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(local_dam_con_map[i].didx[j] != NODATA_DAM){
                 local_dam_con[i][j].capacity = dvar[i];
@@ -53,7 +53,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_double(&(plugin_filenames.dams),
-                                    "inflow_frac_local", d4start, d4count, dvar);
+                                    "inflow_fraction_local", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(local_dam_con_map[i].didx[j] != NODATA_DAM){
                 local_dam_con[i][j].inflow_frac = dvar[i];
@@ -62,7 +62,7 @@ dam_set_info(void)
 
 
         get_scatter_nc_field_int(&(plugin_filenames.dams), 
-                                 "year_global", d4start, d4count, ivar);
+                                 "year_global", d3start, d3count, ivar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_con[i][j].year = ivar[i];
@@ -70,7 +70,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_double(&(plugin_filenames.dams),
-                                    "capacity_global", d4start, d4count, dvar);
+                                    "capacity_global", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_con[i][j].capacity = dvar[i];
@@ -78,7 +78,7 @@ dam_set_info(void)
         }
 
         get_scatter_nc_field_double(&(plugin_filenames.dams),
-                                    "inflow_frac_global", d4start, d4count, dvar);
+                                    "inflow_fraction_global", d3start, d3count, dvar);
         for (i = 0; i < local_domain.ncells_active; i++) {
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_con[i][j].inflow_frac = dvar[i];
@@ -159,7 +159,7 @@ dam_set_service(void)
             get_scatter_nc_field_int(&(plugin_filenames.dams), 
                     "service_local", d4start, d4count, ivar);
             get_scatter_nc_field_double(&(plugin_filenames.dams), 
-                    "service_frac_local", d4start, d4count, dvar);
+                    "service_fraction_local", d4start, d4count, dvar);
 
             for(i = 0; i < local_domain.ncells_active; i++){
                 if(local_dam_con_map[i].didx[j] != NODATA_DAM &&
@@ -196,9 +196,9 @@ dam_set_service(void)
             d4start[1] = k;
 
             get_scatter_nc_field_int(&(plugin_filenames.dams), 
-                    "service_local", d4start, d4count, ivar);
+                    "service_global", d4start, d4count, ivar);
             get_scatter_nc_field_double(&(plugin_filenames.dams), 
-                    "service_frac_local", d4start, d4count, dvar);
+                    "service_fraction_global", d4start, d4count, dvar);
 
             for(i = 0; i < local_domain.ncells_active; i++){
                 if(global_dam_con_map[i].didx[j] != NODATA_DAM &&
@@ -233,6 +233,9 @@ dam_set_service(void)
     free(ivar);
     free(dvar);
     free(service_id);
+    for(i = 0; i < local_domain.ncells_active; i++){
+        free(adjustment[i]);
+    }
     free(adjustment);
 }
 
