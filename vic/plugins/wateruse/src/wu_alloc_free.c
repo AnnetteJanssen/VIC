@@ -5,7 +5,6 @@ void
 wu_set_nsectors(void)
 {
     extern domain_struct local_domain;
-    extern domain_struct global_domain;
     extern plugin_option_struct       plugin_options;
     extern wu_con_map_struct  *wu_con_map;
         
@@ -14,24 +13,19 @@ wu_set_nsectors(void)
     size_t i;
     size_t j;
     
-    size_t  d2count[2];
-    size_t  d2start[2];
-    
-    d2start[0] = 0;
-    d2start[1] = 0;
-    d2count[0] = global_domain.n_ny;
-    d2count[1] = global_domain.n_nx; 
-    
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error.");
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         wu_con_map[i].ns_types = WU_NSECTORS;
-        wu_con_map[i].ns_active = WU_NSECTORS;
-            
+        wu_con_map[i].ns_active = 0;
+        
         for(j = 0; j < WU_NSECTORS; j++){
             if(plugin_options.WU_INPUT[i] == WU_SKIP){
-                wu_con_map[i].ns_active--;
+                wu_con_map[i].sidx[j] = NODATA_WU;
+            } else {
+                wu_con_map[i].sidx[j] = wu_con_map[i].ns_active;
+                wu_con_map[i].ns_active++;
             }
         }
     }
@@ -42,7 +36,43 @@ wu_set_nsectors(void)
 void
 wu_set_nreceiving(void)
 {
+    extern domain_struct local_domain;
+    extern domain_struct global_domain;
+    extern wu_con_map_struct  *wu_con_map;
+    extern wu_con_struct  **wu_con;
+        
+    int *ivar;
     
+    size_t i;
+    size_t j;
+    
+    size_t  d3count[3];
+    size_t  d3start[3];
+    
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx; 
+    
+    ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
+    check_alloc_status(ivar, "Memory allocation error.");
+    
+    for(j = 0; j < WU_NSECTORS; j++){
+        d3start[0] = j;
+        
+        get_scatter_nc_field_int(&(plugin_filenames.routing),
+                                    "nreceiving", d3start, d3count, ivar);
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            if(wu_con_map[i].sidx[j] != NODATA_WU){
+                wu_con[i][wu_con_map[i].sidx[j]].nreceiving = ivar[i];
+            }
+        } 
+    }
+    
+    
+    free(ivar);
 }
 
 void
@@ -105,11 +135,10 @@ void
 wu_finalize(void)
 {
     extern domain_struct    local_domain;
-    extern wu_var_struct *wu_var;
-    extern wu_con_struct *wu_con;
-    extern size_t          *wateruse_order;
-    extern wu_force_struct *wu_force;
-    extern plugin_option_struct    plugin_options;
+    extern wu_con_map_struct *wu_con_map;
+    extern wu_var_struct **wu_var;
+    extern wu_con_struct **wu_con;
+    extern wu_force_struct **wu_force;
 
     size_t                  i;
     size_t                     j;

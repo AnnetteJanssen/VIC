@@ -4,6 +4,7 @@
 void
 wu_start(void)
 {
+    extern plugin_option_struct plugin_options;
     extern plugin_filenames_struct plugin_filenames;
     extern global_param_struct     global_param;
 
@@ -16,6 +17,15 @@ wu_start(void)
                     plugin_filenames.wateruse.nc_filename);
     
     compare_ncdomain_with_global_domain(&plugin_filenames.wateruse);
+    plugin_options.NWUTYPES = get_nc_dimension(&(plugin_filenames.routing),
+                                           "wu_class");
+    plugin_options.NWURECEIVING = get_nc_dimension(&(plugin_filenames.routing),
+                                           "wu_receiving");
+    
+    if(plugin_options.NWUTYPES != WU_NSECTORS){
+        log_err("Number of sectors in the water-use file "
+                "does not match the number of sectors %d", WU_NSECTORS);
+    }
 
     status = nc_close(plugin_filenames.wateruse.nc_id);
     check_nc_status(status, "Error closing %s",

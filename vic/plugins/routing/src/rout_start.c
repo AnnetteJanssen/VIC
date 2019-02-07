@@ -16,9 +16,9 @@ rout_start(void)
     check_nc_status(status, "Error opening %s",
                     plugin_filenames.routing.nc_filename);
 
+    compare_ncdomain_with_global_domain(&plugin_filenames.routing);
     plugin_options.UH_LENGTH = get_nc_dimension(&(plugin_filenames.routing),
                                            "time");
-    compare_ncdomain_with_global_domain(&plugin_filenames.routing);
 
     status = nc_close(plugin_filenames.routing.nc_id);
     check_nc_status(status, "Error closing %s",

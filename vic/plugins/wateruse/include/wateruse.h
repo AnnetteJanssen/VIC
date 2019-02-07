@@ -17,6 +17,7 @@ enum {
     WU_MANUFACTURING,
     WU_ENERGY,
     WU_IRRIGATION,
+    WU_LIVESTOCK,
     WU_NSECTORS
 };
 

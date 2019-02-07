@@ -39,6 +39,8 @@ typedef struct {
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
+    short unsigned int NWUTYPES;
+    short unsigned int NWURECEIVING;
     int WU_INPUT[WU_NSECTORS];
 } plugin_option_struct;
 

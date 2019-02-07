@@ -13,7 +13,7 @@ plugin_initialize_options(void)
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
     for(i = 0; i < WU_NSECTORS; i++){
-        plugin_options.WU_INPUT = WU_SKIP;
+        plugin_options.WU_INPUT[i] = WU_SKIP;
     }
 }
 
