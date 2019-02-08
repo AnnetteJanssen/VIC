@@ -40,6 +40,10 @@ plugin_print_options(plugin_option_struct *op)
     
     fprintf(LOG_DEST, "\tUH_LENGTH            : %d\n",
             op->UH_LENGTH);
+    fprintf(LOG_DEST, "\tNWUTYPES             : %d\n",
+            op->NWUTYPES);
+    fprintf(LOG_DEST, "\tNWURECEIVING         : %d\n",
+            op->NWURECEIVING);
     for(i = 0; i < WU_NSECTORS; i++){
         fprintf(LOG_DEST, "\tWU_INPUT             : %d\n",
                 op->WU_INPUT[i]);

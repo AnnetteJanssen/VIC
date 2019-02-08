@@ -8,6 +8,7 @@ bool
 plugin_get_global_param(char cmdstr[MAXSTRING])
 {
     if(rout_get_global_param(cmdstr)){} 
+    if(wu_get_global_param(cmdstr)){} 
     else {
         return false;
     }
@@ -22,6 +23,8 @@ plugin_validate_global_param(void)
     
     if(plugin_options.ROUTING)
         rout_validate_global_param();
+    if(plugin_options.WATERUSE)
+        wu_validate_global_param();
 }
 
 bool
@@ -62,6 +65,8 @@ plugin_start(void)
     
     if(plugin_options.ROUTING)
         rout_start();
+    if(plugin_options.WATERUSE)
+        wu_start();
 }
 
 /******************************************
@@ -74,6 +79,8 @@ plugin_alloc(void)
     
     if(plugin_options.ROUTING)
         rout_alloc();
+    if(plugin_options.WATERUSE)
+        wu_alloc();
 }
 
 /******************************************
@@ -86,6 +93,8 @@ plugin_init(void)
     
     if(plugin_options.ROUTING)
         rout_init();
+    if(plugin_options.WATERUSE)
+        wu_init();
     
     plugin_set_state_meta_data_info();
 }
@@ -145,4 +154,6 @@ plugin_finalize(void)
     
     if(plugin_options.ROUTING) 
         rout_finalize();
+    if(plugin_options.WATERUSE) 
+        wu_finalize();
 }

@@ -45,6 +45,7 @@ wu_set_nreceiving(void)
     
     size_t i;
     size_t j;
+    int iSector;
     
     size_t  d3count[3];
     size_t  d3start[3];
@@ -65,8 +66,9 @@ wu_set_nreceiving(void)
         get_scatter_nc_field_int(&(plugin_filenames.routing),
                                     "nreceiving", d3start, d3count, ivar);
         for (i = 0; i < local_domain.ncells_active; i++) {
-            if(wu_con_map[i].sidx[j] != NODATA_WU){
-                wu_con[i][wu_con_map[i].sidx[j]].nreceiving = ivar[i];
+            iSector = wu_con_map[i].sidx[j];
+            if(iSector != NODATA_WU){
+                wu_con[i][iSector].nreceiving = ivar[i];
             }
         } 
     }

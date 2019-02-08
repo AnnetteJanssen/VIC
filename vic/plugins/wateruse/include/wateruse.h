@@ -42,10 +42,40 @@ typedef struct {
 } wu_force_struct;
 
 typedef struct {
-    double demand;
-    double withdrawn;
+    double available_gw;
+    double available_surf;
+    double available_remote;
+    double demand_gw;
+    double demand_surf;
+    double demand_remote;
+    double withdrawn_gw;
+    double withdrawn_surf;
+    double withdrawn_remote;
     double returned;
 } wu_var_struct;
+
+bool wu_get_global_param(char *);
+void wu_validate_global_param(void);
+
+void wu_start(void);
+
+void wu_alloc(void);
+void wu_initialize_local_structures(void);
+
+void wu_init(void);
+
+void wu_set_output_met_data_info(void);
+void wu_initialize_nc_file(nc_file_struct *);
+void wu_add_hist_dim(nc_file_struct *, stream_struct *);
+void wu_set_nc_var_info(unsigned int, nc_file_struct *, nc_var_struct *);
+void wu_set_nc_var_dimids(unsigned int, nc_file_struct *, nc_var_struct *);
+void wu_history(unsigned int, unsigned int *);
+void wu_put_data(size_t);
+
+void wu_forcing(void);
+void wu_run(size_t);
+
+void wu_finalize(void);
 
 wu_con_map_struct *wu_con_map;
 wu_con_struct **wu_con;

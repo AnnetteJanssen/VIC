@@ -12,6 +12,8 @@ plugin_initialize_options(void)
     plugin_options.WATERUSE = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
+    plugin_options.NWUTYPES = 0;
+    plugin_options.NWURECEIVING = 0;
     for(i = 0; i < WU_NSECTORS; i++){
         plugin_options.WU_INPUT[i] = WU_SKIP;
     }

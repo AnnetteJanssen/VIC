@@ -27,13 +27,18 @@ plugin_set_output_met_data_info(void)
     
     if(plugin_options.ROUTING)
         rout_set_output_met_data_info();
+    if(plugin_options.WATERUSE)
+        wu_set_output_met_data_info();
 }
 
 // Initialize outfile dimension size & id
 void
 plugin_initialize_nc_file(nc_file_struct  *nc_file)
 {
+    extern plugin_option_struct    plugin_options;
     
+    if(plugin_options.WATERUSE)
+        wu_initialize_nc_file(nc_file);
 }
 
 // Add dimensions to outfile
@@ -41,7 +46,10 @@ void
 plugin_add_history_dimensions(nc_file_struct *nc,
                               stream_struct  *stream)
 {
+    extern plugin_option_struct    plugin_options;
     
+    if(plugin_options.WATERUSE)
+        wu_add_hist_dim(nc, stream);
 }
 
 // Set output variable dimension count
@@ -51,6 +59,7 @@ plugin_set_nc_var_info(unsigned int       varid,
                        nc_file_struct    *nc_hist_file,
                        nc_var_struct     *nc_var)
 {
+    extern plugin_option_struct    plugin_options;
     
     size_t i;
 
@@ -67,6 +76,8 @@ plugin_set_nc_var_info(unsigned int       varid,
     nc_var->nc_counts[1] = nc_hist_file->nj_size;
     nc_var->nc_counts[2] = nc_hist_file->ni_size;
     
+    if(plugin_options.WATERUSE)
+        wu_set_nc_var_info(varid, nc_hist_file, nc_var);
 }
 
 // Set output variable dimension ids
@@ -75,6 +86,8 @@ plugin_set_nc_var_dimids(unsigned int    varid,
                          nc_file_struct *nc_hist_file,
                          nc_var_struct  *nc_var)
 {
+    extern plugin_option_struct    plugin_options;
+    
     size_t i;
 
     for (i = 0; i < MAXDIMS; i++) {
@@ -85,6 +98,9 @@ plugin_set_nc_var_dimids(unsigned int    varid,
     nc_var->nc_dimids[0] = nc_hist_file->time_dimid;
     nc_var->nc_dimids[1] = nc_hist_file->nj_dimid;
     nc_var->nc_dimids[2] = nc_hist_file->ni_dimid;
+    
+    if(plugin_options.WATERUSE)
+        wu_set_nc_var_dimids(varid, nc_hist_file, nc_var);
 }
 
 void
@@ -94,6 +110,8 @@ plugin_get_default_outvar_aggtype(unsigned int varid, unsigned int *agg_type)
     
     if(plugin_options.ROUTING)
         rout_history(varid, agg_type);
+    if(plugin_options.WATERUSE)
+        wu_history(varid, agg_type);
 }
 /******************************************
  State file initialization

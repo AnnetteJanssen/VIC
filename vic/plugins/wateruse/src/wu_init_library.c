@@ -18,9 +18,16 @@ initialize_wu_force(wu_force_struct *wu_force)
 void
 initialize_wu_var(wu_var_struct *wu_var)
 {
-    wu_var->demand = 0.0;
+    wu_var->available_gw = 0.0;
+    wu_var->available_surf = 0.0;
+    wu_var->available_remote = 0.0;
+    wu_var->demand_gw = 0.0;
+    wu_var->demand_surf = 0.0;
+    wu_var->demand_remote = 0.0;
+    wu_var->withdrawn_gw = 0.0;
+    wu_var->withdrawn_surf = 0.0;
+    wu_var->withdrawn_remote = 0.0;
     wu_var->returned = 0.0;
-    wu_var->withdrawn = 0.0;
 }
 
 void
@@ -37,6 +44,7 @@ void
 wu_initialize_local_structures(void)
 {
     extern domain_struct    local_domain;
+    extern plugin_option_struct plugin_options;
     extern wu_con_map_struct *wu_con_map;
     extern wu_var_struct **wu_var;
     extern wu_con_struct **wu_con;
@@ -44,13 +52,15 @@ wu_initialize_local_structures(void)
 
     size_t                  i;
     size_t                  j;
+    int                  iSector;
 
     for (i = 0; i < local_domain.ncells_active; i++) {
-        for(j = 0; j < WU_NSECTORS; j++){
-            if(wu_con_map[i].sidx[j] != NODATA_WU){
-                initialize_wu_con(&wu_con[i][j]);
-                initialize_wu_var(&(wu_var[i][j]));
-                initialize_wu_force(&(wu_force[i][j]));
+        for(j = 0; j < plugin_options.NWUTYPES; j++){
+            iSector = wu_con_map[i].sidx[j];
+            if(iSector != NODATA_WU){
+                initialize_wu_con(&wu_con[i][iSector]);
+                initialize_wu_var(&(wu_var[i][iSector]));
+                initialize_wu_force(&(wu_force[i][iSector]));
             }
         }
     }

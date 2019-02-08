@@ -23,8 +23,23 @@ enum {
 };
    
 enum {
+    // routing
     OUT_DISCHARGE,                      /**< river discharge [m3 s-1]) */
     OUT_STREAM_MOIST,
+    // water-use
+    OUT_AVAILABLE_GW,
+    OUT_AVAILABLE_SURF,
+    OUT_AVAILABLE_REMOTE,
+    OUT_DEMAND_GW,
+    OUT_DEMAND_SURF,
+    OUT_DEMAND_REMOTE,
+    OUT_WITHDRAWN_GW,
+    OUT_WITHDRAWN_SURF,
+    OUT_WITHDRAWN_REMOTE,
+    OUT_AVAILABLE,
+    OUT_DEMAND,
+    OUT_WITHDRAWN,
+    OUT_RETURNED,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/

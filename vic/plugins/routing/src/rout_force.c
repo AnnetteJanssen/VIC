@@ -1,7 +1,5 @@
 #include <vic_driver_image.h>
-#include <routing.h>
-
-#include "plugin.h"
+#include <plugin.h>
 
 void
 rout_forcing(void)
