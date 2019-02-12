@@ -116,7 +116,7 @@ wu_add_hist_dim(nc_file_struct *nc,
 {
     int status;
 
-    status = nc_def_dim(nc->nc_id, "wu_class", 2, &(nc->wu_dimid));
+    status = nc_def_dim(nc->nc_id, "wu_class", nc->wu_size, &(nc->wu_dimid));
     check_nc_status(status, "Error defining wu_class bounds dimension in %s",
                     stream->filename);
 }
@@ -142,13 +142,10 @@ wu_set_nc_var_info(unsigned int    varid,
         case N_OUTVAR_TYPES + OUT_DEMAND:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN:
         case N_OUTVAR_TYPES + OUT_RETURNED:
-        nc_var->nc_dims = 3;
-        nc_var->nc_dimids[0] = nc_hist_file->wu_dimid;
-        nc_var->nc_dimids[1] = nc_hist_file->nj_dimid;
-        nc_var->nc_dimids[2] = nc_hist_file->ni_dimid;
-        nc_var->nc_counts[0] = 1;
-        nc_var->nc_counts[1] = nc_hist_file->nj_size;
-        nc_var->nc_counts[2] = nc_hist_file->ni_size;
+        nc_var->nc_dims = 4;
+        nc_var->nc_counts[1] = nc_hist_file->wu_size;
+        nc_var->nc_counts[2] = nc_hist_file->nj_size;
+        nc_var->nc_counts[3] = nc_hist_file->ni_size;
     }
 }
 

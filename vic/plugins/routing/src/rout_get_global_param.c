@@ -39,7 +39,7 @@ rout_get_global_param(char *cmdstr)
     else if (strcasecmp("DECOMPOSITION_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", plugin_filenames.decomposition.nc_filename);
     }
-    else if (strcasecmp("ROUTING_FORCING_FILE", optstr) == 0) {
+    else if (strcasecmp("ROUTING_FORCING", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", plugin_filenames.rf_path_pfx);
     }
     else {

@@ -85,11 +85,11 @@ wu_set_receiving(void)
             adjustment[i][j] = 0;
         }
     }
-    for(j = 0; j < plugin_options.NWUTYPES; j++){
-        d4start[0] = j;
+    for(k = 0; k < plugin_options.NWURECEIVING; k++){
+        d4start[0] = k;
         
-        for(k = 0; k < plugin_options.NWURECEIVING; k++){
-            d4start[1] = k;
+        for(j = 0; j < plugin_options.NWUTYPES; j++){
+            d4start[1] = j;
             
             get_scatter_nc_field_int(&(plugin_filenames.wateruse), "receiving", 
                                      d4start, d4count, receiving);
@@ -125,6 +125,10 @@ wu_set_receiving(void)
                 error_count);
     }
 
+    for(i = 0; i < local_domain.ncells_active; i++){
+        free(adjustment[i]);
+    }
+    free(adjustment);
     free(receiving);
     free(id);
 }

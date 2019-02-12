@@ -13,10 +13,10 @@ enum {
 };
 
 enum {
+    WU_IRRIGATION,
     WU_MUNICIPAL,
     WU_MANUFACTURING,
     WU_ENERGY,
-    WU_IRRIGATION,
     WU_LIVESTOCK,
     WU_NSECTORS
 };

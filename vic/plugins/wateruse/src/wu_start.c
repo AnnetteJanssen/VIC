@@ -23,8 +23,10 @@ wu_start(void)
                                            "wu_receiving");
     
     if(plugin_options.NWUTYPES != WU_NSECTORS){
-        log_err("Number of sectors in the water-use file "
-                "does not match the number of sectors %d", WU_NSECTORS);
+        log_err("Number of sectors in the water-use file [%d] "
+                "does not match the number of sectors [%d]", 
+                plugin_options.NWUTYPES,
+                WU_NSECTORS);
     }
 
     status = nc_close(plugin_filenames.wateruse.nc_id);
@@ -33,7 +35,7 @@ wu_start(void)
 
     // Check the forcing
     sprintf(plugin_filenames.wateruse_forcing.nc_filename, "%s%4d.nc", 
-            plugin_filenames.rf_path_pfx, global_param.startyear);
+            plugin_filenames.wf_path_pfx, global_param.startyear);
     status = nc_open(plugin_filenames.wateruse_forcing.nc_filename, NC_NOWRITE, 
             &(plugin_filenames.wateruse_forcing.nc_id));
     check_nc_status(status, "Error opening %s",  

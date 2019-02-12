@@ -31,6 +31,7 @@ wu_run(size_t iCell)
     size_t iCell2;
     int iSector2;
     double frac;
+    double ice;
     
     av_gw = malloc(veg_con_map[iCell].nv_active * sizeof(*av_gw));
     check_alloc_status(av_gw, "Memory allocation error.");
@@ -98,12 +99,13 @@ wu_run(size_t iCell)
             if(soil_con[iCell].AreaFract[iBand] > 0){
                 av_gw[iVeg][iBand] = all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist;
                 
+                ice = 0;
                 for(iFrost = 0; iFrost < options.Nfrost; iFrost ++){
-                    av_gw[iVeg][iBand] -= 
-                            all_vars[iCell].cell[iVeg][iBand].layer[iLayer].ice[iFrost] *
-                            soil_con[iCell].frost_fract[iFrost];
+                    ice += all_vars[iCell].cell[iVeg][iBand].layer[iLayer].ice[iFrost] *
+                           soil_con[iCell].frost_fract[iFrost];
                 }
                 
+                av_gw[iVeg][iBand] -= ice;
                 available_gw += av_gw[iVeg][iBand] *
                             soil_con[iCell].AreaFract[iBand] *
                             veg_con[iCell][iVeg].Cv;
@@ -132,26 +134,36 @@ wu_run(size_t iCell)
         }
         
         // groundwater
-        wu_var[iCell][iSector].available_gw = available_gw *
-                wu_var[iCell][iSector].demand_gw / 
-                demand_gw;
+        if(demand_gw > 0){
+            wu_var[iCell][iSector].available_gw = available_gw *
+                    wu_var[iCell][iSector].demand_gw / 
+                    demand_gw;
+        } else {
+            wu_var[iCell][iSector].available_gw = 0.0;
+        }
         
         // surface water
-        wu_var[iCell][iSector].available_surf = available_surf *
-                wu_var[iCell][iSector].demand_surf / 
-                demand_surf;
+        if(demand_surf > 0){
+            wu_var[iCell][iSector].available_surf = available_surf *
+                    wu_var[iCell][iSector].demand_surf / 
+                    demand_surf;
+        } else {
+            wu_var[iCell][iSector].available_surf = 0.0;
+        }
         
         // remote
         wu_var[iCell][iSector].available_remote = 0.0;
-        for(j = 0; j < wu_con[iCell][iSector].nreceiving; j++){
-            iSector2 = wu_con_map[iCell2].sidx[i];        
-            if(iSector2 == NODATA_WU){
-                continue;
-            }
+        if(demand_remote > 0){
+            for(j = 0; j < wu_con[iCell][iSector].nreceiving; j++){
+                iSector2 = wu_con_map[iCell2].sidx[i];        
+                if(iSector2 == NODATA_WU){
+                    continue;
+                }
             
-            wu_var[iCell][iSector].available_remote += available_remote *
-                    wu_var[iCell][iSector].demand_remote / 
-                    demand_remote;
+                wu_var[iCell][iSector].available_remote += available_remote *
+                        wu_var[iCell][iSector].demand_remote / 
+                        demand_remote;
+            }
         }
     }
     
@@ -167,22 +179,30 @@ wu_run(size_t iCell)
         wu_var[iCell][iSector].returned = 0.0;
         
         // groundwater
-        frac = wu_var[iCell][iSector].demand_gw / 
-                wu_var[iCell][iSector].available_gw;
-        frac = max(frac, 1);
-        wu_var[iCell][iSector].withdrawn_gw = 
-                wu_var[iCell][iSector].available_gw * (1 - frac);
-        
+        if(wu_var[iCell][iSector].available_gw > 0){
+            frac = wu_var[iCell][iSector].demand_gw / 
+                    wu_var[iCell][iSector].available_gw;
+            frac = min(frac, 1);
+            wu_var[iCell][iSector].withdrawn_gw = 
+                    wu_var[iCell][iSector].available_gw * frac;
+        } else {
+            wu_var[iCell][iSector].withdrawn_gw = 0;
+        }
+
         wu_var[iCell][iSector].returned += 
                 wu_var[iCell][iSector].withdrawn_gw * 
                 (1 - wu_force[iCell][iSector].consumption_frac[NR]);
         
         // surface water
-        frac = wu_var[iCell][iSector].demand_surf / 
-                wu_var[iCell][iSector].available_surf;
-        frac = max(frac, 1);
-        wu_var[iCell][iSector].withdrawn_surf = 
-                wu_var[iCell][iSector].available_surf * (1 - frac);
+        if(wu_var[iCell][iSector].available_surf > 0){
+            frac = wu_var[iCell][iSector].demand_surf / 
+                    wu_var[iCell][iSector].available_surf;
+            frac = min(frac, 1);
+            wu_var[iCell][iSector].withdrawn_surf = 
+                    wu_var[iCell][iSector].available_surf * frac;
+        } else {
+            wu_var[iCell][iSector].withdrawn_surf = 0;
+        }
         
         wu_var[iCell][iSector].returned += 
                 wu_var[iCell][iSector].withdrawn_surf * 
@@ -195,11 +215,15 @@ wu_run(size_t iCell)
                 continue;
             }
             
-            frac = wu_var[iCell][iSector].demand_remote / 
-                    wu_var[iCell][iSector].available_remote;
-            frac = max(frac, 1);
-            wu_var[iCell2][iSector2].withdrawn_remote = 
-                    wu_var[iCell][iSector].available_remote * (1 - frac);
+            if(wu_var[iCell][iSector].available_remote > 0){
+                frac = wu_var[iCell][iSector].demand_remote / 
+                        wu_var[iCell][iSector].available_remote;
+                frac = min(frac, 1);
+                wu_var[iCell2][iSector2].withdrawn_remote = 
+                        wu_var[iCell][iSector].available_remote * frac;
+            } else {
+                wu_var[iCell2][iSector2].withdrawn_remote = 0;
+            }
         
             wu_var[iCell][iSector].returned += 
                     wu_var[iCell2][iSector2].withdrawn_remote * 
@@ -210,21 +234,33 @@ wu_run(size_t iCell)
     /******************************************
      Return
     ******************************************/
-    for(j = 0; j < wu_con[iCell][iSector].nreceiving; j++){
-        iSector2 = wu_con_map[iCell2].sidx[i];        
-        if(iSector2 == NODATA_WU){
+    for(i = 0; i < plugin_options.NWUTYPES; i ++){
+        iSector = wu_con_map[iCell].sidx[i];        
+        if(iSector == NODATA_WU){
             continue;
         }
         
         // groundwater
-        iLayer = options.Nlayer - 1;
-        for(iVeg = 0; iVeg < veg_con_map[iCell].nv_active; iVeg++){
-            for(iBand = 0; iBand < options.SNOW_BAND; iBand++){
-                if(soil_con[iCell].AreaFract[iBand] > 0){
-                    all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist -=
-                            wu_var[iCell][iSector].withdrawn_gw *
-                            av_gw[iVeg][iBand] /
-                            available_gw;
+        if(available_gw > 0){
+            iLayer = options.Nlayer - 1;
+            for(iVeg = 0; iVeg < veg_con_map[iCell].nv_active; iVeg++){
+                for(iBand = 0; iBand < options.SNOW_BAND; iBand++){
+                    if(soil_con[iCell].AreaFract[iBand] > 0){
+                        all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist -=
+                                wu_var[iCell][iSector].withdrawn_gw *
+                                av_gw[iVeg][iBand] /
+                                available_gw;
+                        
+                        ice = 0;
+                        for(iFrost = 0; iFrost < options.Nfrost; iFrost ++){
+                            ice += all_vars[iCell].cell[iVeg][iBand].layer[iLayer].ice[iFrost] *
+                                   soil_con[iCell].frost_fract[iFrost];
+                        }
+                        
+                        if(all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist < ice){
+                            all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist = ice;
+                        }
+                    }
                 }
             }
         }
@@ -237,6 +273,16 @@ wu_run(size_t iCell)
                 MM_PER_M * 
                 local_domain.locations[iCell].area / 
                 global_param.dt;
+        if(rout_var[iCell].discharge < 0){
+            rout_var[iCell].discharge = 0;
+        }
+        
+        if(wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].available_gw > DBL_EPSILON ||
+                wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].demand_gw > DBL_EPSILON ||
+                wu_var[iCell][iSector].withdrawn_surf - wu_var[iCell][iSector].available_surf > DBL_EPSILON ||
+                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].demand_gw > DBL_EPSILON){
+            log_err("Water-use water balance error");
+        }
     }
     
     

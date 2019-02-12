@@ -9,9 +9,10 @@ plugin_force(void)
 {
     extern plugin_option_struct       plugin_options;
     
-    if(plugin_options.ROUTING && plugin_options.FORCE_ROUTING){
+    if(plugin_options.ROUTING && plugin_options.FORCE_ROUTING)
         rout_forcing();
-    }
+    if(plugin_options.WATERUSE)
+        wu_forcing();
 }
 
 /******************************************
@@ -34,6 +35,8 @@ plugin_run(void)
                 cur_cell = routing_order[i];
                 
                 rout_basin_run(cur_cell);
+                if(plugin_options.WATERUSE)
+                    wu_run(cur_cell);
             }
         } 
         else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION){
@@ -53,8 +56,9 @@ plugin_put_data()
     // If running with OpenMP, run this for loop using multiple threads
     #pragma omp parallel for default(shared) private(i)
     for (i = 0; i < local_domain.ncells_active; i++) {
-        if(plugin_options.ROUTING){
+        if(plugin_options.ROUTING)
             rout_put_data(i);
-        }
+        if(plugin_options.WATERUSE)
+            wu_put_data(i);
     }
 }

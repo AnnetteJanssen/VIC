@@ -5,10 +5,10 @@
  Global parameters & parameters
 ******************************************/
 bool
-plugin_get_global_param(char cmdstr[MAXSTRING])
+plugin_get_global_param(char *cmdstr)
 {
     if(rout_get_global_param(cmdstr)){} 
-    if(wu_get_global_param(cmdstr)){} 
+    else if(wu_get_global_param(cmdstr)){} 
     else {
         return false;
     }
@@ -28,7 +28,7 @@ plugin_validate_global_param(void)
 }
 
 bool
-plugin_get_parameters(char optstr[MAXSTRING])
+plugin_get_parameters(char *optstr)
 {
     return false;
 }
