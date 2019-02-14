@@ -12,8 +12,6 @@ dam_generate_default_state(void)
     extern dam_con_map_struct  *global_dam_con_map;
     extern dam_con_struct     **global_dam_con;
     extern dam_var_struct     **global_dam_var;
-    extern dmy_struct         *dmy;
-    extern size_t              current;
     extern plugin_parameters_struct   plugin_param;
 
     size_t                     i;
@@ -23,11 +21,9 @@ dam_generate_default_state(void)
         for(j = 0; j < plugin_options.NDAMTYPES; j++){
             if(local_dam_con_map[i].didx[j] != NODATA_DAM){
                 local_dam_var[i][j].storage = local_dam_con[i][j].capacity * plugin_param.DAM_ALPHA;
-                local_dam_var[i][j].op_year = dmy[current].month;
             }
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_var[i][j].storage = global_dam_con[i][j].capacity * plugin_param.DAM_ALPHA;
-                global_dam_var[i][j].op_year = dmy[current].month;
             }
         }
     }

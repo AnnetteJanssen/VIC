@@ -77,7 +77,7 @@ plugin_set_nc_var_info(unsigned int       varid,
     nc_var->nc_counts[2] = nc_hist_file->ni_size;
     
     if(plugin_options.DAMS)
-        dam_set_nc_var_dimids(varid, nc_hist_file, nc_var);
+        dam_set_nc_var_info(varid, nc_hist_file, nc_var);
 }
 
 // Set output variable dimension ids

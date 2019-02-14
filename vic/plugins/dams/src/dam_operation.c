@@ -67,6 +67,10 @@ dam_corr_opt_release(double *inflow,
 {
     size_t  i;
     
+    if(k == 0 || c == 0){
+        log_info("huh");
+    }
+    
     if (c >= 0.5) {
         // Large dam capacity, release all
         for (i = 0; i < length; i++) {
@@ -86,21 +90,39 @@ dam_corr_opt_release(double *inflow,
 double
 dam_corr_release(double release,
                  double cur_storage,
-                 double opt_storage)
+                 double opt_storage,
+                 double capacity)
 {
-    return(max(0, release + (cur_storage - opt_storage) / 7));
+    extern global_param_struct global_param;
+    
+    double frac;
+    
+    if(cur_storage > opt_storage){
+        frac = (cur_storage - opt_storage) / (capacity - opt_storage);
+    } else {
+        frac = 1 - cur_storage / opt_storage;
+    }
+    
+    if(frac >= 0.75){
+        return(max(0, release + 
+                (cur_storage - opt_storage) * 
+                pow((frac - 0.75) / 0.25, 2) / 
+                (7 * global_param.model_steps_per_day)));
+    } else {
+        return(release);
+    }
 }
 
 // Calculates dam Kr factor according to Hanasaki et al. 2006
 // This factor handles inter-annual variability in storage
 // Make sure all inputs have the same units & length
 double
-dam_calc_k_factor(double max_capacity,
+dam_calc_k_factor(double capacity,
                   double cur_storage)
 {
     extern plugin_parameters_struct plugin_param;
     
-    return(cur_storage / (max_capacity * plugin_param.DAM_ALPHA));
+    return(cur_storage / (capacity * plugin_param.DAM_ALPHA));
 }
 
 // Calculates dam c factor according to Hanasaki et al. 2006
@@ -108,8 +130,9 @@ dam_calc_k_factor(double max_capacity,
 // Make sure all inputs have the same units & length
 double
 dam_calc_c_factor(double *inflow,
-                  double  max_capacity,
-                  size_t  length)
+                  double  capacity,
+                  size_t  length,
+                  size_t *steps)
 {
     double inflow_tot;
     
@@ -117,10 +140,10 @@ dam_calc_c_factor(double *inflow,
     
     inflow_tot = 0.0;
     for (i = 0; i < length; i++) {
-        inflow_tot += inflow[i];
+        inflow_tot += inflow[i] * steps[i];
     }
     
-    return(max_capacity / inflow_tot);
+    return(capacity / inflow_tot);
 }
 
 void
@@ -128,6 +151,7 @@ dam_calc_opt_storage(double *inflow,
                      double *release,
                      double *storage,
                      size_t  length,
+                     size_t *steps,
                      double  cur_storage)
 {
     double difference;
@@ -135,11 +159,10 @@ dam_calc_opt_storage(double *inflow,
     size_t i;
     
     for (i = 0; i < length; i++) {
-        difference = inflow[i] - release[i];
-        
-        if (i == 1) {
-            storage[i] = cur_storage + difference;
+        if (i == 0) {
+            storage[i] = cur_storage;
         } else {
+            difference = (inflow[i - 1] - release[i - 1])  * steps[i - 1];
             storage[i] = storage[i - 1] + difference;
         }
     }

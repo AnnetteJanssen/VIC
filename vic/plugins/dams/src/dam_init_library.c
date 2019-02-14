@@ -14,8 +14,9 @@ initialize_dam_var(dam_var_struct *dam_var)
     dam_var->storage = 0.0;
     
     dam_var->total_inflow = 0.0;
-    dam_var->demand = 0.0;
-    dam_var->efr = 0.0;
+    dam_var->total_demand = 0.0;
+    dam_var->total_efr = 0.0;
+    dam_var->register_steps = 0;
     
     for(i = 0; i < MONTHS_PER_YEAR * DAM_HIST_YEARS; i++) {
         dam_var->history_inflow[i] = 0.0;
@@ -27,7 +28,7 @@ initialize_dam_var(dam_var_struct *dam_var)
         dam_var->op_storage[i] = 0.0;
     }
     
-    dam_var->op_year = 0;
+    dam_var->op_month = NODATA_DAM;
     dam_var->months_running = 0;
 }
 

@@ -20,7 +20,7 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
         years_running = DAM_HIST_YEARS;
     }
 
-    if(dmy[current].year >= dam_con->year && years_running > 0){
+    if(years_running > 0 && dam_var->op_month != NODATA_DAM){
 
         // Interpolate storage and release
         month_days = days_per_month(dmy[current].month, dmy[current].year, global_param.calendar);
@@ -37,13 +37,19 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
                 dam_var->op_storage[0],
                 dam_var->op_storage[1]);
         
+        if(dam_var->op_release[0] == 0){
+            log_info("hh");
+        }
+        
         // Fill reservoir
         dam_var->storage += dam_var->inflow;
 
         // Calculate discharge               
-        dam_var->release = dam_corr_release(release_int,
-                                            dam_var->storage,
-                                            storage_int);
+//        dam_var->release = dam_corr_release(release_int,
+//                                            dam_var->storage,
+//                                            storage_int,
+//                                            dam_con->capacity);
+        dam_var->release = release_int;
         
         // reduce reservoir
         dam_var->storage -= dam_var->release;
@@ -63,31 +69,31 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
 }
 
 void
-local_dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t cur_cell)
+local_dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
 {
     extern domain_struct local_domain;
     extern double ***out_data;
     
     dam_operate(dam_con, dam_var);
-    out_data[cur_cell][OUT_RUNOFF][0] *= 1 - dam_con->inflow_frac;
-    out_data[cur_cell][OUT_RUNOFF][0] += dam_var->release * M3_PER_HM3 * 
-            MM_PER_M / local_domain.locations[cur_cell].area;
+    out_data[iCell][OUT_RUNOFF][0] *= 1 - dam_con->inflow_frac;
+    out_data[iCell][OUT_RUNOFF][0] += dam_var->release * M3_PER_HM3 * 
+            MM_PER_M / local_domain.locations[iCell].area;
 }
 
 void
-global_dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t cur_cell)
+global_dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
 {
     extern global_param_struct global_param;
     extern rout_var_struct *rout_var;
     
     dam_operate(dam_con, dam_var);
-    rout_var[cur_cell].discharge *= 1 - dam_con->inflow_frac;
-    rout_var[cur_cell].discharge += dam_var->release * M3_PER_HM3 / 
+    rout_var[iCell].discharge *= 1 - dam_con->inflow_frac;
+    rout_var[iCell].discharge += dam_var->release * M3_PER_HM3 / 
             global_param.dt;
 }
 
 void
-local_dam_run(size_t cur_cell){
+local_dam_run(size_t iCell){
     extern plugin_option_struct plugin_options;
     extern dam_con_map_struct  *local_dam_con_map;
     extern dam_con_struct **local_dam_con;
@@ -96,18 +102,18 @@ local_dam_run(size_t cur_cell){
     size_t i;
     
     for(i = 0; i < plugin_options.NDAMTYPES; i++){
-        if(local_dam_con_map[cur_cell].didx[i] != NODATA_DAM){
-            local_dam_history(&local_dam_con[cur_cell][i], &local_dam_var[cur_cell][i], cur_cell);
+        if(local_dam_con_map[iCell].didx[i] != NODATA_DAM){
+            local_dam_register(&local_dam_con[iCell][i], &local_dam_var[iCell][i], iCell);
 
-            if(local_dam_var[cur_cell][i].active){
-                local_dam_operate(&local_dam_con[cur_cell][i], &local_dam_var[cur_cell][i], cur_cell);
+            if(local_dam_var[iCell][i].active){
+                local_dam_operate(&local_dam_con[iCell][i], &local_dam_var[iCell][i], iCell);
             }
         }
     }
 }
 
 void
-global_dam_run(size_t cur_cell){
+global_dam_run(size_t iCell){
     extern plugin_option_struct plugin_options;
     extern dam_con_map_struct  *global_dam_con_map;
     extern dam_con_struct **global_dam_con;
@@ -116,11 +122,11 @@ global_dam_run(size_t cur_cell){
     size_t i;
     
     for(i = 0; i < plugin_options.NDAMTYPES; i++){
-        if(global_dam_con_map[cur_cell].didx[i] != NODATA_DAM){
-            local_dam_history(&global_dam_con[cur_cell][i], &global_dam_var[cur_cell][i], cur_cell);
+        if(global_dam_con_map[iCell].didx[i] != NODATA_DAM){
+            global_dam_register(&global_dam_con[iCell][i], &global_dam_var[iCell][i], iCell);
 
-            if(global_dam_var[cur_cell][i].active){
-                local_dam_operate(&global_dam_con[cur_cell][i], &global_dam_var[cur_cell][i], cur_cell);
+            if(global_dam_var[iCell][i].active){
+                global_dam_operate(&global_dam_con[iCell][i], &global_dam_var[iCell][i], iCell);
             }
         }
     }

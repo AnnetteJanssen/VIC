@@ -40,8 +40,9 @@ typedef struct {
     double total_inflow;
     double total_demand;
     double total_efr;
+    size_t register_steps;
 
-    int op_year;
+    int op_month;
     size_t months_running;
 } dam_var_struct;
 
@@ -66,14 +67,14 @@ void dam_history(unsigned int, unsigned int *);
 void dam_put_data(size_t);
 
 
-void local_dam_history(dam_con_struct *, dam_var_struct *, size_t);
-void global_dam_history(dam_con_struct *, dam_var_struct *, size_t);
+void local_dam_register(dam_con_struct *, dam_var_struct *, size_t);
+void global_dam_register(dam_con_struct *, dam_var_struct *, size_t);
 void dam_calc_opt_release(double *, double *, double *, double *, size_t);
 void dam_corr_opt_release(double *, double *, size_t, double, double);
-double dam_corr_release(double, double, double);
+double dam_corr_release(double, double, double, double);
 double dam_calc_k_factor(double, double);
-double dam_calc_c_factor(double *, double, size_t);
-void dam_calc_opt_storage(double *, double *, double *, size_t, double);
+double dam_calc_c_factor(double *, double, size_t, size_t *);
+void dam_calc_opt_storage(double *, double *, double *, size_t, size_t*, double);
 double dam_area(double, double, double, double);
 double dam_height(double, double);
 void local_dam_run(size_t);

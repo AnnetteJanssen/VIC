@@ -14,12 +14,10 @@ array_average(double *array,
 
     for (i = 0; i < repetitions; i++) {
         for (j = 0; j < length; j++) {
-            average +=
-                array[(i *
-                       (offset + length +
-                        skip)) + offset + j] / (repetitions * length);
+            average += array[offset + i * (length + skip) + j]; 
         }
     }
+    average /= (repetitions * length);
 
     return average;
 }

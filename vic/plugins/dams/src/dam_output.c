@@ -67,8 +67,6 @@ dam_set_output_met_data_info(void)
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_LDAM_OP_RELEASE].units, "hm3");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_LDAM_OP_RELEASE].description, "total dam operational release");
     
-    
-    
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_GDAM_INFLOW].varname, "OUT_GDAM_INFLOW");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_GDAM_INFLOW].long_name, "global_dam_inflow");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_GDAM_INFLOW].standard_name, "global_dam_inflow");
@@ -139,8 +137,6 @@ dam_set_output_met_data_info(void)
     out_metadata[N_OUTVAR_TYPES + OUT_LDAM_HIST_EFR].nelem = plugin_options.NDAMTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_LDAM_OP_STORAGE].nelem = plugin_options.NDAMTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_LDAM_OP_RELEASE].nelem = plugin_options.NDAMTYPES;
-    
-    
     
     out_metadata[N_OUTVAR_TYPES + OUT_GDAM_INFLOW].nelem = plugin_options.NDAMTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_GDAM_DEMAND].nelem = plugin_options.NDAMTYPES;
@@ -250,18 +246,18 @@ dam_history(unsigned int varid, unsigned int *agg_type)
     switch (varid) {
     case N_OUTVAR_TYPES + OUT_LDAM_STORAGE:
     case N_OUTVAR_TYPES + OUT_GDAM_STORAGE:
+    case N_OUTVAR_TYPES + OUT_GDAM_OP_STORAGE:
+    case N_OUTVAR_TYPES + OUT_LDAM_OP_STORAGE:
         (*agg_type) = AGG_TYPE_END;
+        break;
     case N_OUTVAR_TYPES + OUT_LDAM_HIST_INFLOW:
     case N_OUTVAR_TYPES + OUT_LDAM_HIST_DEMAND:
     case N_OUTVAR_TYPES + OUT_LDAM_HIST_EFR:
     case N_OUTVAR_TYPES + OUT_LDAM_OP_RELEASE:
-    case N_OUTVAR_TYPES + OUT_LDAM_OP_STORAGE:
     case N_OUTVAR_TYPES + OUT_GDAM_HIST_INFLOW:
     case N_OUTVAR_TYPES + OUT_GDAM_HIST_DEMAND:
     case N_OUTVAR_TYPES + OUT_GDAM_HIST_EFR:
     case N_OUTVAR_TYPES + OUT_GDAM_OP_RELEASE:
-    case N_OUTVAR_TYPES + OUT_GDAM_OP_STORAGE:
-        (*agg_type) = AGG_TYPE_AVG;
     case N_OUTVAR_TYPES + OUT_LDAM_INFLOW:
     case N_OUTVAR_TYPES + OUT_LDAM_DEMAND:
     case N_OUTVAR_TYPES + OUT_LDAM_EFR:
@@ -270,12 +266,13 @@ dam_history(unsigned int varid, unsigned int *agg_type)
     case N_OUTVAR_TYPES + OUT_GDAM_DEMAND:
     case N_OUTVAR_TYPES + OUT_GDAM_EFR:
     case N_OUTVAR_TYPES + OUT_GDAM_RELEASE:
-        (*agg_type) = AGG_TYPE_AVG;
+        (*agg_type) = AGG_TYPE_SUM;
+        break;
     }
 }
 
 void
-dam_put_data(size_t cur_cell)
+dam_put_data(size_t iCell)
 {
     extern plugin_option_struct plugin_options;
     extern double            ***out_data;
@@ -286,50 +283,70 @@ dam_put_data(size_t cur_cell)
     
     size_t i;
     size_t years_running;
+    double inflow;
+    double demand;
+    double efr;
     
     for (i = 0; i < plugin_options.NDAMTYPES; i++) {
-        if(local_dam_con_map[cur_cell].didx[i] != NODATA_DAM){
+        if(local_dam_con_map[iCell].didx[i] != NODATA_DAM){   
     
-            years_running = (size_t)(local_dam_var[cur_cell][i].months_running / MONTHS_PER_YEAR);
+            years_running = (size_t)(local_dam_var[iCell][i].months_running / MONTHS_PER_YEAR);
             if(years_running > DAM_HIST_YEARS){
                 years_running = DAM_HIST_YEARS;
             }
             
-            out_data[cur_cell][OUT_LDAM_INFLOW][i] = local_dam_var[cur_cell][i].inflow;
-            out_data[cur_cell][OUT_LDAM_DEMAND][i] = local_dam_var[cur_cell][i].demand;
-            out_data[cur_cell][OUT_LDAM_EFR][i] = local_dam_var[cur_cell][i].efr;
+            inflow = array_average(local_dam_var[iCell][i].history_inflow,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            demand = array_average(local_dam_var[iCell][i].history_demand,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            efr = array_average(local_dam_var[iCell][i].history_efr,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_INFLOW][i] = local_dam_var[iCell][i].inflow;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_DEMAND][i] = local_dam_var[iCell][i].demand;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_EFR][i] = local_dam_var[iCell][i].efr;
 
-            out_data[cur_cell][OUT_LDAM_STORAGE][i] = local_dam_var[cur_cell][i].storage;
-            out_data[cur_cell][OUT_LDAM_RELEASE][i] = local_dam_var[cur_cell][i].release;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_STORAGE][i] = local_dam_var[iCell][i].storage;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_RELEASE][i] = local_dam_var[iCell][i].release;
 
-            out_data[cur_cell][OUT_LDAM_HIST_INFLOW][i] = local_dam_var[cur_cell][i].history_inflow[years_running * MONTHS_PER_YEAR - 1];
-            out_data[cur_cell][OUT_LDAM_HIST_DEMAND][i] = local_dam_var[cur_cell][i].history_demand[years_running * MONTHS_PER_YEAR - 1];
-            out_data[cur_cell][OUT_LDAM_HIST_EFR][i] = local_dam_var[cur_cell][i].history_efr[years_running * MONTHS_PER_YEAR - 1];
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_HIST_INFLOW][i] = inflow;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_HIST_DEMAND][i] = demand;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_HIST_EFR][i] = efr;
 
-            out_data[cur_cell][OUT_LDAM_OP_RELEASE][i] = local_dam_var[cur_cell][i].op_release[i];
-            out_data[cur_cell][OUT_LDAM_OP_STORAGE][i] = local_dam_var[cur_cell][i].op_storage[i] / pow(M_PER_KM, 2);
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_OP_RELEASE][i] = local_dam_var[iCell][i].op_release[0];
+            out_data[iCell][N_OUTVAR_TYPES + OUT_LDAM_OP_STORAGE][i] = local_dam_var[iCell][i].op_storage[0];
         }
         
-        if(global_dam_con_map[cur_cell].didx[i] != NODATA_DAM){
+        if(global_dam_con_map[iCell].didx[i] != NODATA_DAM){
     
-            years_running = (size_t)(global_dam_var[cur_cell][i].months_running / MONTHS_PER_YEAR);
+            years_running = (size_t)(global_dam_var[iCell][i].months_running / MONTHS_PER_YEAR);
             if(years_running > DAM_HIST_YEARS){
                 years_running = DAM_HIST_YEARS;
             }
+            
+            inflow = array_average(global_dam_var[iCell][i].history_inflow,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            demand = array_average(global_dam_var[iCell][i].history_demand,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            efr = array_average(global_dam_var[iCell][i].history_efr,
+                years_running, 1, MONTHS_PER_YEAR - 1, MONTHS_PER_YEAR - 1);
+            
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_INFLOW][i] = global_dam_var[iCell][i].inflow;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_DEMAND][i] = global_dam_var[iCell][i].demand;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_EFR][i] = global_dam_var[iCell][i].efr;
 
-            out_data[cur_cell][OUT_GDAM_INFLOW][i] = global_dam_var[cur_cell][i].inflow;
-            out_data[cur_cell][OUT_GDAM_DEMAND][i] = global_dam_var[cur_cell][i].demand;
-            out_data[cur_cell][OUT_GDAM_EFR][i] = global_dam_var[cur_cell][i].efr;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_STORAGE][i] = global_dam_var[iCell][i].storage;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_RELEASE][i] = global_dam_var[iCell][i].release;
 
-            out_data[cur_cell][OUT_GDAM_STORAGE][i] = global_dam_var[cur_cell][i].storage;
-            out_data[cur_cell][OUT_GDAM_RELEASE][i] = global_dam_var[cur_cell][i].release;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_HIST_INFLOW][i] = inflow;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_HIST_DEMAND][i] = demand;
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_HIST_EFR][i] = efr;
 
-            out_data[cur_cell][OUT_GDAM_HIST_INFLOW][i] = global_dam_var[cur_cell][i].history_inflow[years_running * MONTHS_PER_YEAR - 1];
-            out_data[cur_cell][OUT_GDAM_HIST_DEMAND][i] = global_dam_var[cur_cell][i].history_demand[years_running * MONTHS_PER_YEAR - 1];
-            out_data[cur_cell][OUT_GDAM_HIST_EFR][i] = global_dam_var[cur_cell][i].history_efr[years_running * MONTHS_PER_YEAR - 1];
-
-            out_data[cur_cell][OUT_GDAM_OP_RELEASE][i] = global_dam_var[cur_cell][i].op_release[i];
-            out_data[cur_cell][OUT_GDAM_OP_STORAGE][i] = global_dam_var[cur_cell][i].op_storage[i] / pow(M_PER_KM, 2);
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_OP_RELEASE][i] = global_dam_var[iCell][i].op_release[0];
+            out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_OP_STORAGE][i] = global_dam_var[iCell][i].op_storage[0];
+            if(global_dam_var[iCell][i].op_release[0] == 0 && global_dam_var[iCell][i].active){
+                log_err("huh");
+            }
         }
     }
 }

@@ -87,5 +87,5 @@ days_per_month(unsigned short int month,
     
     days_per_month[2] += leap_year(year, calendar);
     
-    return(days_per_month[month]);
+    return(days_per_month[month - 1]);
 }
