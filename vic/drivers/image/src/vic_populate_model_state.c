@@ -67,8 +67,7 @@ vic_populate_model_state(dmy_struct *dmy_current)
     for (i = 0; i < local_domain.ncells_active; i++) {
         compute_derived_state_vars(&(all_vars[i]), &(soil_con[i]), veg_con[i]);
         if (options.LAKES) {
-            compute_derived_lake_dimensions(&(all_vars[i].lake_var),
-                                            lake_con[i]);
+            compute_derived_lake_dimensions(&(all_vars[i]), lake_con[i]);
         }
     }
 }

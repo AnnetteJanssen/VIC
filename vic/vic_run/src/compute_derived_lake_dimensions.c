@@ -32,73 +32,81 @@
  *           dependent on lake depth and basin dimensions.
  *****************************************************************************/
 void
-compute_derived_lake_dimensions(lake_var_struct *lake,
-                                lake_con_struct  lake_con)
+compute_derived_lake_dimensions(all_vars_struct *all_vars,
+                                lake_con_struct *lake_con)
 {
     extern parameters_struct param;
 
+    size_t                   Nlake;
+    size_t                   iLake;
     int                      k;
     int                      status;
     double                   depth;
     double                   tmp_volume;
 
-    /* number and thicknesses of lake layers */
-    if (lake->ldepth > param.LAKE_MAX_SURFACE && lake->ldepth < 2 *
-        param.LAKE_MAX_SURFACE) {
-        /* Not quite enough for two full layers. */
-        lake->surfdz = lake->ldepth / 2.;
-        lake->dz = lake->ldepth / 2.;
-        lake->activenod = 2;
-    }
-    else if (lake->ldepth >= 2 * param.LAKE_MAX_SURFACE) {
-        /* More than two layers. */
-        lake->surfdz = param.LAKE_MAX_SURFACE;
-        lake->activenod = (int) (lake->ldepth / param.LAKE_MAX_SURFACE);
-        if (lake->activenod > MAX_LAKE_NODES) {
-            lake->activenod = MAX_LAKE_NODES;
+    Nlake = lake_con[0].lake_type_num;
+    
+    lake = all_vars->lake_var;
+    
+    for (iLake = 0; iLake <= Nlake; iLake++) {
+        /* number and thicknesses of lake layers */
+        if (lake[iLake].ldepth > param.LAKE_MAX_SURFACE && lake[iLake].ldepth < 2 *
+            param.LAKE_MAX_SURFACE) {
+            /* Not quite enough for two full layers. */
+            lake[iLake].surfdz = lake[iLake].ldepth / 2.;
+            lake[iLake].dz = lake[iLake].ldepth / 2.;
+            lake[iLake].activenod = 2;
         }
-        lake->dz = (lake->ldepth - lake->surfdz) /
-                   ((double) (lake->activenod - 1));
-    }
-    else if (lake->ldepth > DBL_EPSILON) {
-        lake->surfdz = lake->ldepth;
-        lake->dz = 0.0;
-        lake->activenod = 1;
-    }
-    else {
-        lake->surfdz = 0.0;
-        lake->dz = 0.0;
-        lake->activenod = 0;
-        lake->ldepth = 0.0;
-    }
-
-    // lake_con.basin equals the surface area at specific depths as input by
-    // the user in the lake parameter file or calculated in read_lakeparam(),
-    // lake->surface equals the area at the top of each dynamic solution layer
-
-    for (k = 0; k <= lake->activenod; k++) {
-        if (k == 0) {
-            depth = lake->ldepth;
+        else if (lake[iLake].ldepth >= 2 * param.LAKE_MAX_SURFACE) {
+            /* More than two layers. */
+            lake[iLake].surfdz = param.LAKE_MAX_SURFACE;
+            lake[iLake].activenod = (int) (lake[iLake].ldepth / param.LAKE_MAX_SURFACE);
+            if (lake[iLake].activenod > MAX_LAKE_NODES) {
+                lake[iLake].activenod = MAX_LAKE_NODES;
+            }
+            lake[iLake].dz = (lake[iLake].ldepth - lake[iLake].surfdz) /
+                       ((double) (lake[iLake].activenod - 1));
+        }
+        else if (lake[iLake].ldepth > DBL_EPSILON) {
+            lake[iLake].surfdz = lake[iLake].ldepth;
+            lake[iLake].dz = 0.0;
+            lake[iLake].activenod = 1;
         }
         else {
-            depth = lake->dz * (lake->activenod - k);
+            lake[iLake].surfdz = 0.0;
+            lake[iLake].dz = 0.0;
+            lake[iLake].activenod = 0;
+            lake[iLake].ldepth = 0.0;
         }
-        status = get_sarea(lake_con, depth, &(lake->surface[k]));
+
+        // lake_con[iLake].basin equals the surface area at specific depths as input by
+        // the user in the lake parameter file or calculated in read_lakeparam(),
+        // lake[iLake].surface equals the area at the top of each dynamic solution layer
+
+        for (k = 0; k <= lake[iLake].activenod; k++) {
+            if (k == 0) {
+                depth = lake[iLake].ldepth;
+            }
+            else {
+                depth = lake[iLake].dz * (lake[iLake].activenod - k);
+            }
+            status = get_sarea(lake_con[iLake], depth, &(lake[iLake].surface[k]));
+            if (status < 0) {
+                log_err("record = %d, depth = %f, "
+                        "sarea = %e", 0, depth, lake[iLake].surface[k]);
+            }
+        }
+
+        lake[iLake].sarea = lake[iLake].surface[0];
+        status = get_volume(lake_con[iLake], lake[iLake].ldepth, &tmp_volume);
         if (status < 0) {
             log_err("record = %d, depth = %f, "
-                    "sarea = %e", 0, depth, lake->surface[k]);
+                    "volume = %e", 0, depth, tmp_volume);
         }
+        else if (status > 0) {
+            log_err("lake depth exceeds maximum; "
+                    "setting to maximum; record = %d", 0);
+        }
+        lake[iLake].volume = tmp_volume + lake[iLake].ice_water_eq;
     }
-
-    lake->sarea = lake->surface[0];
-    status = get_volume(lake_con, lake->ldepth, &tmp_volume);
-    if (status < 0) {
-        log_err("record = %d, depth = %f, "
-                "volume = %e", 0, depth, tmp_volume);
-    }
-    else if (status > 0) {
-        log_err("lake depth exceeds maximum; "
-                "setting to maximum; record = %d", 0);
-    }
-    lake->volume = tmp_volume + lake->ice_water_eq;
 }

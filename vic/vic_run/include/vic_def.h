@@ -234,6 +234,7 @@ typedef struct {
     bool NOFLUX;         /**< TRUE = Use no flux lower bondary when computing
                             soil thermal fluxes */
     size_t NVEGTYPES;    /**< number of vegetation types in veg_param file */
+    size_t NLAKETYPES;    /**< number of vegetation types in veg_param file */
     size_t NLAKENODES;   /**< number of lake layers in lake_param file */
     unsigned short int RC_MODE;        /**< RC_JARVIS = compute canopy resistance via Jarvis formulation (default)
                                           RC_PHOTO = compute canopy resistance based on photosynthetic activity */
@@ -630,6 +631,7 @@ typedef struct {
                                class. */
     double LAI[MONTHS_PER_YEAR]; /**< climatological leaf area index (m2/m2) */
     int LAKE;               /**< TRUE = this tile is a lake/wetland tile */
+    int lake_class;         /**< lake class id number */
     double lag_one;         /**< Lag one gradient autocorrelation of
                                terrain slope */
     double root[MAX_LAYERS]; /**< percent of roots in each soil layer
@@ -1030,6 +1032,9 @@ typedef struct {
     // Initial conditions
     double depth_in;              /**< Initial lake depth (distance from surface to deepest point) (m) */
     int lake_idx;                 /**< index number of the lake/wetland veg tile */
+    int lake_class;               /**< lake class id number */
+    size_t lake_type_num;         /**< number of lake types in the grid
+                                          cell */
 } lake_con_struct;
 
 /******************************************************************************
@@ -1092,7 +1097,7 @@ typedef struct {
 typedef struct {
     cell_data_struct **cell;      /**< Stores soil layer variables */
     energy_bal_struct **energy;   /**< Stores energy balance variables */
-    lake_var_struct lake_var;     /**< Stores lake/wetland variables */
+    lake_var_struct *lake_var;     /**< Stores lake/wetland variables */
     snow_data_struct **snow;      /**< Stores snow variables */
     veg_var_struct **veg_var;     /**< Stores vegetation variables */
     gridcell_avg_struct gridcell_avg;   /**< Stores gridcell average variables */

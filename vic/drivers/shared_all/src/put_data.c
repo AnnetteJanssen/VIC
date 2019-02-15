@@ -47,6 +47,7 @@ put_data(all_vars_struct   *all_vars,
     extern parameters_struct   param;
 
     size_t                     veg;
+    size_t                     lake;
     size_t                     index;
     size_t                     band;
     size_t                     Nbands;
