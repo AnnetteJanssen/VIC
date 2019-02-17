@@ -635,7 +635,7 @@ void free_vegcon(veg_con_struct **veg_con);
 void generate_default_state(all_vars_struct *, soil_con_struct *,
                             veg_con_struct *, dmy_struct *);
 void generate_default_lake_state(all_vars_struct *, soil_con_struct *,
-                                 lake_con_struct);
+                                 lake_con_struct *);
 void get_default_nstreams_nvars(size_t *nstreams, size_t nvars[]);
 void get_parameters(FILE *paramfile);
 void init_output_list(double **out_data, int write, char *format, int type,

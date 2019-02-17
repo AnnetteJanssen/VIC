@@ -129,6 +129,7 @@ typedef struct {
     int time_dimid;
     int time_bounds_dimid;
     int veg_dimid;
+    int lake_dimid;
     int time_varid;
     int time_bounds_varid;
     size_t band_size;
@@ -144,6 +145,7 @@ typedef struct {
     size_t root_zone_size;
     size_t time_size;
     size_t veg_size;
+    size_t lake_size;
     bool open;
     nc_var_struct *nc_vars;
 } nc_file_struct;

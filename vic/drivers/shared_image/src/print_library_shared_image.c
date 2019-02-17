@@ -140,6 +140,7 @@ print_nc_file(nc_file_struct *nc)
     fprintf(LOG_DEST, "\troot_zone_dimid: %d\n", nc->root_zone_dimid);
     fprintf(LOG_DEST, "\ttime_dimid     : %d\n", nc->time_dimid);
     fprintf(LOG_DEST, "\tveg_dimid      : %d\n", nc->veg_dimid);
+    fprintf(LOG_DEST, "\tlake_dimid     : %d\n", nc->lake_dimid);
     fprintf(LOG_DEST, "\tband_size      : %zd\n", nc->band_size);
     fprintf(LOG_DEST, "\tfront_size     : %zd\n", nc->front_size);
     fprintf(LOG_DEST, "\tfrost_size     : %zd\n", nc->frost_size);
@@ -150,6 +151,7 @@ print_nc_file(nc_file_struct *nc)
     fprintf(LOG_DEST, "\troot_zone_size : %zd\n", nc->root_zone_size);
     fprintf(LOG_DEST, "\ttime_size      : %zd\n", nc->time_size);
     fprintf(LOG_DEST, "\tveg_size       : %zd\n", nc->veg_size);
+    fprintf(LOG_DEST, "\tlake_size      : %zd\n", nc->lake_size);
     fprintf(LOG_DEST, "\topen           : %d\n", nc->open);
 }
 

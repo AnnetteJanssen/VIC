@@ -32,7 +32,7 @@
  *           dependent on lake depth and basin dimensions.
  *****************************************************************************/
 void
-compute_derived_lake_dimensions(all_vars_struct *all_vars,
+compute_derived_lake_dimensions(lake_var_struct *lake,
                                 lake_con_struct *lake_con)
 {
     extern parameters_struct param;
@@ -45,8 +45,6 @@ compute_derived_lake_dimensions(all_vars_struct *all_vars,
     double                   tmp_volume;
 
     Nlake = lake_con[0].lake_type_num;
-    
-    lake = all_vars->lake_var;
     
     for (iLake = 0; iLake <= Nlake; iLake++) {
         /* number and thicknesses of lake layers */

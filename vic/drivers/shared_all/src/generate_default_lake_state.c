@@ -42,7 +42,7 @@ generate_default_lake_state(all_vars_struct *all_vars,
     size_t               iLake;
     size_t               Nlake;
 
-    lake_var_struct      lake;
+    lake_var_struct     *lake;
 
     Nlake = lake_con[0].lake_type_num;
     
@@ -58,7 +58,7 @@ generate_default_lake_state(all_vars_struct *all_vars,
     if (options.LAKES) {
         for (iLake = 0; iLake <= Nlake; iLake++) {
             lake[iLake].ldepth = lake_con[iLake].depth_in;
-            for (k = 0; k < lake.activenod; k++) {
+            for (k = 0; k < lake[iLake].activenod; k++) {
                 // lake model requires FULL_ENERGY set to true
                 lake[iLake].temp[k] = soil_con->avg_temp;
             }

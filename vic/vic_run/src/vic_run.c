@@ -110,9 +110,6 @@ vic_run(force_data_struct   *force,
     // everywhere within vic_run
     vic_run_veg_lib = veg_lib;
 
-    /* set local pointers */
-    lake_var = all_vars->lake_var;
-
     Nbands = options.SNOW_BAND;
 
     /* Set number of vegetation tiles */
@@ -157,15 +154,18 @@ vic_run(force_data_struct   *force,
             if (veg_con[iveg].LAKE) {
                 lidx = veg_con[iveg].lake_class;
                 
+                /* local pointer to lake_var */
+                lake_var = &(all_vars->lake_var[lidx]);
+                
                 /* Update areai to equal new ice area from previous time step. */
-                lake_var[lidx]->areai = lake_var[lidx]->new_ice_area;
+                lake_var->areai = lake_var->new_ice_area;
 
                 /* Compute lake fraction and ice-covered fraction */
-                if (lake_var[lidx]->areai < 0) {
-                    lake_var[lidx]->areai = 0;
+                if (lake_var->areai < 0) {
+                    lake_var->areai = 0;
                 }
-                if (lake_var[lidx]->sarea > 0) {
-                    fraci = lake_var[lidx]->areai / lake_var[lidx]->sarea;
+                if (lake_var->sarea > 0) {
+                    fraci = lake_var->areai / lake_var->sarea;
                     if (fraci > 1.0) {
                         fraci = 1.0;
                     }
@@ -173,7 +173,7 @@ vic_run(force_data_struct   *force,
                 else {
                     fraci = 0.0;
                 }
-                lakefrac = lake_var[lidx]->sarea / lake_con[lidx]->basin[0];
+                lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
 
                 Nbands = 1;
                 Cv *= (1 - lakefrac);
@@ -419,8 +419,8 @@ vic_run(force_data_struct   *force,
                                            soil_con->AreaFract[band]);
                             sum_baseflow += (cell->baseflow * Cv *
                                              soil_con->AreaFract[band]);
-                            cell->runoff *= (1 - lake_con[lidx]->rpercent);
-                            cell->baseflow *= (1 - lake_con[lidx]->rpercent);
+                            cell->runoff *= (1 - lake_con[lidx].rpercent);
+                            cell->baseflow *= (1 - lake_con[lidx].rpercent);
                         }
                     }
                 }
@@ -431,19 +431,22 @@ vic_run(force_data_struct   *force,
         // Loop through all vegetation tiles
         for (iveg = 0; iveg <= Nveg; iveg++) {
             /** Solve Veg Tile only if Coverage Greater than 0% **/
-            if (veg_con[iveg].Cv > 0. && veg_con[iveg]->LAKE) {
-                lidx = veg_con[iveg]->lake_class;
+            if (veg_con[iveg].Cv > 0. && veg_con[iveg].LAKE) {
+                lidx = veg_con[iveg].lake_class;
+                
+                /* local pointer to lake_var */
+                lake_var = &(all_vars->lake_var[lidx]);
                 
                 band = 0;
-                lake_var[lidx]->runoff_in =
-                    (sum_runoff * lake_con[lidx]->rpercent +
+                lake_var->runoff_in =
+                    (sum_runoff * lake_con[lidx].rpercent +
                      wetland_runoff) * soil_con->cell_area / MM_PER_M;                                               // m3
-                lake_var[lidx]->baseflow_in =
-                    (sum_baseflow * lake_con[lidx]->rpercent +
+                lake_var->baseflow_in =
+                    (sum_baseflow * lake_con[lidx].rpercent +
                      wetland_baseflow) * soil_con->cell_area / MM_PER_M;                                                 // m3
-                lake_var[lidx]->channel_in = force->channel_in[NR] * soil_con->cell_area /
+                lake_var->channel_in = force->channel_in[NR] * soil_con->cell_area /
                                        MM_PER_M;                                        // m3
-                lake_var[lidx]->prec = force->prec[NR] * lake_var[lidx]->sarea / MM_PER_M; // m3
+                lake_var->prec = force->prec[NR] * lake_var->sarea / MM_PER_M; // m3
                 rainonly = calc_rainonly(force->air_temp[NR], force->prec[NR],
                                          param.SNOW_MAX_SNOW_TEMP,
                                          param.SNOW_MIN_RAIN_TEMP);
@@ -478,7 +481,7 @@ vic_run(force_data_struct   *force,
                    Solve the water budget for the lake.
                 **********************************************************************/
 
-                ErrorFlag = water_balance(&lake_var[lidx], lake_con[lidx], gp->dt, all_vars,
+                ErrorFlag = water_balance(lake_var, &lake_con[lidx], gp->dt, all_vars,
                                           iveg, band, lakefrac, *soil_con,
                                           veg_con[iveg]);
                 if (ErrorFlag == ERROR) {

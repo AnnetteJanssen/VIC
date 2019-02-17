@@ -315,6 +315,11 @@ initialize_history_file(nc_file_struct *nc,
     check_nc_status(status, "Error defining veg_class dimension in %s",
                     stream->filename);
 
+    status = nc_def_dim(nc->nc_id, "lake_class", nc->lake_size,
+                        &(nc->lake_dimid));
+    check_nc_status(status, "Error defining lake_class dimension in %s",
+                    stream->filename);
+
     status = nc_def_dim(nc->nc_id, "time", nc->time_size,
                         &(nc->time_dimid));
     check_nc_status(status, "Error defining time dimension in %s",
@@ -689,6 +694,7 @@ initialize_nc_file(nc_file_struct     *nc_file,
     nc_file->root_zone_dimid = MISSING;
     nc_file->time_dimid = MISSING;
     nc_file->veg_dimid = MISSING;
+    nc_file->lake_dimid = MISSING;
 
     // Set dimension sizes
     nc_file->band_size = options.SNOW_BAND;
@@ -701,6 +707,7 @@ initialize_nc_file(nc_file_struct     *nc_file,
     nc_file->root_zone_size = options.ROOT_ZONES;
     nc_file->time_size = NC_UNLIMITED;
     nc_file->veg_size = options.NVEGTYPES;
+    nc_file->lake_size = options.NLAKETYPES;
 
     // allocate memory for nc_vars
     nc_file->nc_vars = calloc(nvars, sizeof(*(nc_file->nc_vars)));

@@ -1664,7 +1664,7 @@ vic_init(void)
                 if (tmp_lake_idx < 0) {
                     tmp_lake_idx = 0;
                 }
-                initialize_lake(&(all_vars[i].lake_var[j]), lake_con[i][j],
+                initialize_lake(&(all_vars[i].lake_var[j]), &(lake_con[i][j]),
                                 &(soil_con[i]),
                                 &(all_vars[i].cell[tmp_lake_idx][0]), false);
             }
