@@ -40,7 +40,7 @@ vic_init_output(dmy_struct *dmy_current)
     extern MPI_Comm           MPI_COMM_VIC;
     extern int                mpi_rank;
     extern nc_file_struct    *nc_hist_files;
-    extern lake_con_struct    lake_con;
+    extern lake_con_struct  **lake_con;
     extern double          ***out_data;
     extern save_data_struct  *save_data;
     extern soil_con_struct   *soil_con;
@@ -66,7 +66,7 @@ vic_init_output(dmy_struct *dmy_current)
     // initialize the save data structures
     for (i = 0; i < local_domain.ncells_active; i++) {
         initialize_save_data(&(all_vars[i]), &(force[i]), &(soil_con[i]),
-                             veg_con[i], veg_lib[i], &lake_con, out_data[i],
+                             veg_con[i], veg_lib[i], lake_con[i], out_data[i],
                              &(save_data[i]), &timer);
     }
 
@@ -301,6 +301,10 @@ initialize_history_file(nc_file_struct *nc,
     check_nc_status(status, "Error defining y dimension in %s",
                     stream->filename);
 
+    status = nc_def_dim(nc->nc_id, "lake_node", nc->lake_node_size, &(nc->lake_node_dimid));
+    check_nc_status(status, "Error defining lake_node dimension in %s",
+                    stream->filename);
+    
     status = nc_def_dim(nc->nc_id, "node", nc->node_size, &(nc->node_dimid));
     check_nc_status(status, "Error defining node dimension in %s",
                     stream->filename);
@@ -703,6 +707,7 @@ initialize_nc_file(nc_file_struct     *nc_file,
     nc_file->layer_size = options.Nlayer;
     nc_file->ni_size = global_domain.n_nx;
     nc_file->nj_size = global_domain.n_ny;
+    nc_file->lake_node_size = options.NLAKENODES;
     nc_file->node_size = options.Nnode;
     nc_file->root_zone_size = options.ROOT_ZONES;
     nc_file->time_size = NC_UNLIMITED;

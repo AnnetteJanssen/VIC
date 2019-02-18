@@ -59,6 +59,7 @@ vic_write(stream_struct  *stream,
           dmy_struct     *dmy_current)
 {
     extern global_param_struct global_param;
+    extern option_struct       options;
     extern domain_struct       local_domain;
     extern int                 mpi_rank;
     extern metadata_struct     out_metadata[N_OUTVAR_TYPES];
@@ -66,6 +67,7 @@ vic_write(stream_struct  *stream,
     size_t                     i;
     size_t                     j;
     size_t                     k;
+    size_t                     l;
     size_t                     ndims;
     double                     dtime;
     double                    *dvar = NULL;
@@ -149,56 +151,79 @@ vic_write(stream_struct  *stream,
         }
         dstart[0] = stream->write_alarm.count;  // Position in the time dimensions
 
-        for (j = 0; j < out_metadata[varid].nelem; j++) {
-            // if there is more than one layer, then dstart needs to advance
-            dstart[1] = j;
-            if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    dvar[i] = (double) stream->aggdata[i][k][j][0];
+        if (varid == OUT_LAKE_NODE_TEMP) {
+            for (l = 0; l < options.NLAKETYPES; l++) {
+                // if there is more than one layer, then dstart needs to advance
+                dstart[1] = l;
+                for (j = 0; j < options.NLAKENODES; j++) {
+                    // if there is more than one layer, then dstart needs to advance
+                    dstart[2] = j;
+                    if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
+                        for (i = 0; i < local_domain.ncells_active; i++) {
+                            dvar[i] = (double) stream->aggdata[i][k][l * options.NLAKETYPES + j][0];
+                        }
+                        gather_put_nc_field_double(nc_hist_file->nc_id,
+                                                   nc_hist_file->nc_vars[k].nc_varid,
+                                                   nc_hist_file->d_fillvalue,
+                                                   dstart, dcount, dvar);
+                    }
+                    else {
+                        log_err("Unsupported nc_type encountered");
+                    }
                 }
-                gather_put_nc_field_double(nc_hist_file->nc_id,
-                                           nc_hist_file->nc_vars[k].nc_varid,
-                                           nc_hist_file->d_fillvalue,
-                                           dstart, dcount, dvar);
             }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    fvar[i] = (float) stream->aggdata[i][k][j][0];
+        } else {
+            for (j = 0; j < out_metadata[varid].nelem; j++) {
+                // if there is more than one layer, then dstart needs to advance
+                dstart[1] = j;
+                if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
+                    for (i = 0; i < local_domain.ncells_active; i++) {
+                        dvar[i] = (double) stream->aggdata[i][k][j][0];
+                    }
+                    gather_put_nc_field_double(nc_hist_file->nc_id,
+                                               nc_hist_file->nc_vars[k].nc_varid,
+                                               nc_hist_file->d_fillvalue,
+                                               dstart, dcount, dvar);
                 }
-                gather_put_nc_field_float(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->f_fillvalue,
-                                          dstart, dcount, fvar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_INT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    ivar[i] = (int) stream->aggdata[i][k][j][0];
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
+                    for (i = 0; i < local_domain.ncells_active; i++) {
+                        fvar[i] = (float) stream->aggdata[i][k][j][0];
+                    }
+                    gather_put_nc_field_float(nc_hist_file->nc_id,
+                                              nc_hist_file->nc_vars[k].nc_varid,
+                                              nc_hist_file->f_fillvalue,
+                                              dstart, dcount, fvar);
                 }
-                gather_put_nc_field_int(nc_hist_file->nc_id,
-                                        nc_hist_file->nc_vars[k].nc_varid,
-                                        nc_hist_file->i_fillvalue,
-                                        dstart, dcount, ivar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_SHORT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    svar[i] = (short int) stream->aggdata[i][k][j][0];
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_INT) {
+                    for (i = 0; i < local_domain.ncells_active; i++) {
+                        ivar[i] = (int) stream->aggdata[i][k][j][0];
+                    }
+                    gather_put_nc_field_int(nc_hist_file->nc_id,
+                                            nc_hist_file->nc_vars[k].nc_varid,
+                                            nc_hist_file->i_fillvalue,
+                                            dstart, dcount, ivar);
                 }
-                gather_put_nc_field_short(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->s_fillvalue,
-                                          dstart, dcount, svar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_CHAR) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    cvar[i] = (char) stream->aggdata[i][k][j][0];
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_SHORT) {
+                    for (i = 0; i < local_domain.ncells_active; i++) {
+                        svar[i] = (short int) stream->aggdata[i][k][j][0];
+                    }
+                    gather_put_nc_field_short(nc_hist_file->nc_id,
+                                              nc_hist_file->nc_vars[k].nc_varid,
+                                              nc_hist_file->s_fillvalue,
+                                              dstart, dcount, svar);
                 }
-                gather_put_nc_field_schar(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->c_fillvalue,
-                                          dstart, dcount, cvar);
-            }
-            else {
-                log_err("Unsupported nc_type encountered");
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_CHAR) {
+                    for (i = 0; i < local_domain.ncells_active; i++) {
+                        cvar[i] = (char) stream->aggdata[i][k][j][0];
+                    }
+                    gather_put_nc_field_schar(nc_hist_file->nc_id,
+                                              nc_hist_file->nc_vars[k].nc_varid,
+                                              nc_hist_file->c_fillvalue,
+                                              dstart, dcount, cvar);
+                }
+                else {
+                    log_err("Unsupported nc_type encountered");
+                }
             }
         }
 

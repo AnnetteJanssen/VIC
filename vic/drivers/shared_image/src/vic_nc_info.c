@@ -101,6 +101,50 @@ set_nc_var_info(unsigned int       varid,
         nc_var->nc_counts[2] = nc_hist_file->nj_size;
         nc_var->nc_counts[3] = nc_hist_file->ni_size;
         break;
+    case OUT_LAKE_BF_IN:       
+    case OUT_LAKE_BF_IN_V:     
+    case OUT_LAKE_BF_OUT:      
+    case OUT_LAKE_BF_OUT_V:    
+    case OUT_LAKE_CHAN_IN_V:   
+    case OUT_LAKE_CHAN_OUT:    
+    case OUT_LAKE_CHAN_OUT_V:  
+    case OUT_LAKE_DSTOR:       
+    case OUT_LAKE_DSTOR_V:     
+    case OUT_LAKE_DSWE:        
+    case OUT_LAKE_DSWE_V:      
+    case OUT_LAKE_EVAP:        
+    case OUT_LAKE_EVAP_V:      
+    case OUT_LAKE_PREC_V:      
+    case OUT_LAKE_RCHRG:       
+    case OUT_LAKE_RCHRG_V:     
+    case OUT_LAKE_RO_IN:       
+    case OUT_LAKE_RO_IN_V:     
+    case OUT_LAKE_VAPFLX:      
+    case OUT_LAKE_VAPFLX_V:    
+    case OUT_LAKE_ICE_TEMP:
+    case OUT_LAKE_SURF_TEMP:
+    case OUT_LAKE_AREA_FRAC: 
+    case OUT_LAKE_DEPTH: 
+    case OUT_LAKE_ICE: 
+    case OUT_LAKE_ICE_FRACT:   
+    case OUT_LAKE_ICE_HEIGHT:  
+    case OUT_LAKE_MOIST:       
+    case OUT_LAKE_SURF_AREA:   
+    case OUT_LAKE_SWE:         
+    case OUT_LAKE_SWE_V:       
+    case OUT_LAKE_VOLUME:      
+        nc_var->nc_dims = 4;
+        nc_var->nc_counts[1] = nc_hist_file->lake_size;
+        nc_var->nc_counts[2] = nc_hist_file->nj_size;
+        nc_var->nc_counts[3] = nc_hist_file->ni_size;
+        break;
+    case OUT_LAKE_NODE_TEMP:
+        nc_var->nc_dims = 5;
+        nc_var->nc_counts[1] = nc_hist_file->lake_size;
+        nc_var->nc_counts[2] = nc_hist_file->lake_node_size;
+        nc_var->nc_counts[3] = nc_hist_file->nj_size;
+        nc_var->nc_counts[4] = nc_hist_file->ni_size;
+        break;
     default:
         nc_var->nc_dims = 3;
         nc_var->nc_counts[1] = nc_hist_file->nj_size;
@@ -177,6 +221,50 @@ set_nc_var_dimids(unsigned int    varid,
         nc_var->nc_dimids[1] = nc_hist_file->band_dimid;
         nc_var->nc_dimids[2] = nc_hist_file->nj_dimid;
         nc_var->nc_dimids[3] = nc_hist_file->ni_dimid;
+        break;
+    case OUT_LAKE_BF_IN:       
+    case OUT_LAKE_BF_IN_V:     
+    case OUT_LAKE_BF_OUT:      
+    case OUT_LAKE_BF_OUT_V:    
+    case OUT_LAKE_CHAN_IN_V:   
+    case OUT_LAKE_CHAN_OUT:    
+    case OUT_LAKE_CHAN_OUT_V:  
+    case OUT_LAKE_DSTOR:       
+    case OUT_LAKE_DSTOR_V:     
+    case OUT_LAKE_DSWE:        
+    case OUT_LAKE_DSWE_V:      
+    case OUT_LAKE_EVAP:        
+    case OUT_LAKE_EVAP_V:      
+    case OUT_LAKE_PREC_V:      
+    case OUT_LAKE_RCHRG:       
+    case OUT_LAKE_RCHRG_V:     
+    case OUT_LAKE_RO_IN:       
+    case OUT_LAKE_RO_IN_V:     
+    case OUT_LAKE_VAPFLX:      
+    case OUT_LAKE_VAPFLX_V:    
+    case OUT_LAKE_ICE_TEMP:
+    case OUT_LAKE_SURF_TEMP:
+    case OUT_LAKE_AREA_FRAC: 
+    case OUT_LAKE_DEPTH: 
+    case OUT_LAKE_ICE: 
+    case OUT_LAKE_ICE_FRACT:   
+    case OUT_LAKE_ICE_HEIGHT:  
+    case OUT_LAKE_MOIST:       
+    case OUT_LAKE_SURF_AREA:   
+    case OUT_LAKE_SWE:         
+    case OUT_LAKE_SWE_V:       
+    case OUT_LAKE_VOLUME:      
+        nc_var->nc_dimids[0] = nc_hist_file->time_dimid;
+        nc_var->nc_dimids[1] = nc_hist_file->lake_dimid;
+        nc_var->nc_dimids[2] = nc_hist_file->nj_dimid;
+        nc_var->nc_dimids[3] = nc_hist_file->ni_dimid;
+        break;
+    case OUT_LAKE_NODE_TEMP:
+        nc_var->nc_dimids[0] = nc_hist_file->time_dimid;
+        nc_var->nc_dimids[1] = nc_hist_file->lake_dimid;
+        nc_var->nc_dimids[2] = nc_hist_file->lake_node_dimid;
+        nc_var->nc_dimids[3] = nc_hist_file->nj_dimid;
+        nc_var->nc_dimids[4] = nc_hist_file->ni_dimid;
         break;
     default:
         nc_var->nc_dimids[0] = nc_hist_file->time_dimid;

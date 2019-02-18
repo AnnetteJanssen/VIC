@@ -117,6 +117,10 @@ get_global_param(FILE *gp)
             else if (strcasecmp("FULL_ENERGY", optstr) == 0) {
                 sscanf(cmdstr, "%*s %s", flgstr);
                 options.FULL_ENERGY = str_to_bool(flgstr);
+            } 
+            else if(strcasecmp("TLAKE_MODE", optstr) == 0) {
+                sscanf(cmdstr, "%*s %s", flgstr);
+                options.TLAKE_MODE = str_to_bool(flgstr);
             }
             else if (strcasecmp("FROZEN_SOIL", optstr) == 0) {
                 sscanf(cmdstr, "%*s %s", flgstr);

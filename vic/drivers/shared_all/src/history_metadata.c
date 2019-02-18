@@ -713,6 +713,15 @@ set_output_met_data_info()
     strcpy(out_metadata[OUT_LAKE_SURF_TEMP].description,
            "lake surface temperature");
 
+    /* lake surface temperature [K] */
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].varname, "OUT_LAKE_NODE_TEMP");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].long_name, "lake_node_temp");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].standard_name,
+           "lake_node_temperature");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].units, "K");
+    strcpy(out_metadata[OUT_LAKE_NODE_TEMP].description,
+           "lake node temperature");
+
     /* average radiative surface temperature [K] */
     strcpy(out_metadata[OUT_RAD_TEMP].varname, "OUT_RAD_TEMP");
     strcpy(out_metadata[OUT_RAD_TEMP].long_name, "rad_temp");
@@ -1502,6 +1511,39 @@ set_output_met_data_info()
     out_metadata[OUT_SOIL_TNODE].nelem = options.Nnode;
     out_metadata[OUT_SOIL_TNODE_WL].nelem = options.Nnode;
     out_metadata[OUT_SOILT_FBFLAG].nelem = options.Nnode;
+    out_metadata[OUT_LAKE_AREA_FRAC].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_DEPTH].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_ICE].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_ICE_FRACT].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_ICE_HEIGHT].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_MOIST].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_SURF_AREA].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_SWE].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_SWE_V].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_VOLUME].nelem = options.NLAKETYPES;
+    out_metadata[OUT_LAKE_ICE_TEMP].nelem = options.NLAKETYPES;    
+    out_metadata[OUT_LAKE_SURF_TEMP].nelem = options.NLAKETYPES;   
+    out_metadata[OUT_LAKE_NODE_TEMP].nelem = options.NLAKETYPES * options.NLAKENODES;   
+    out_metadata[OUT_LAKE_BF_IN].nelem = options.NLAKETYPES;       
+    out_metadata[OUT_LAKE_BF_IN_V].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_BF_OUT].nelem = options.NLAKETYPES;      
+    out_metadata[OUT_LAKE_BF_OUT_V].nelem = options.NLAKETYPES;    
+    out_metadata[OUT_LAKE_CHAN_IN].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_CHAN_OUT].nelem = options.NLAKETYPES;    
+    out_metadata[OUT_LAKE_CHAN_OUT_V].nelem = options.NLAKETYPES;  
+    out_metadata[OUT_LAKE_DSTOR].nelem = options.NLAKETYPES;       
+    out_metadata[OUT_LAKE_DSTOR_V].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_DSWE].nelem = options.NLAKETYPES;        
+    out_metadata[OUT_LAKE_DSWE_V].nelem = options.NLAKETYPES;      
+    out_metadata[OUT_LAKE_EVAP].nelem = options.NLAKETYPES;        
+    out_metadata[OUT_LAKE_EVAP_V].nelem = options.NLAKETYPES;      
+    out_metadata[OUT_LAKE_PREC_V].nelem = options.NLAKETYPES;      
+    out_metadata[OUT_LAKE_RCHRG].nelem = options.NLAKETYPES;       
+    out_metadata[OUT_LAKE_RCHRG_V].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_RO_IN].nelem = options.NLAKETYPES;       
+    out_metadata[OUT_LAKE_RO_IN_V].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_VAPFLX].nelem = options.NLAKETYPES;      
+    out_metadata[OUT_LAKE_VAPFLX_V].nelem = options.NLAKETYPES;
     out_metadata[OUT_ADV_SENS_BAND].nelem = options.SNOW_BAND;
     out_metadata[OUT_ADVECTION_BAND].nelem = options.SNOW_BAND;
     out_metadata[OUT_ALBEDO_BAND].nelem = options.SNOW_BAND;

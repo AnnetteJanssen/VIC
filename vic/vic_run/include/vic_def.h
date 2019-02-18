@@ -63,7 +63,7 @@
 #define MAX_NODES       50     /**< maximum number of soil thermal nodes */
 #define MAX_FRONTS      3      /**< maximum number of freezing and thawing front depths to store */
 #define MAX_FROST_AREAS 10     /**< maximum number of frost sub-areas */
-#define MAX_LAKE_NODES  20     /**< maximum number of lake thermal nodes */
+#define MAX_LAKE_NODES  200     /**< maximum number of lake thermal nodes */
 #define MAX_ZWTVMOIST   11     /**< maximum number of points in water table vs moisture curve for each soil layer; should include points at lower and upper boundaries of the layer */
 
 /***** Define minimum values for model parameters *****/
@@ -279,6 +279,7 @@ typedef struct {
     unsigned short int LAI_SRC;        /**< FROM_VEGLIB = use LAI values from veg library file
                                           FROM_VEGPARAM = use LAI values from the veg param file */
     bool LAKE_PROFILE;   /**< TRUE = user-specified lake/area profile */
+    bool TLAKE_MODE;
     bool ORGANIC_FRACT;  /**< TRUE = organic matter fraction of each layer is read from the soil parameter file; otherwise set to 0.0. */
 
     // state options

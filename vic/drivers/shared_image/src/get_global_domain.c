@@ -83,15 +83,15 @@ get_global_domain(nameid_struct *domain_nc_nameid,
 
     // Check whether cells with run_cell == 1 are all within the mask domain
     for (i = 0; i < global_domain->ncells_total; i++) {
-        if (run[i] == 1 && mask[i] != 1) {
-            log_err("Run_cell = 1 should only appear within the mask of the "
+        if (mask[i] == 1 && run[i] != 1) {
+            log_err("Run_cell = 1 should appear within the mask of the "
                     "domain file.");
         }
     }
 
     // Store active cell information into variables
     for (i = 0; i < global_domain->ncells_total; i++) {
-        if (run[i] == 1) {
+        if (mask[i] == 1) {
             global_domain->ncells_active++;
         }
     }
@@ -106,13 +106,13 @@ get_global_domain(nameid_struct *domain_nc_nameid,
     }
 
     for (i = 0; i < global_domain->ncells_total; i++) {
-        if (run[i] == 1) {
+        if (mask[i] == 1) {
             global_domain->locations[i].run = true;
         }
     }
 
     for (i = 0, j = 0; i < global_domain->ncells_total; i++) {
-        if (run[i] == 1) {
+        if (mask[i] == 1) {
             global_domain->locations[i].io_idx = i;
             global_domain->locations[i].global_idx = j;
             j++;

@@ -34,7 +34,7 @@ veg_lib_struct *vic_run_veg_lib;
 *               energy and water balance models, as well as frozen soils.
 ******************************************************************************/
 int
-vic_run(force_data_struct   *force,
+vic_run_tlake(force_data_struct   *force,
         all_vars_struct     *all_vars,
         dmy_struct          *dmy,
         global_param_struct *gp,
@@ -165,6 +165,8 @@ vic_run(force_data_struct   *force,
                 if (Cv == 0) {
                     continue;
                 }
+            } else {
+                continue;
             }
 
             /* local pointer to veg_var */
@@ -372,58 +374,6 @@ vic_run(force_data_struct   *force,
             within each snowband. **/
         wetland_runoff = wetland_baseflow = 0;
         sum_runoff = sum_baseflow = 0;
-                
-        for (iveg = 0; iveg <= Nveg; iveg++) {
-            /** Solve Veg Tile only if Coverage Greater than 0% **/
-            if (veg_con[iveg].Cv > 0.0) {
-                Cv = veg_con[iveg].Cv;
-                Nbands = options.SNOW_BAND;
-
-                /** Define vegetation class number **/
-                veg_class = veg_con[iveg].veg_class;
-
-                /** Lake-specific processing **/
-                if (veg_con[iveg].LAKE) {
-                    lidx = veg_con[iveg].lake_class;
-
-                    /* local pointer to lake_var */
-                    lake_var = &(all_vars->lake_var[lidx]);
-                    
-                    lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
-
-                    Nbands = 1;
-                    Cv *= (1 - lakefrac);
-
-                    if (Cv == 0) {
-                        continue;
-                    }
-                }
-                
-                // Loop through snow elevation bands
-                for (band = 0; band < Nbands; band++) {
-                    if (soil_con->AreaFract[band] > 0) {
-                        /* Set local pointers */
-                        cell = &(all_vars->cell[iveg][band]);
-                        if (veg_con[iveg].LAKE) {
-                            wetland_runoff += (cell->runoff * Cv *
-                                               soil_con->AreaFract[band]);
-                            wetland_baseflow += (cell->baseflow * Cv *
-                                                 soil_con->AreaFract[band]);
-                            cell->runoff = 0;
-                            cell->baseflow = 0;
-                        }
-                        else {
-                            sum_runoff += (cell->runoff * Cv *
-                                           soil_con->AreaFract[band]);
-                            sum_baseflow += (cell->baseflow * Cv *
-                                             soil_con->AreaFract[band]);
-                            cell->runoff *= (1 - lake_con[lidx].rpercent);
-                            cell->baseflow *= (1 - lake_con[lidx].rpercent);
-                        }
-                    }
-                }
-            }
-        }
         
         for (iveg = 0; iveg <= Nveg; iveg++) {
             /** Solve Veg Tile only if Coverage Greater than 0% **/
@@ -506,17 +456,6 @@ vic_run(force_data_struct   *force,
                                        force->density[NR], &lake_var[lidx],
                                        *soil_con, gp->dt, gp->wind_h, *dmy,
                                        fraci);
-                if (ErrorFlag == ERROR) {
-                    return (ERROR);
-                }
-
-                /**********************************************************************
-                   Solve the water budget for the lake.
-                **********************************************************************/
-
-                ErrorFlag = water_balance(lake_var, &lake_con[lidx], gp->dt, all_vars,
-                                          iveg, band, lakefrac, *soil_con,
-                                          veg_con[iveg]);
                 if (ErrorFlag == ERROR) {
                     return (ERROR);
                 }

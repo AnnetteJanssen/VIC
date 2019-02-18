@@ -378,6 +378,12 @@ display_current_settings(int mode)
     else {
         fprintf(LOG_DEST, "LAKE_PROFILE\t\tFALSE\n");
     }
+    if (options.TLAKE_MODE) {
+        fprintf(LOG_DEST, "TLAKE_MODE\t\tTRUE\n");
+    }
+    else {
+        fprintf(LOG_DEST, "TLAKE_MODE\t\tFALSE\n");
+    }
 
     fprintf(LOG_DEST, "\n");
     fprintf(LOG_DEST, "Input State File:\n");
