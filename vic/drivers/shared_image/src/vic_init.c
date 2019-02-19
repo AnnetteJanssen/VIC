@@ -61,7 +61,6 @@ vic_init(void)
     size_t                     m;
     size_t                     nveg;
     size_t                     nlake;
-    size_t                     max_numnod;
     size_t                     Nnodes;
     int                        vidx;
     int                        lidx;
@@ -1370,6 +1369,16 @@ vic_init(void)
             d3start[0] = j;
             d4start[0] = j;
             
+            // lake_id
+            get_scatter_nc_field_int(&(filenames.params), "lake_id",
+                                     d3start, d3count, ivar);
+            for (i = 0; i < local_domain.ncells_active; i++) {
+                lidx = lake_con_map[i].lidx[j];
+                if (lidx != NODATA_VEG) {
+                    lake_con[i][lidx].lake_id = ivar[i];
+                }
+            }
+            
             // lake_idx
             get_scatter_nc_field_int(&(filenames.params), "lake_idx",
                                      d3start, d3count, ivar);
@@ -1394,7 +1403,6 @@ vic_init(void)
             // numnod
             get_scatter_nc_field_int(&(filenames.params), "numnod",
                                      d3start, d3count, ivar);
-            max_numnod = 0;
             for (i = 0; i < local_domain.ncells_active; i++) {
                 lidx = lake_con_map[i].lidx[j];
                 if (lidx != NODATA_VEG) {
@@ -1412,14 +1420,6 @@ vic_init(void)
                         log_err("cell %zu numnod is %zu but we must have 1 "
                                 "<= numnod < %d.", i, lake_con[i][lidx].numnod,
                                 MAX_LAKE_NODES);
-                    }
-                    else if (!(lake_con[i][lidx].numnod <= options.NLAKENODES)) {
-                        log_err("cell %zu numnod is %zu but this exceeds "
-                                "the file lake_node dimension length of %zu.",
-                                i, lake_con[i][lidx].numnod, options.NLAKENODES);
-                    }
-                    if (lake_con[i][lidx].numnod > max_numnod) {
-                        max_numnod = lake_con[i][lidx].numnod;
                     }
                 }
             }
@@ -1527,7 +1527,7 @@ vic_init(void)
                 }
             }
             if (options.LAKE_PROFILE) {
-                for (k = 0; k < max_numnod; k++) {
+                for (k = 0; k < options.NLAKENODES; k++) {
                     d4start[1] = k;
 
                     // basin_depth
@@ -1604,7 +1604,7 @@ vic_init(void)
                         }
                         if (!(lake_con[i][lidx].Cl[0] > 0 && lake_con[i][lidx].Cl[0] <= 1)) {
                             log_err("cell %zu lake basin max area fraction is %f but "
-                                    "we must have 0 < max area fraction < 1.", i,
+                                    "we must have 0 < max area fraction <= 1.", i,
                                     lake_con[i][lidx].Cl[0]);
                         }
                         if (fabs(1 - lake_con[i][lidx].Cl[0] /

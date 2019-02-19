@@ -56,7 +56,7 @@ generate_default_lake_state(all_vars_struct *all_vars,
             want control over initial depth)
     ************************************************************************/
     if (options.LAKES) {
-        for (iLake = 0; iLake <= Nlake; iLake++) {
+        for (iLake = 0; iLake < Nlake; iLake++) {
             lake[iLake].ldepth = lake_con[iLake].depth_in;
             for (k = 0; k < lake[iLake].activenod; k++) {
                 // lake model requires FULL_ENERGY set to true

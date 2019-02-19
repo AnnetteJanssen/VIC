@@ -52,6 +52,8 @@ vic_finalize(void)
     extern veg_con_struct    **veg_con;
     extern veg_hist_struct   **veg_hist;
     extern veg_lib_struct    **veg_lib;
+    extern lake_con_map_struct *lake_con_map;
+    extern lake_con_struct   **lake_con;
     extern MPI_Datatype        mpi_global_struct_type;
     extern MPI_Datatype        mpi_filenames_struct_type;
     extern MPI_Datatype        mpi_location_struct_type;
@@ -100,6 +102,8 @@ vic_finalize(void)
         free(veg_con[i]);
         free(veg_hist[i]);
         free(veg_lib[i]);
+        free(lake_con_map[i].lidx);
+        free(lake_con[i]);
     }
 
     free_streams(&output_streams);
@@ -110,6 +114,7 @@ vic_finalize(void)
     free(veg_con);
     free(veg_hist);
     free(veg_lib);
+    free(lake_con);
     free(all_vars);
     free(save_data);
     free(local_domain.locations);

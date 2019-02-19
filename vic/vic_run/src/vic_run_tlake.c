@@ -408,13 +408,6 @@ vic_run_tlake(force_data_struct   *force,
                         fraci = 0.0;
                     }
                     lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
-
-                    Nbands = 1;
-                    Cv *= (1 - lakefrac);
-
-                    if (Cv == 0) {
-                        continue;
-                    }
                 } else {
                     continue;
                 }
@@ -453,7 +446,7 @@ vic_run_tlake(force_data_struct   *force,
                                        force->shortwave[NR], force->longwave[NR],
                                        force->vpd[NR] / PA_PER_KPA,
                                        force->pressure[NR] / PA_PER_KPA,
-                                       force->density[NR], &lake_var[lidx],
+                                       force->density[NR], lake_var,
                                        *soil_con, gp->dt, gp->wind_h, *dmy,
                                        fraci);
                 if (ErrorFlag == ERROR) {

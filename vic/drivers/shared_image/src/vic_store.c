@@ -1220,7 +1220,7 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_SURF_AREA]);
         for (k = 0; k < options.NLAKETYPES; k++) {
             d4start[0] = k;
-            for (j = 0; j < options.NLAKENODES; j++) {
+            for (j = 0; j < MAX_LAKE_NODES; j++) {
                 d4start[1] = j;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     l = lake_con_map[i].lidx[k];
@@ -1286,7 +1286,7 @@ vic_store(dmy_struct *dmy_state,
         nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_TEMP]);
         for (k = 0; k < options.NLAKETYPES; k++) {
             d4start[0] = k;
-            for (j = 0; j < options.NLAKENODES; j++) {
+            for (j = 0; j < MAX_LAKE_NODES; j++) {
                 d4start[1] = j;
                 for (i = 0; i < local_domain.ncells_active; i++) {
                     l = lake_con_map[i].lidx[k];

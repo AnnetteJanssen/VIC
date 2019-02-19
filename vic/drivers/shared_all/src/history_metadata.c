@@ -1523,12 +1523,12 @@ set_output_met_data_info()
     out_metadata[OUT_LAKE_VOLUME].nelem = options.NLAKETYPES;
     out_metadata[OUT_LAKE_ICE_TEMP].nelem = options.NLAKETYPES;    
     out_metadata[OUT_LAKE_SURF_TEMP].nelem = options.NLAKETYPES;   
-    out_metadata[OUT_LAKE_NODE_TEMP].nelem = options.NLAKETYPES * options.NLAKENODES;   
+    out_metadata[OUT_LAKE_NODE_TEMP].nelem = options.NLAKETYPES * MAX_LAKE_NODES;   
     out_metadata[OUT_LAKE_BF_IN].nelem = options.NLAKETYPES;       
     out_metadata[OUT_LAKE_BF_IN_V].nelem = options.NLAKETYPES;     
     out_metadata[OUT_LAKE_BF_OUT].nelem = options.NLAKETYPES;      
     out_metadata[OUT_LAKE_BF_OUT_V].nelem = options.NLAKETYPES;    
-    out_metadata[OUT_LAKE_CHAN_IN].nelem = options.NLAKETYPES;     
+    out_metadata[OUT_LAKE_CHAN_IN_V].nelem = options.NLAKETYPES;     
     out_metadata[OUT_LAKE_CHAN_OUT].nelem = options.NLAKETYPES;    
     out_metadata[OUT_LAKE_CHAN_OUT_V].nelem = options.NLAKETYPES;  
     out_metadata[OUT_LAKE_DSTOR].nelem = options.NLAKETYPES;       

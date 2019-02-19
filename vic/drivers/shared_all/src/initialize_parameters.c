@@ -74,7 +74,7 @@ initialize_parameters()
 
     // Lake Parameters
     param.LAKE_TMELT = 0.0;
-    param.LAKE_MAX_SURFACE = 0.6;
+    param.LAKE_MAX_SURFACE = 0.5;
     param.LAKE_BETA = 0.001;
     param.LAKE_FRACMIN = 0.10;
     param.LAKE_FRACLIM = 0.02;

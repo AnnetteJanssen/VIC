@@ -155,17 +155,17 @@ vic_write(stream_struct  *stream,
             for (l = 0; l < options.NLAKETYPES; l++) {
                 // if there is more than one layer, then dstart needs to advance
                 dstart[1] = l;
-                for (j = 0; j < options.NLAKENODES; j++) {
+                for (j = 0; j < MAX_LAKE_NODES; j++) {
                     // if there is more than one layer, then dstart needs to advance
                     dstart[2] = j;
-                    if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
+                    if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
                         for (i = 0; i < local_domain.ncells_active; i++) {
-                            dvar[i] = (double) stream->aggdata[i][k][l * options.NLAKETYPES + j][0];
+                            fvar[i] = (float) stream->aggdata[i][k][l * options.NLAKETYPES + j][0];
                         }
-                        gather_put_nc_field_double(nc_hist_file->nc_id,
-                                                   nc_hist_file->nc_vars[k].nc_varid,
-                                                   nc_hist_file->d_fillvalue,
-                                                   dstart, dcount, dvar);
+                        gather_put_nc_field_float(nc_hist_file->nc_id,
+                                                  nc_hist_file->nc_vars[k].nc_varid,
+                                                  nc_hist_file->d_fillvalue,
+                                                  dstart, dcount, fvar);
                     }
                     else {
                         log_err("Unsupported nc_type encountered");

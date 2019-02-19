@@ -707,7 +707,7 @@ initialize_nc_file(nc_file_struct     *nc_file,
     nc_file->layer_size = options.Nlayer;
     nc_file->ni_size = global_domain.n_nx;
     nc_file->nj_size = global_domain.n_ny;
-    nc_file->lake_node_size = options.NLAKENODES;
+    nc_file->lake_node_size = MAX_LAKE_NODES;
     nc_file->node_size = options.Nnode;
     nc_file->root_zone_size = options.ROOT_ZONES;
     nc_file->time_size = NC_UNLIMITED;
