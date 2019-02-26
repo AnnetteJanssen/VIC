@@ -32,7 +32,7 @@
  *           cell's states and fluxes.
  *****************************************************************************/
 all_vars_struct
-make_all_vars(size_t nveg, size_t nlake)
+make_all_vars(size_t nveg)
 {
     all_vars_struct temp;
     size_t          Nitems;
@@ -42,7 +42,7 @@ make_all_vars(size_t nveg, size_t nlake)
     temp.snow = make_snow_data(Nitems);
     temp.energy = make_energy_bal(Nitems);
     temp.veg_var = make_veg_var(Nitems);
-    temp.lake_var = make_lake_var(nlake);
+    temp.lake_var = make_lake_var(Nitems);
     temp.cell = make_cell_data(Nitems);
 
     return (temp);

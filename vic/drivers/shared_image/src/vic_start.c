@@ -125,14 +125,12 @@ vic_start(void)
             options.SNOW_BAND = get_nc_dimension(&(filenames.params),
                                                  "snow_band");
         }
-        if (options.LAKES) {
-            if (options.LAKE_PROFILE) {
-                options.NLAKENODES = get_nc_dimension(&(filenames.params),
-                                                      "lake_node");
-                if(options.NLAKENODES > MAX_LAKE_NODES){
-                    log_err("Lake nodes in input file [%zu] is larger than maximum "
-                            "lake nodes [%d]", options.NLAKENODES, MAX_LAKE_NODES);
-                }
+        if (options.LAKES && options.LAKE_PROFILE) {
+            options.NLAKENODES = get_nc_dimension(&(filenames.params),
+                                                  "lake_node");
+            if(options.NLAKENODES > MAX_LAKE_NODES){
+                log_err("Lake nodes in input file [%zu] is larger than maximum "
+                        "lake nodes [%d]", options.NLAKENODES, MAX_LAKE_NODES);
             }
         }
 

@@ -829,6 +829,9 @@ get_global_param(FILE *gp)
 
     // Validate the input state file information
     if (options.INIT_STATE) {
+        if(options.LAKES){
+            log_err("Initializing from state file for lakes temporary disabled")
+        }
         if (strcmp(filenames.init_state.nc_filename, "MISSING") == 0) {
             log_err("\"INIT_STATE\" was specified, but no input state file "
                     "has been defined.  Make sure that the global file "
@@ -839,6 +842,9 @@ get_global_param(FILE *gp)
 
     // Validate the output state file information
     if (options.SAVE_STATE) {
+        if(options.LAKES){
+            log_err("Saving to state file for lakes temporary disabled")
+        }
         if (strcmp(filenames.statefile, "MISSING") == 0) {
             log_err("\"SAVE_STATE\" was specified, but no output state "
                     "file has been defined.  Make sure that the global "

@@ -133,17 +133,13 @@ set_nc_var_info(unsigned int       varid,
     case OUT_LAKE_SWE:         
     case OUT_LAKE_SWE_V:       
     case OUT_LAKE_VOLUME:      
-        nc_var->nc_dims = 4;
+        nc_var->nc_dims = 2;
         nc_var->nc_counts[1] = nc_hist_file->lake_size;
-        nc_var->nc_counts[2] = nc_hist_file->nj_size;
-        nc_var->nc_counts[3] = nc_hist_file->ni_size;
         break;
     case OUT_LAKE_NODE_TEMP:
-        nc_var->nc_dims = 5;
-        nc_var->nc_counts[1] = nc_hist_file->lake_size;
-        nc_var->nc_counts[2] = nc_hist_file->lake_node_size;
-        nc_var->nc_counts[3] = nc_hist_file->nj_size;
-        nc_var->nc_counts[4] = nc_hist_file->ni_size;
+        nc_var->nc_dims = 3;
+        nc_var->nc_counts[1] = nc_hist_file->lake_node_size;
+        nc_var->nc_counts[2] = nc_hist_file->lake_size;
         break;
     default:
         nc_var->nc_dims = 3;
@@ -256,15 +252,11 @@ set_nc_var_dimids(unsigned int    varid,
     case OUT_LAKE_VOLUME:      
         nc_var->nc_dimids[0] = nc_hist_file->time_dimid;
         nc_var->nc_dimids[1] = nc_hist_file->lake_dimid;
-        nc_var->nc_dimids[2] = nc_hist_file->nj_dimid;
-        nc_var->nc_dimids[3] = nc_hist_file->ni_dimid;
         break;
     case OUT_LAKE_NODE_TEMP:
         nc_var->nc_dimids[0] = nc_hist_file->time_dimid;
-        nc_var->nc_dimids[1] = nc_hist_file->lake_dimid;
-        nc_var->nc_dimids[2] = nc_hist_file->lake_node_dimid;
-        nc_var->nc_dimids[3] = nc_hist_file->nj_dimid;
-        nc_var->nc_dimids[4] = nc_hist_file->ni_dimid;
+        nc_var->nc_dimids[1] = nc_hist_file->lake_node_dimid;
+        nc_var->nc_dimids[2] = nc_hist_file->lake_dimid;
         break;
     default:
         nc_var->nc_dimids[0] = nc_hist_file->time_dimid;

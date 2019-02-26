@@ -38,7 +38,7 @@ get_nc_field_double(nameid_struct *nc_nameid,
 {
     int status;
     int var_id;
-    
+
     /* get NetCDF variable */
     status = nc_inq_varid(nc_nameid->nc_id, var_name, &var_id);
     check_nc_status(status, "Error getting variable id for %s in %s", var_name,

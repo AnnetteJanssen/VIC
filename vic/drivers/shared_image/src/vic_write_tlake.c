@@ -27,45 +27,19 @@
 #include <vic_driver_shared_image.h>
 
 /******************************************************************************
- * @brief    Write output data and convert units if necessary.
- *****************************************************************************/
-void
-vic_write_output(dmy_struct *dmy)
-{
-    extern option_struct   options;
-    extern stream_struct  *output_streams;
-    extern nc_file_struct *nc_hist_files;
-
-    size_t                 stream_idx;
-
-    // Write data
-    for (stream_idx = 0; stream_idx < options.Noutstreams; stream_idx++) {
-        if (raise_alarm(&(output_streams[stream_idx].agg_alarm), dmy)) {
-            debug("raised alarm for stream %zu", stream_idx);
-            if(options.TLAKE_MODE){
-                vic_write_tlake(&(output_streams[stream_idx]),
-                                &(nc_hist_files[stream_idx]), dmy);
-            } else {
-                vic_write(&(output_streams[stream_idx]),
-                          &(nc_hist_files[stream_idx]), dmy);
-            }
-            reset_stream(&(output_streams[stream_idx]), dmy);
-        }
-    }
-}
-
-/******************************************************************************
  * @brief    Write output to netcdf file. Currently everything is cast to
  *           double
  *****************************************************************************/
 void
-vic_write(stream_struct  *stream,
-          nc_file_struct *nc_hist_file,
-          dmy_struct     *dmy_current)
+vic_write_tlake(stream_struct  *stream,
+                nc_file_struct *nc_hist_file,
+                dmy_struct     *dmy_current)
 {
     extern global_param_struct global_param;
-    extern domain_struct       local_domain;
+    extern lake_con_struct    *lake_con;
+    extern lake_var_struct    *lake_var;
     extern int                 mpi_rank;
+    extern option_struct       options;
     extern metadata_struct     out_metadata[N_OUTVAR_TYPES];
 
     size_t                     i;
@@ -77,7 +51,8 @@ vic_write(stream_struct  *stream,
     float                     *fvar = NULL;
     int                       *ivar = NULL;
     short int                 *svar = NULL;
-    char                      *cvar = NULL;
+    signed char               *cvar = NULL;
+    float                     *nvar = NULL;
     size_t                     dcount[MAXDIMS];
     size_t                     dstart[MAXDIMS];
     unsigned int               varid;
@@ -102,38 +77,45 @@ vic_write(stream_struct  *stream,
     for (k = 0; k < stream->nvars; k++) {
         varid = stream->varid[k];
 
-        if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
+        if(varid == OUT_LAKE_NODE_TEMP){
+            if (nvar == NULL) {
+                // allocate memory for variables to be stored
+                nvar = malloc(options.NLAKETYPES * MAX_LAKE_NODES * sizeof(*nvar));
+                check_alloc_status(nvar, "Memory allocation error");
+            }
+        }
+        else if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
             if (dvar == NULL) {
                 // allocate memory for variables to be stored
-                dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
+                dvar = malloc(options.NLAKETYPES * sizeof(*dvar));
                 check_alloc_status(dvar, "Memory allocation error");
             }
         }
         else if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
             if (fvar == NULL) {
                 // allocate memory for variables to be stored
-                fvar = malloc(local_domain.ncells_active * sizeof(*fvar));
+                fvar = malloc(options.NLAKETYPES * sizeof(*fvar));
                 check_alloc_status(fvar, "Memory allocation error");
             }
         }
         else if (nc_hist_file->nc_vars[k].nc_type == NC_INT) {
             if (ivar == NULL) {
                 // allocate memory for variables to be stored
-                ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
+                ivar = malloc(options.NLAKETYPES * sizeof(*ivar));
                 check_alloc_status(ivar, "Memory allocation error");
             }
         }
         else if (nc_hist_file->nc_vars[k].nc_type == NC_SHORT) {
             if (svar == NULL) {
                 // allocate memory for variables to be stored
-                svar = malloc(local_domain.ncells_active * sizeof(*svar));
+                svar = malloc(options.NLAKETYPES * sizeof(*svar));
                 check_alloc_status(svar, "Memory allocation error");
             }
         }
         else if (nc_hist_file->nc_vars[k].nc_type == NC_CHAR) {
             if (cvar == NULL) {
                 // allocate memory for variables to be stored
-                cvar = malloc(local_domain.ncells_active * sizeof(*cvar));
+                cvar = malloc(options.NLAKETYPES * sizeof(*cvar));
                 check_alloc_status(cvar, "Memory allocation error");
             }
         }
@@ -149,61 +131,98 @@ vic_write(stream_struct  *stream,
         // The size of the last two dimensions are the grid size; files are
         // written one slice at a time, so all counts are 1, except the last
         // two
-        for (j = ndims - 2; j < ndims; j++) {
+        for (j = ndims - 1; j < ndims; j++) {
             dcount[j] = nc_hist_file->nc_vars[k].nc_counts[j];
         }
         dstart[0] = stream->write_alarm.count;  // Position in the time dimensions
-
-        for (j = 0; j < out_metadata[varid].nelem; j++) {
-            // if there is more than one layer, then dstart needs to advance
-            dstart[1] = j;
-            if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    dvar[i] = (double) stream->aggdata[i][k][j][0];
+        
+        if (varid == OUT_LAKE_NODE_TEMP) {
+            dcount[1] = MAX_LAKE_NODES;
+            if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
+                for (j = 0; j < out_metadata[varid].nelem; j++) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        if(j >= lake_var[i].activenod){
+                            nvar[j * stream->ngridcells + i] = nc_hist_file->f_fillvalue;
+                        } else {
+                            nvar[j * stream->ngridcells + i] = (float) stream->aggdata[i][k][j][0];
+                        }
+                    }
                 }
-                gather_put_nc_field_double(nc_hist_file->nc_id,
+                status = nc_put_vara_float(nc_hist_file->nc_id,
                                            nc_hist_file->nc_vars[k].nc_varid,
-                                           nc_hist_file->d_fillvalue,
-                                           dstart, dcount, dvar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    fvar[i] = (float) stream->aggdata[i][k][j][0];
-                }
-                gather_put_nc_field_float(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->f_fillvalue,
-                                          dstart, dcount, fvar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_INT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    ivar[i] = (int) stream->aggdata[i][k][j][0];
-                }
-                gather_put_nc_field_int(nc_hist_file->nc_id,
-                                        nc_hist_file->nc_vars[k].nc_varid,
-                                        nc_hist_file->i_fillvalue,
-                                        dstart, dcount, ivar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_SHORT) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    svar[i] = (short int) stream->aggdata[i][k][j][0];
-                }
-                gather_put_nc_field_short(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->s_fillvalue,
-                                          dstart, dcount, svar);
-            }
-            else if (nc_hist_file->nc_vars[k].nc_type == NC_CHAR) {
-                for (i = 0; i < local_domain.ncells_active; i++) {
-                    cvar[i] = (char) stream->aggdata[i][k][j][0];
-                }
-                gather_put_nc_field_schar(nc_hist_file->nc_id,
-                                          nc_hist_file->nc_vars[k].nc_varid,
-                                          nc_hist_file->c_fillvalue,
-                                          dstart, dcount, cvar);
+                                           dstart, dcount, nvar);
+                check_nc_status(status, "Error writing values.");
             }
             else {
                 log_err("Unsupported nc_type encountered");
+            }
+        } else {
+            for (j = 0; j < out_metadata[varid].nelem; j++) {
+                // if there is more than one layer, then dstart needs to advance
+                dstart[1] = j;
+                if (nc_hist_file->nc_vars[k].nc_type == NC_DOUBLE) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        dvar[i] = (double) stream->aggdata[i][k][j][0];
+                        if(varid == OUT_LAKE_NODE_TEMP && j >= lake_var[i].activenod){
+                            dvar[i] = nc_hist_file->d_fillvalue;
+                        }
+                    }
+                    status = nc_put_vara_double(nc_hist_file->nc_id,
+                                                nc_hist_file->nc_vars[k].nc_varid,
+                                                dstart, dcount, dvar);
+                    check_nc_status(status, "Error writing values.");
+                }
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_FLOAT) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        fvar[i] = (float) stream->aggdata[i][k][j][0];
+                        if(varid == OUT_LAKE_NODE_TEMP && j >= lake_var[i].activenod){
+                            fvar[i] = nc_hist_file->f_fillvalue;
+                        }
+                    }
+                    status = nc_put_vara_float(nc_hist_file->nc_id,
+                                               nc_hist_file->nc_vars[k].nc_varid,
+                                               dstart, dcount, fvar);
+                    check_nc_status(status, "Error writing values.");
+                }
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_INT) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        ivar[i] = (int) stream->aggdata[i][k][j][0];
+                        if(varid == OUT_LAKE_NODE_TEMP && j >= lake_var[i].activenod){
+                            ivar[i] = nc_hist_file->i_fillvalue;
+                        }
+                    }
+                    status = nc_put_vara_int(nc_hist_file->nc_id,
+                                             nc_hist_file->nc_vars[k].nc_varid,
+                                             dstart, dcount, ivar);
+                    check_nc_status(status, "Error writing values.");
+                }
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_SHORT) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        svar[i] = (short int) stream->aggdata[i][k][j][0];
+                        if(varid == OUT_LAKE_NODE_TEMP && j >= lake_var[i].activenod){
+                            svar[i] = nc_hist_file->s_fillvalue;
+                        }
+                    }
+                    status = nc_put_vara_short(nc_hist_file->nc_id,
+                                               nc_hist_file->nc_vars[k].nc_varid,
+                                               dstart, dcount, svar);
+                    check_nc_status(status, "Error writing values.");
+                }
+                else if (nc_hist_file->nc_vars[k].nc_type == NC_CHAR) {
+                    for (i = 0; i < stream->ngridcells; i++) {
+                        cvar[i] = (char) stream->aggdata[i][k][j][0];
+                        if(varid == OUT_LAKE_NODE_TEMP && j >= lake_var[i].activenod){
+                            cvar[i] = nc_hist_file->c_fillvalue;
+                        }
+                    }
+                    status = nc_put_vara_schar(nc_hist_file->nc_id,
+                                               nc_hist_file->nc_vars[k].nc_varid,
+                                               dstart, dcount, cvar);
+                    check_nc_status(status, "Error writing values.");
+                }
+                else {
+                    log_err("Unsupported nc_type encountered");
+                }
             }
         }
 

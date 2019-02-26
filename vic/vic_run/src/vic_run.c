@@ -49,7 +49,7 @@ vic_run(force_data_struct   *force,
     char                     overstory;
     size_t                   l;
     unsigned short           iveg;
-    int                      lidx;
+    int                      lake_class;
     size_t                   Nveg;
     unsigned short           veg_class;
     unsigned short           band;
@@ -152,12 +152,12 @@ vic_run(force_data_struct   *force,
 
             /** Lake-specific processing **/
             if (veg_con[iveg].LAKE) {
-                lidx = veg_con[iveg].lake_class;
+                lake_class = veg_con[iveg].lake_class;
                 
                 /* local pointer to lake_var */
-                lake_var = &(all_vars->lake_var[lidx]);
+                lake_var = all_vars->lake_var[iveg];
                 
-                lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
+                lakefrac = lake_var->sarea / lake_con[lake_class].basin[0];
 
                 Nbands = 1;
                 Cv *= (1 - lakefrac);
@@ -384,12 +384,12 @@ vic_run(force_data_struct   *force,
 
                 /** Lake-specific processing **/
                 if (veg_con[iveg].LAKE) {
-                    lidx = veg_con[iveg].lake_class;
+                    lake_class = veg_con[iveg].lake_class;
 
                     /* local pointer to lake_var */
-                    lake_var = &(all_vars->lake_var[lidx]);
+                    lake_var = all_vars->lake_var[iveg];
                     
-                    lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
+                    lakefrac = lake_var->sarea / lake_con[lake_class].basin[0];
 
                     Nbands = 1;
                     Cv *= (1 - lakefrac);
@@ -417,8 +417,8 @@ vic_run(force_data_struct   *force,
                                            soil_con->AreaFract[band]);
                             sum_baseflow += (cell->baseflow * Cv *
                                              soil_con->AreaFract[band]);
-                            cell->runoff *= (1 - lake_con[lidx].rpercent);
-                            cell->baseflow *= (1 - lake_con[lidx].rpercent);
+                            cell->runoff *= (1 - lake_con[lake_class].rpercent);
+                            cell->baseflow *= (1 - lake_con[lake_class].rpercent);
                         }
                     }
                 }
@@ -436,10 +436,10 @@ vic_run(force_data_struct   *force,
 
                 /** Lake-specific processing **/
                 if (veg_con[iveg].LAKE) {
-                    lidx = veg_con[iveg].lake_class;
+                    lake_class = veg_con[iveg].lake_class;
 
                     /* local pointer to lake_var */
-                    lake_var = &(all_vars->lake_var[lidx]);
+                    lake_var = all_vars->lake_var[iveg];
 
                     /* Update areai to equal new ice area from previous time step. */
                     lake_var->areai = lake_var->new_ice_area;
@@ -457,14 +457,7 @@ vic_run(force_data_struct   *force,
                     else {
                         fraci = 0.0;
                     }
-                    lakefrac = lake_var->sarea / lake_con[lidx].basin[0];
-
-                    Nbands = 1;
-                    Cv *= (1 - lakefrac);
-
-                    if (Cv == 0) {
-                        continue;
-                    }
+                    lakefrac = lake_var->sarea / lake_con[lake_class].basin[0];
                 } else {
                     continue;
                 }
@@ -472,10 +465,10 @@ vic_run(force_data_struct   *force,
                 /** Run lake model **/
                 band = 0;
                 lake_var->runoff_in =
-                    (sum_runoff * lake_con[lidx].rpercent +
+                    (sum_runoff * lake_con[lake_class].rpercent +
                      wetland_runoff) * soil_con->cell_area / MM_PER_M;                                               // m3
                 lake_var->baseflow_in =
-                    (sum_baseflow * lake_con[lidx].rpercent +
+                    (sum_baseflow * lake_con[lake_class].rpercent +
                      wetland_baseflow) * soil_con->cell_area / MM_PER_M;                                                 // m3
                 lake_var->channel_in = force->channel_in[NR] * soil_con->cell_area /
                                        MM_PER_M;                                        // m3
@@ -503,7 +496,7 @@ vic_run(force_data_struct   *force,
                                        force->shortwave[NR], force->longwave[NR],
                                        force->vpd[NR] / PA_PER_KPA,
                                        force->pressure[NR] / PA_PER_KPA,
-                                       force->density[NR], &lake_var[lidx],
+                                       force->density[NR], &lake_var[iveg],
                                        *soil_con, gp->dt, gp->wind_h, *dmy,
                                        fraci);
                 if (ErrorFlag == ERROR) {
@@ -514,7 +507,7 @@ vic_run(force_data_struct   *force,
                    Solve the water budget for the lake.
                 **********************************************************************/
 
-                ErrorFlag = water_balance(lake_var, &lake_con[lidx], gp->dt, all_vars,
+                ErrorFlag = water_balance(lake_var, &lake_con[lake_class], gp->dt, all_vars,
                                           iveg, band, lakefrac, *soil_con,
                                           veg_con[iveg]);
                 if (ErrorFlag == ERROR) {

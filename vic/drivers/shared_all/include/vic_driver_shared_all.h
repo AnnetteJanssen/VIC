@@ -635,7 +635,7 @@ void free_streams(stream_struct **streams);
 void free_vegcon(veg_con_struct **veg_con);
 void generate_default_state(all_vars_struct *, soil_con_struct *,
                             veg_con_struct *, dmy_struct *);
-void generate_default_lake_state(all_vars_struct *, soil_con_struct *,
+void generate_default_lake_state(lake_var_struct *, soil_con_struct *,
                                  lake_con_struct *);
 void get_default_nstreams_nvars(size_t *nstreams, size_t nvars[]);
 void get_parameters(FILE *paramfile);
@@ -650,13 +650,17 @@ void initialize_save_data(all_vars_struct *all_vars, force_data_struct *force,
                           veg_lib_struct *veg_lib, lake_con_struct *lake_con,
                           double **out_data, save_data_struct *save_data,
                           timer_struct *timer);
+void initialize_save_data_tlake(all_vars_struct *all_vars,
+                                soil_con_struct *soil_con, veg_con_struct *veg_con,
+                                veg_lib_struct *veg_lib, lake_con_struct *lake_con,
+                                double **out_data, timer_struct *timer);
 void initialize_snow(snow_data_struct **snow, size_t veg_num);
 void initialize_soil(cell_data_struct **cell, size_t veg_num);
 void initialize_time(void);
 void initialize_veg(veg_var_struct **veg_var, size_t nveg);
 double julian_day_from_dmy(dmy_struct *dmy, unsigned short int calendar);
 bool leap_year(unsigned short int year, unsigned short int calendar);
-all_vars_struct make_all_vars(size_t nveg, size_t nlake);
+all_vars_struct make_all_vars(size_t nveg);
 cell_data_struct **make_cell_data(size_t veg_type_num);
 dmy_struct *make_dmy(global_param_struct *global);
 energy_bal_struct **make_energy_bal(size_t nveg);
@@ -664,7 +668,7 @@ void make_lastday(unsigned short int calendar, unsigned short int year,
                   unsigned short int lastday[]);
 snow_data_struct **make_snow_data(size_t nveg);
 veg_var_struct **make_veg_var(size_t veg_type_num);
-lake_var_struct *make_lake_var(size_t lake_type_num);
+lake_var_struct **make_lake_var(size_t lake_type_num);
 double no_leap_day_from_dmy(dmy_struct *dmy);
 void num2date(double origin, double time_value, double tzoffset,
               unsigned short int calendar, unsigned short int time_units,
@@ -675,6 +679,9 @@ void parse_nc_time_units(char *nc_unit_chars, unsigned short int *units,
 void put_data(all_vars_struct *, force_data_struct *, soil_con_struct *,
               veg_con_struct *, veg_lib_struct *veg_lib, lake_con_struct *,
               double **out_data, save_data_struct *, timer_struct *timer);
+void put_data_tlake(all_vars_struct *, soil_con_struct *,
+              veg_con_struct *, veg_lib_struct *veg_lib, lake_con_struct *,
+              double **out_data, timer_struct *timer);
 void print_alarm(alarm_struct *alarm);
 void print_cell_data(cell_data_struct *cell, size_t nlayers, size_t nfrost);
 void print_dmy(dmy_struct *dmy);

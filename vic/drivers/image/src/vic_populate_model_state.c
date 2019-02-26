@@ -39,8 +39,8 @@ void
 vic_populate_model_state(dmy_struct *dmy_current)
 {
     extern all_vars_struct *all_vars;
-    extern lake_con_map_struct *lake_con_map;
-    extern lake_con_struct **lake_con;
+    extern lake_con_struct *lake_con;
+    extern lake_var_struct *lake_var;
     extern domain_struct    local_domain;
     extern option_struct    options;
     extern soil_con_struct *soil_con;
@@ -58,9 +58,12 @@ vic_populate_model_state(dmy_struct *dmy_current)
         for (i = 0; i < local_domain.ncells_active; i++) {
             generate_default_state(&(all_vars[i]), &(soil_con[i]), veg_con[i],
                                    dmy_current);
-            if (options.LAKES) {
-                generate_default_lake_state(&(all_vars[i]), &(soil_con[i]),
-                                            lake_con[i]);
+        }
+        if (options.LAKES) {
+            for(j = 0; j < options.NLAKETYPES; j++){
+                generate_default_lake_state(&lake_var[j], 
+                                            &soil_con[lake_con[j].cell_idx],
+                                            &lake_con[j]);
             }
         }
     }
@@ -68,10 +71,11 @@ vic_populate_model_state(dmy_struct *dmy_current)
     // compute those state variables that are derived from the others
     for (i = 0; i < local_domain.ncells_active; i++) {
         compute_derived_state_vars(&(all_vars[i]), &(soil_con[i]), veg_con[i]);
-        if (options.LAKES) {
-            for(j = 0; j < lake_con_map[i].nl_active; j++){
-                compute_derived_lake_dimensions(&all_vars[i].lake_var[j], &lake_con[i][j]);
-            }
+    }
+    if (options.LAKES) {
+        for(j = 0; j < options.NLAKETYPES; j++){
+            compute_derived_lake_dimensions(&lake_var[j], 
+                                            &lake_con[j]);
         }
     }
 }

@@ -29,10 +29,10 @@
 /******************************************************************************
  * @brief    Make an array of vegitation variables for each vegitation type.
  *****************************************************************************/
-lake_var_struct *
+lake_var_struct **
 make_lake_var(size_t lake_type_num)
 {
-    lake_var_struct     *temp = NULL;
+    lake_var_struct     **temp = NULL;
 
     temp = calloc(lake_type_num, sizeof(*temp));
     check_alloc_status(temp, "Memory allocation error.");

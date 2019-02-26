@@ -39,7 +39,7 @@ vic_image_run(dmy_struct *dmy_current)
     extern domain_struct       local_domain;
     extern option_struct       options;
     extern global_param_struct global_param;
-    extern lake_con_struct   **lake_con;
+    extern lake_con_struct    *lake_con;
     extern double           ***out_data;
     extern stream_struct      *output_streams;
     extern save_data_struct   *save_data;
@@ -50,6 +50,7 @@ vic_image_run(dmy_struct *dmy_current)
 
     char                       dmy_str[MAXSTRING];
     size_t                     i;
+    size_t                     j;
     timer_struct               timer;
 
     // Print the current timestep info before running vic_run
@@ -57,7 +58,7 @@ vic_image_run(dmy_struct *dmy_current)
     debug("Running timestep %zu: %s", current, dmy_str);
 
     // If running with OpenMP, run this for loop using multiple threads
-    #pragma omp parallel for default(shared) private(i, timer, vic_run_ref_str)
+    //#pragma omp parallel for default(shared) private(i, timer, vic_run_ref_str)
     for (i = 0; i < local_domain.ncells_active; i++) {
         // Set global reference string (for debugging inside vic_run)
         sprintf(vic_run_ref_str, "Gridcell io_idx: %zu, timestep info: %s",
@@ -68,16 +69,28 @@ vic_image_run(dmy_struct *dmy_current)
         timer_start(&timer);
         if(options.TLAKE_MODE){
             vic_run_tlake(&(force[i]), &(all_vars[i]), dmy_current, &global_param,
-                    lake_con[i], &(soil_con[i]), veg_con[i], veg_lib[i]);
+                    lake_con, &(soil_con[i]), veg_con[i], veg_lib[i]);
         } else {
             vic_run(&(force[i]), &(all_vars[i]), dmy_current, &global_param,
-                    lake_con[i], &(soil_con[i]), veg_con[i], veg_lib[i]);
+                    lake_con, &(soil_con[i]), veg_con[i], veg_lib[i]);
         }
         timer_stop(&timer);
 
-        put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
-                 veg_lib[i], lake_con[i], out_data[i], &(save_data[i]),
-                 &timer);
+        if(!options.TLAKE_MODE){
+            put_data(&(all_vars[i]), &(force[i]), &(soil_con[i]), veg_con[i],
+                     veg_lib[i], lake_con, out_data[i], &(save_data[i]),
+                     &timer);
+        }
+    }
+    
+    // If running with OpenMP, run this for loop using multiple threads
+    //#pragma omp parallel for default(shared) private(j, timer)
+    if(options.TLAKE_MODE){
+        for (j = 0; j < options.NLAKETYPES; j++) {
+            i = lake_con[j].cell_idx;
+            put_data_tlake(&(all_vars[i]), &(soil_con[i]), veg_con[i],
+                     veg_lib[i], lake_con, out_data[j], &timer);
+        }
     }
 
     // run routing over the domain

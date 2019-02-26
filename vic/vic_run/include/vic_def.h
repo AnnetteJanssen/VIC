@@ -63,7 +63,7 @@
 #define MAX_NODES       50     /**< maximum number of soil thermal nodes */
 #define MAX_FRONTS      3      /**< maximum number of freezing and thawing front depths to store */
 #define MAX_FROST_AREAS 10     /**< maximum number of frost sub-areas */
-#define MAX_LAKE_NODES  200     /**< maximum number of lake thermal nodes */
+#define MAX_LAKE_NODES  1600   /**< maximum number of lake thermal nodes */
 #define MAX_ZWTVMOIST   11     /**< maximum number of points in water table vs moisture curve for each soil layer; should include points at lower and upper boundaries of the layer */
 #define MAX_FORCE_FILES 15
 
@@ -1033,9 +1033,8 @@ typedef struct {
     double wfrac;                 /**< Width of lake outlet, expressed as fraction of lake perimeter */
     // Initial conditions
     double depth_in;              /**< Initial lake depth (distance from surface to deepest point) (m) */
-    int lake_id;                  /**< ID of the lake/wetland veg tile */
-    int lake_idx;                 /**< index number of the lake/wetland veg tile */
-    int lake_class;               /**< lake class id number */
+    int cell_idx;                 /**< cell id of the lake/wetland */
+    int lake_idx;                  /**< veg index of the lake/wetland */
     size_t lake_type_num;         /**< number of lake types in the grid
                                           cell */
 } lake_con_struct;
@@ -1100,7 +1099,7 @@ typedef struct {
 typedef struct {
     cell_data_struct **cell;      /**< Stores soil layer variables */
     energy_bal_struct **energy;   /**< Stores energy balance variables */
-    lake_var_struct *lake_var;     /**< Stores lake/wetland variables */
+    lake_var_struct **lake_var;     /**< Stores lake/wetland variables */
     snow_data_struct **snow;      /**< Stores snow variables */
     veg_var_struct **veg_var;     /**< Stores vegetation variables */
     gridcell_avg_struct gridcell_avg;   /**< Stores gridcell average variables */

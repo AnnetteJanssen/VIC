@@ -41,7 +41,7 @@ compute_derived_lake_dimensions(lake_var_struct *lake,
     int                      status;
     double                   depth;
     double                   tmp_volume;
-    
+
     /* number and thicknesses of lake layers */
     if (lake->ldepth > param.LAKE_MAX_SURFACE && lake->ldepth < 2 *
         param.LAKE_MAX_SURFACE) {
@@ -72,7 +72,7 @@ compute_derived_lake_dimensions(lake_var_struct *lake,
         lake->ldepth = 0.0;
     }
 
-    // lake_con->basin equals the surface area at specific depths as input by
+    // lake_con.basin equals the surface area at specific depths as input by
     // the user in the lake parameter file or calculated in read_lakeparam(),
     // lake->surface equals the area at the top of each dynamic solution layer
 

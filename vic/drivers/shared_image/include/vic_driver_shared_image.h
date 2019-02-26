@@ -158,7 +158,7 @@ typedef struct {
     size_t nl_types; /**< total number of lake types */
                      /**< size of lidx array */
     size_t nl_active; /**< number of active lake types */
-    int *lidx;     /**< array of indices for active lake types */
+    int *vidx;     /**< array of vegetation indices for active lake types */
 } lake_con_map_struct;
 
 /******************************************************************************
@@ -278,6 +278,8 @@ void vic_restore(void);
 void vic_start(void);
 void vic_store(dmy_struct *dmy_state, char *state_filename);
 void vic_write(stream_struct *stream, nc_file_struct *nc_hist_file,
+               dmy_struct *dmy_current);
+void vic_write_tlake(stream_struct *stream, nc_file_struct *nc_hist_file,
                dmy_struct *dmy_current);
 void vic_write_output(dmy_struct *dmy);
 void write_vic_timing_table(timer_struct *timers, char *driver);

@@ -40,7 +40,7 @@ vic_init_output(dmy_struct *dmy_current)
     extern MPI_Comm           MPI_COMM_VIC;
     extern int                mpi_rank;
     extern nc_file_struct    *nc_hist_files;
-    extern lake_con_struct  **lake_con;
+    extern lake_con_struct   *lake_con;
     extern double          ***out_data;
     extern save_data_struct  *save_data;
     extern soil_con_struct   *soil_con;
@@ -52,6 +52,7 @@ vic_init_output(dmy_struct *dmy_current)
 
     int                       status;
     size_t                    i;
+    size_t                    j;
     size_t                    streamnum;
     size_t                    nstream_vars[MAX_OUTPUT_STREAMS];
     bool                      default_outputs = false;
@@ -61,13 +62,26 @@ vic_init_output(dmy_struct *dmy_current)
     set_output_met_data_info();
 
     // allocate out_data
-    alloc_out_data(local_domain.ncells_active, out_data);
+    if(options.TLAKE_MODE){
+        alloc_out_data(options.NLAKETYPES, out_data);
+    } else {
+        alloc_out_data(local_domain.ncells_active, out_data);
+    }
 
     // initialize the save data structures
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        initialize_save_data(&(all_vars[i]), &(force[i]), &(soil_con[i]),
-                             veg_con[i], veg_lib[i], lake_con[i], out_data[i],
-                             &(save_data[i]), &timer);
+    if(options.TLAKE_MODE){    
+        for (j = 0; j < options.NLAKETYPES; j++) {
+            i = lake_con[j].cell_idx;
+            initialize_save_data_tlake(&(all_vars[i]), &(soil_con[i]),
+                                       veg_con[i], veg_lib[i], lake_con, out_data[j],
+                                       &timer);
+        }
+    } else {    
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            initialize_save_data(&(all_vars[i]), &(force[i]), &(soil_con[i]),
+                                 veg_con[i], veg_lib[i], &lake_con[i], out_data[i],
+                                 &(save_data[i]), &timer);
+        }
     }
 
     if (mpi_rank == VIC_MPI_ROOT) {
@@ -101,8 +115,13 @@ vic_init_output(dmy_struct *dmy_current)
 
     // allocate memory for streams, initialize to default/missing values
     for (streamnum = 0; streamnum < options.Noutstreams; streamnum++) {
-        setup_stream(&(output_streams[streamnum]), nstream_vars[streamnum],
-                     local_domain.ncells_active);
+        if(options.TLAKE_MODE){
+            setup_stream(&(output_streams[streamnum]), nstream_vars[streamnum],
+                         options.NLAKETYPES);
+        } else {
+            setup_stream(&(output_streams[streamnum]), nstream_vars[streamnum],
+                         local_domain.ncells_active);
+        }
     }
 
     if (mpi_rank == VIC_MPI_ROOT) {
@@ -217,6 +236,7 @@ initialize_history_file(nc_file_struct *nc,
     size_t                     dcount[MAXDIMS];
     size_t                     dstart[MAXDIMS];
     int                        dimids[MAXDIMS];
+    size_t                     chunk_sizes[MAXDIMS];
     int                        lon_var_id;
     int                        lat_var_id;
     unsigned int               varid;
@@ -468,6 +488,25 @@ initialize_history_file(nc_file_struct *nc,
                 status,
                 "Error setting compression level in %s for variable: %s",
                 stream->filename, out_metadata[varid].varname);
+        }
+        
+        if(options.TLAKE_MODE){
+//            if (varid == OUT_LAKE_NODE_TEMP) {
+//                chunk_sizes[0] = 1;
+//                chunk_sizes[1] = options.NLAKETYPES;
+//                chunk_sizes[2] = MAX_LAKE_NODES;
+//                chunk_sizes[3] = 1;
+//                chunk_sizes[4] = 1;
+//                nc_def_var_chunking(nc->nc_id, nc->nc_vars[j].nc_varid,
+//                                    NC_CHUNKED, chunk_sizes);
+//            } else {
+//                chunk_sizes[0] = 1;
+//                chunk_sizes[1] = options.NLAKETYPES;
+//                chunk_sizes[2] = 1;
+//                chunk_sizes[3] = 1;
+//                nc_def_var_chunking(nc->nc_id, nc->nc_vars[j].nc_varid,
+//                                    NC_CHUNKED, chunk_sizes);
+//            }
         }
 
         // set the fill value attribute
