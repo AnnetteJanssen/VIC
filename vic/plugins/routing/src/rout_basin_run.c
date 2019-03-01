@@ -78,6 +78,13 @@ rout_basin_run(size_t iCell)
     if(abs(prev_stream + (inflow + runoff) - 
             (rout_var[iCell].discharge + rout_var[iCell].stream)) >
             DBL_EPSILON){
-        log_err("Discharge water balance error");
+        log_err("Discharge water balance error [%.4f]. "
+                "in: %.4f out: %.4f prev_storage: %.4f cur_storage %.4f",
+                prev_stream + (inflow + runoff) - 
+                (rout_var[iCell].discharge + rout_var[iCell].stream),
+                (inflow + runoff),
+                rout_var[iCell].discharge,
+                prev_stream,
+                rout_var[iCell].stream);
     }
 }

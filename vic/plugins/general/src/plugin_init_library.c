@@ -29,6 +29,7 @@ plugin_initialize_parameters(void)
     extern plugin_parameters_struct plugin_param;
     
     plugin_param.DAM_ALPHA = 0.85;
+    plugin_param.DAM_BETA = 50;
 }
 
 void

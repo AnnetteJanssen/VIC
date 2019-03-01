@@ -10,7 +10,6 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
     
     size_t years_running;
     
-    double release_int;
     double storage_int;
     short unsigned int month_days;
     
@@ -24,12 +23,6 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
 
         // Interpolate storage and release
         month_days = days_per_month(dmy[current].month, dmy[current].year, global_param.calendar);
-        release_int = linear_interp(
-                dmy[current].day * global_param.model_steps_per_day,
-                1,
-                month_days * global_param.model_steps_per_day,
-                dam_var->op_release[0],
-                dam_var->op_release[1]);
         storage_int = linear_interp(
                 dmy[current].day * global_param.model_steps_per_day,
                 1,
@@ -37,19 +30,15 @@ dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
                 dam_var->op_storage[0],
                 dam_var->op_storage[1]);
         
-        if(dam_var->op_release[0] == 0){
-            log_info("hh");
-        }
-        
         // Fill reservoir
         dam_var->storage += dam_var->inflow;
 
-        // Calculate discharge               
-//        dam_var->release = dam_corr_release(release_int,
+        // Calculate discharge
+        dam_var->release = dam_var->op_release[0];
+//        dam_var->release = dam_corr_release(dam_var->op_release[0],
 //                                            dam_var->storage,
 //                                            storage_int,
 //                                            dam_con->capacity);
-        dam_var->release = release_int;
         
         // reduce reservoir
         dam_var->storage -= dam_var->release;

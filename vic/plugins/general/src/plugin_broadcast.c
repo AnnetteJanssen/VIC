@@ -178,7 +178,7 @@ plugin_create_MPI_param_struct_type(MPI_Datatype *mpi_type)
     MPI_Datatype   *mpi_types;
 
     // nitems has to equal the number of elements in global_param_struct
-    nitems = 1;
+    nitems = 2;
     blocklengths = malloc(nitems * sizeof(*blocklengths));
     check_alloc_status(blocklengths, "Memory allocation error.");
     offsets = malloc(nitems * sizeof(*offsets));
@@ -193,8 +193,11 @@ plugin_create_MPI_param_struct_type(MPI_Datatype *mpi_type)
     }
     i = 0;
     
-    // doulbe DAM_ALPHA;
+    // double DAM_ALPHA;
     offsets[i] = offsetof(plugin_parameters_struct, DAM_ALPHA);
+    mpi_types[i++] = MPI_DOUBLE;
+    // double DAM_BETA;
+    offsets[i] = offsetof(plugin_parameters_struct, DAM_BETA);
     mpi_types[i++] = MPI_DOUBLE;
 
     // make sure that the we have the right number of elements

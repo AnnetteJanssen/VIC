@@ -72,6 +72,7 @@ typedef struct {
 
 typedef struct {
     double DAM_ALPHA;
+    double DAM_BETA;
 } plugin_parameters_struct;
 
 typedef struct {

@@ -153,7 +153,7 @@ dam_set_service(void)
     for(j = 0; j < plugin_options.NDAMTYPES; j++){
         d4start[0] = j;
         
-        for(k = 0; k < (size_t)plugin_options.NDAMSERVICE; k++){
+        for(k = 0; k < plugin_options.NDAMSERVICE; k++){
             d4start[1] = k;
 
             get_scatter_nc_field_int(&(plugin_filenames.dams), 
@@ -163,7 +163,7 @@ dam_set_service(void)
 
             for(i = 0; i < local_domain.ncells_active; i++){
                 if(local_dam_con_map[i].didx[j] != NODATA_DAM &&
-                        j <local_dam_con[i][j].nservice){
+                        k - adjustment[i][j] < local_dam_con[i][j].nservice){
 
                     done = false;
                     for(l = 0; l < local_domain.ncells_active; l++){
@@ -202,7 +202,7 @@ dam_set_service(void)
 
             for(i = 0; i < local_domain.ncells_active; i++){
                 if(global_dam_con_map[i].didx[j] != NODATA_DAM &&
-                        j <global_dam_con[i][j].nservice){
+                        k - adjustment[i][j] < global_dam_con[i][j].nservice){
 
                     done = false;
                     for(l = 0; l < local_domain.ncells_active; l++){

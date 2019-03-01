@@ -43,7 +43,6 @@ dam_register_operation_start(dam_var_struct *dam_var)
     month_max = 0;
     for(i = 0; i < 2 * MONTHS_PER_YEAR; i++){
         month = (dmy[current].month - 1 + i) % MONTHS_PER_YEAR;
-        log_info("%zu", month);
 
         if(inflow[month] > inflow_avg){
             inflow_cum += inflow[month];
@@ -66,7 +65,6 @@ dam_register_operation_start(dam_var_struct *dam_var)
         month_max -= MONTHS_PER_YEAR;
     }
     
-    log_info("max %zu", month_max);
     dam_var->op_month = month_max;
 }
 
@@ -116,27 +114,12 @@ dam_register_operation(dam_con_struct *dam_con, dam_var_struct *dam_var)
 
     // Calculate dam release
     dam_calc_opt_release(inflow, demand, efr, release, MONTHS_PER_YEAR);
-    fprintf(LOG_DEST, "\nRegister:\tinflow\trelease\n");
-    for(i = 0; i < MONTHS_PER_YEAR; i++){
-        fprintf(LOG_DEST, "%.2f\t%.2f\n", inflow[i], release[i]);
-    }
-    
     k = dam_calc_k_factor(dam_con->capacity, dam_var->storage);
     c = dam_calc_c_factor(inflow, dam_con->capacity, MONTHS_PER_YEAR, steps_per_month);
     dam_corr_opt_release(inflow, release, MONTHS_PER_YEAR, k, c);
-    fprintf(LOG_DEST, "\nRegister:\tinflow\trelease\n");
-    for(i = 0; i < MONTHS_PER_YEAR; i++){
-        fprintf(LOG_DEST, "%.2f\t%.2f\n", inflow[i], release[i]);
-    }
     
     for(i = 0; i < MONTHS_PER_YEAR; i++){
         dam_var->op_release[i] = release[i];
-        if(release[i] == 0 && inflow[i] == 0){
-            log_info("err");
-        }
-        if(dam_var->op_release[i] == 0){
-            log_info("err");
-        }
     }
 
     // Calculate dam volume
@@ -155,68 +138,13 @@ void
 dam_register_history(dam_var_struct *dam_var)
 {
     dam_var->months_running++;
-    size_t i;
-    
-    if(dam_var->active){
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-        log_info("%.2f", dam_var->inflow);
-    }
 
     // Shift array
-    cshift(dam_var->history_demand, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
-    
-    if(dam_var->active){
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-        log_info("%.2f", dam_var->inflow);
-    }
-    cshift(dam_var->history_inflow, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
-    
-    if(dam_var->active){
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-        log_info("%.2f", dam_var->inflow);
-    }
-    cshift(dam_var->history_efr, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, 0, -1);
-    
-    if(dam_var->active){
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-        log_info("%.2f", dam_var->inflow);
-    }
+    cshift(dam_var->history_demand, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
+    cshift(dam_var->history_inflow, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
+    cshift(dam_var->history_efr, 1, DAM_HIST_YEARS * MONTHS_PER_YEAR, 1, -1);
     cshift(dam_var->op_release, MONTHS_PER_YEAR, 1, 0, 1);
-    
-    if(dam_var->active){
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-        log_info("%.2f", dam_var->inflow);
-    }
     cshift(dam_var->op_storage, MONTHS_PER_YEAR, 1, 0, 1);
-    
-    if(dam_var->active){
-        log_info("%.2f", dam_var->inflow);
-        for(i = 0; i < MONTHS_PER_YEAR; i++){
-            if(dam_var->op_release[i] == 0){
-                log_err("err");
-            }
-        }
-    }
     
     // Store monthly average
     dam_var->history_inflow[0] = dam_var->total_inflow / dam_var->register_steps;

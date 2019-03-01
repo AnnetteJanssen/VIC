@@ -48,6 +48,8 @@ dam_get_parameters(char *cmdstr)
 
     if (strcasecmp("DAM_ALPHA", optstr) == 0) {
                 sscanf(cmdstr, "%*s %lf", &plugin_param.DAM_ALPHA);
+    } else if (strcasecmp("DAM_BETA", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &plugin_param.DAM_BETA);
     }
     else {
         return false;
@@ -63,5 +65,8 @@ dam_validate_parameters(void)
     
     if (!(plugin_param.DAM_ALPHA >= 0 && plugin_param.DAM_ALPHA <= 1)) {
         log_err("DAM_ALPHA must be defined on the interval [0,1] (-)");
+    }
+    if (!(plugin_param.DAM_BETA >= 0)) {
+        log_err("DAM_BETA must be defined on the interval [0,Inf) (-)");
     }
 }

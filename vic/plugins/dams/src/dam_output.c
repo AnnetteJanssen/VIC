@@ -167,8 +167,9 @@ dam_add_hist_dim(nc_file_struct *nc,
 {
     int status;
 
-    status = nc_def_dim(nc->nc_id, "dam_class", 2, &(nc->dam_dimid));
-    check_nc_status(status, "Error defining time bounds dimension in %s",
+    status = nc_def_dim(nc->nc_id, "dam_class", nc->dam_size, 
+                        &(nc->dam_dimid));
+    check_nc_status(status, "Error defining dam class dimension in %s",
                     stream->filename);
 }
 
@@ -344,9 +345,6 @@ dam_put_data(size_t iCell)
 
             out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_OP_RELEASE][i] = global_dam_var[iCell][i].op_release[0];
             out_data[iCell][N_OUTVAR_TYPES + OUT_GDAM_OP_STORAGE][i] = global_dam_var[iCell][i].op_storage[0];
-            if(global_dam_var[iCell][i].op_release[0] == 0 && global_dam_var[iCell][i].active){
-                log_err("huh");
-            }
         }
     }
 }

@@ -67,10 +67,6 @@ dam_corr_opt_release(double *inflow,
 {
     size_t  i;
     
-    if(k == 0 || c == 0){
-        log_info("huh");
-    }
-    
     if (c >= 0.5) {
         // Large dam capacity, release all
         for (i = 0; i < length; i++) {
@@ -93,7 +89,7 @@ dam_corr_release(double release,
                  double opt_storage,
                  double capacity)
 {
-    extern global_param_struct global_param;
+    extern plugin_parameters_struct plugin_param;
     
     double frac;
     
@@ -102,15 +98,11 @@ dam_corr_release(double release,
     } else {
         frac = 1 - cur_storage / opt_storage;
     }
+    frac = max(1 - cur_storage / capacity, cur_storage / capacity);
     
-    if(frac >= 0.75){
         return(max(0, release + 
-                (cur_storage - opt_storage) * 
-                pow((frac - 0.75) / 0.25, 2) / 
-                (7 * global_param.model_steps_per_day)));
-    } else {
-        return(release);
-    }
+                     (cur_storage - opt_storage) * 
+                      pow(frac, plugin_param.DAM_BETA)));
 }
 
 // Calculates dam Kr factor according to Hanasaki et al. 2006
