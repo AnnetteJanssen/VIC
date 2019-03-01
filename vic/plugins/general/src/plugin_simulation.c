@@ -54,7 +54,7 @@ plugin_put_data()
     size_t                     i;
     
     // If running with OpenMP, run this for loop using multiple threads
-    //#pragma omp parallel for default(shared) private(i)
+    #pragma omp parallel for default(shared) private(i)
     for (i = 0; i < local_domain.ncells_active; i++) {
         if(plugin_options.ROUTING)
             rout_put_data(i);
