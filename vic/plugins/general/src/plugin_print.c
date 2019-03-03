@@ -49,4 +49,5 @@ plugin_print_parameters(plugin_parameters_struct *pa)
 {
     fprintf(LOG_DEST, "plugin parameters:\n");
     fprintf(LOG_DEST, "\tDAM_ALPHA           : %.4f\n", pa->DAM_ALPHA);
+    fprintf(LOG_DEST, "\tDAM_BETA            : %.4f\n", pa->DAM_BETA);
 }

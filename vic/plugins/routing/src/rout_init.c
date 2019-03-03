@@ -179,8 +179,6 @@ rout_random_set_downstream(void)
     
         if(error_count > 0){
             log_warn("No downstream cell was found for %zu cells; "
-                    "Probably the ID was outside of the mask or "
-                    "the ID was not set; "
                     "Setting cell as outflow point",
                     error_count);
         }
@@ -212,6 +210,9 @@ rout_basin_set_upstream(void)
     for (i = 0; i < local_domain.ncells_active; i++) {
         for (j = 0; j < local_domain.ncells_active; j++) {
             if (rout_con[j].downstream == i && i != j) {
+                if(rout_con[i].Nupstream > MAX_UPSTREAM){
+                    log_err("Found more upstream cells than 8 (which is impossible)");
+                }
                 upstream[rout_con[i].Nupstream] = j;
                 rout_con[i].Nupstream++;
             }

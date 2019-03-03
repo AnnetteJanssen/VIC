@@ -11,6 +11,7 @@ set_basins_downstream(size_t *downstream_basin)
     int                    *downstream;
     
     bool                    found;
+    size_t                  error_count;
 
     size_t                  i;
     size_t                  j;
@@ -45,12 +46,15 @@ set_basins_downstream(size_t *downstream_basin)
         }
         
         if(!found){
-            log_warn("No downstream cell was found; "
-                    "Probably the ID was outside of the mask or "
-                    "the ID was not set;"
-                    "Setting cell as outflow point");
+            error_count++;
             downstream_basin[i] = i;
         }
+    }
+    
+    if(error_count > 0){
+        log_warn("No downstream cell was found for %zu cells; "
+                "Setting cell as outflow point",
+                error_count);
     }
 
     free(downstream);

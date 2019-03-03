@@ -95,7 +95,7 @@ local_dam_run(size_t iCell){
             local_dam_register(&local_dam_con[iCell][i], &local_dam_var[iCell][i], iCell);
 
             if(local_dam_var[iCell][i].active){
-                local_dam_operate(&local_dam_con[iCell][i], &local_dam_var[iCell][i], iCell);
+                //local_dam_operate(&local_dam_con[iCell][i], &local_dam_var[iCell][i], iCell);
             }
         }
     }
