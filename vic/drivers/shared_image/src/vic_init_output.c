@@ -236,7 +236,6 @@ initialize_history_file(nc_file_struct *nc,
     size_t                     dcount[MAXDIMS];
     size_t                     dstart[MAXDIMS];
     int                        dimids[MAXDIMS];
-    size_t                     chunk_sizes[MAXDIMS];
     int                        lon_var_id;
     int                        lat_var_id;
     unsigned int               varid;

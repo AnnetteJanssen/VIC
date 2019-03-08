@@ -575,7 +575,9 @@ ice_melt(double            z2,
     }
     snow->swq = SnowIce + snow->surf_water + snow->pack_water;
     lake->ice_water_eq = LakeIce * lake->areai;
-    lake->volume -= (InitialIce - LakeIce - IceMelt) * lake->areai;
+    if(! options.TLAKE_MODE){
+        lake->volume -= (InitialIce - LakeIce - IceMelt) * lake->areai;
+    }
     if (lake->ice_water_eq <= 0.0) {
         lake->ice_water_eq = 0.0;
     }

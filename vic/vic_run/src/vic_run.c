@@ -496,7 +496,7 @@ vic_run(force_data_struct   *force,
                                        force->shortwave[NR], force->longwave[NR],
                                        force->vpd[NR] / PA_PER_KPA,
                                        force->pressure[NR] / PA_PER_KPA,
-                                       force->density[NR], &lake_var[iveg],
+                                       force->density[NR], lake_var,
                                        *soil_con, gp->dt, gp->wind_h, *dmy,
                                        fraci);
                 if (ErrorFlag == ERROR) {

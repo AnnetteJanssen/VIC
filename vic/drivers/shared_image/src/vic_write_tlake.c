@@ -36,7 +36,6 @@ vic_write_tlake(stream_struct  *stream,
                 dmy_struct     *dmy_current)
 {
     extern global_param_struct global_param;
-    extern lake_con_struct    *lake_con;
     extern lake_var_struct    *lake_var;
     extern int                 mpi_rank;
     extern option_struct       options;
