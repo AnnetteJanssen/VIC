@@ -4,17 +4,20 @@
 void
 set_wu_type(char *cmdstr)
 {
+    extern plugin_filenames_struct plugin_filenames;
     extern plugin_option_struct    plugin_options;
     
     char                    typename[MAXSTRING];
     char                    sourcename[MAXSTRING];
+    char                    filename[MAXSTRING];
     int                     type = WU_IRRIGATION;
     int                     source = WU_SKIP;
 
     strcpy(typename, "MISSING");
     strcpy(sourcename, "MISSING");
+    strcpy(filename, "MISSING");
     
-    sscanf(cmdstr, "%*s %s %s", typename, sourcename);
+    sscanf(cmdstr, "%*s %s %s %s", typename, sourcename, filename);
     
     if (strcasecmp("IRRIGATION", typename) == 0) {
         type = WU_IRRIGATION;
@@ -51,6 +54,7 @@ set_wu_type(char *cmdstr)
     }
     
     plugin_options.WU_INPUT[type] = source;
+    plugin_filenames.wf_path_pfx[type] = filename;
 }
 
 bool
@@ -71,9 +75,6 @@ wu_get_global_param(char *cmdstr)
     else if (strcasecmp("WATERUSE_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", plugin_filenames.wateruse.nc_filename);
     }
-    else if (strcasecmp("WATERUSE_FORCING", optstr) == 0) {
-        sscanf(cmdstr, "%*s %s", plugin_filenames.wf_path_pfx);
-    }
     else if (strcasecmp("WU_TYPE", optstr) == 0) {
         set_wu_type(cmdstr);
     }
@@ -90,6 +91,8 @@ wu_validate_global_param(void)
     extern plugin_option_struct    plugin_options;
     extern plugin_filenames_struct plugin_filenames;
     
+    size_t i;
+    
     // Options
     if(!plugin_options.ROUTING){
         log_err("WATERUSE = TRUE but ROUTING = FALSE");
@@ -104,7 +107,11 @@ wu_validate_global_param(void)
     }
     
     // Forcing
-    if (strcasecmp(plugin_filenames.wf_path_pfx, MISSING_S) == 0) {
-        log_err("WATERUSE = TRUE but forcing is missing");
+    for(i = 0; i < WU_NSECTORS; i++){
+        if(plugin_options.WU_INPUT[i] == WU_FROM_FILE){
+            if (strcasecmp(plugin_filenames.wf_path_pfx[i], MISSING_S) == 0) {
+                log_err("WATERUSE = TRUE but forcing is missing");
+            }
+        }
     }
 }

@@ -39,13 +39,18 @@ plugin_initialize_filenames(void)
 {
     extern plugin_filenames_struct plugin_filenames;
     
+    size_t i;
+    
     strcpy(plugin_filenames.routing.nc_filename, MISSING_S);
     strcpy(plugin_filenames.wateruse.nc_filename, MISSING_S);
     strcpy(plugin_filenames.decomposition.nc_filename, MISSING_S);
     strcpy(plugin_filenames.routing_forcing.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.wateruse_forcing.nc_filename, MISSING_S);
     strcpy(plugin_filenames.rf_path_pfx, MISSING_S);
-    strcpy(plugin_filenames.wf_path_pfx, MISSING_S);
+    
+    for(i = 0; i < WU_NSECTORS; i++){
+        strcpy(plugin_filenames.wateruse_forcing[i].nc_filename, MISSING_S);
+        strcpy(plugin_filenames.wf_path_pfx[i], MISSING_S);
+    }
 }
 
 void

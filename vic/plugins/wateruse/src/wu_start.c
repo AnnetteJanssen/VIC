@@ -8,6 +8,7 @@ wu_start(void)
     extern plugin_filenames_struct plugin_filenames;
     extern global_param_struct     global_param;
 
+    size_t                  i;
     int                     status;
     
     // Check domain & get dimensions
@@ -34,17 +35,21 @@ wu_start(void)
                     plugin_filenames.wateruse.nc_filename);
 
     // Check the forcing
-    sprintf(plugin_filenames.wateruse_forcing.nc_filename, "%s%4d.nc", 
-            plugin_filenames.wf_path_pfx, global_param.startyear);
-    status = nc_open(plugin_filenames.wateruse_forcing.nc_filename, NC_NOWRITE, 
-            &(plugin_filenames.wateruse_forcing.nc_id));
-    check_nc_status(status, "Error opening %s",  
-            plugin_filenames.wateruse_forcing.nc_filename);
+    for(i = 0; i < WU_NSECTORS; i++){
+        if(plugin_options.WU_INPUT[i] == WU_FROM_FILE){
+            sprintf(plugin_filenames.wateruse_forcing[i].nc_filename, "%s%4d.nc", 
+                    plugin_filenames.wf_path_pfx[i], global_param.startyear);
+            status = nc_open(plugin_filenames.wateruse_forcing[i].nc_filename, NC_NOWRITE, 
+                    &(plugin_filenames.wateruse_forcing[i].nc_id));
+            check_nc_status(status, "Error opening %s",  
+                    plugin_filenames.wateruse_forcing[i].nc_filename);
 
-    plugin_get_forcing_file_info(&plugin_filenames.wateruse_forcing);
-    compare_ncdomain_with_global_domain(&plugin_filenames.wateruse_forcing);
+            plugin_get_forcing_file_info(&plugin_filenames.wateruse_forcing[i]);
+            compare_ncdomain_with_global_domain(&plugin_filenames.wateruse_forcing[i]);
 
-    status = nc_close(plugin_filenames.wateruse_forcing.nc_id);
-    check_nc_status(status, "Error closing %s", 
-            plugin_filenames.wateruse_forcing.nc_filename);
+            status = nc_close(plugin_filenames.wateruse_forcing[i].nc_id);
+            check_nc_status(status, "Error closing %s", 
+                    plugin_filenames.wateruse_forcing[i].nc_filename);
+        }
+    }
 }

@@ -75,9 +75,9 @@ typedef struct {
     
     // forcing
     nameid_struct routing_forcing;  /**< routing forcing files */
-    nameid_struct wateruse_forcing; /**< water-use forcing files */
+    nameid_struct wateruse_forcing[WU_NSECTORS]; /**< water-use forcing files */
     char rf_path_pfx[MAXSTRING]; /**< path and prefix for routing forcing files */
-    char wf_path_pfx[MAXSTRING]; /**< path and prefix for water-use forcing files */
+    char wf_path_pfx[WU_NSECTORS][MAXSTRING]; /**< path and prefix for water-use forcing files */
 } plugin_filenames_struct;
 
 // Setup
