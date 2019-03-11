@@ -14,6 +14,7 @@ wu_run(size_t iCell)
     extern veg_con_struct     **veg_con;
     
     double **av_gw;
+    double resid_moist;
     double available_gw;
     double available_surf;
     double available_remote;
@@ -99,13 +100,21 @@ wu_run(size_t iCell)
             if(soil_con[iCell].AreaFract[iBand] > 0){
                 av_gw[iVeg][iBand] = all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist;
                 
+                resid_moist = soil_con[iCell].resid_moist[iLayer] *
+                              soil_con[iCell].depth[iLayer] * MM_PER_M;
+                av_gw[iVeg][iBand] -= resid_moist;
+                
                 ice = 0;
                 for(iFrost = 0; iFrost < options.Nfrost; iFrost ++){
                     ice += all_vars[iCell].cell[iVeg][iBand].layer[iLayer].ice[iFrost] *
                            soil_con[iCell].frost_fract[iFrost];
                 }
-                
                 av_gw[iVeg][iBand] -= ice;
+                
+                if(av_gw[iVeg][iBand] < 0){
+                    av_gw[iVeg][iBand] = 0;
+                }
+                
                 available_gw += av_gw[iVeg][iBand] *
                             soil_con[iCell].AreaFract[iBand] *
                             veg_con[iCell][iVeg].Cv;
@@ -279,9 +288,18 @@ wu_run(size_t iCell)
         
         if(wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].available_gw > DBL_EPSILON ||
                 wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].demand_gw > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_surf - wu_var[iCell][iSector].available_surf > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].demand_gw > DBL_EPSILON){
-            log_err("Water-use water balance error");
+                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].available_surf > DBL_EPSILON ||
+                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].demand_surf > DBL_EPSILON){
+            log_err("Water-use water balance error:\n"
+                    "groundwater\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n"
+                    "surface-water\twithdrawn [%.4f]\tremote[%.4f]\tdemand [%.4f]\tavailable [%.4f]",
+                    wu_var[iCell][iSector].withdrawn_gw, 
+                    wu_var[iCell][iSector].demand_gw, 
+                    wu_var[iCell][iSector].available_gw,
+                    wu_var[iCell][iSector].withdrawn_surf, 
+                    wu_var[iCell][iSector].withdrawn_remote, 
+                    wu_var[iCell][iSector].demand_surf, 
+                    wu_var[iCell][iSector].available_surf);
         }
     }
     

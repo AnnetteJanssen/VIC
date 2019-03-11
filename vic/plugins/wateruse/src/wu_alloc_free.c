@@ -115,7 +115,7 @@ wu_alloc(void)
     wu_var = malloc(local_domain.ncells_active * sizeof(*wu_var));
     check_alloc_status(wu_var, "Memory allocation error");
     for (i = 0; i < local_domain.ncells_active; i++) {
-        wu_con_map[i].sidx = malloc(local_domain.ncells_active * sizeof(*wu_con_map[i].sidx));
+        wu_con_map[i].sidx = malloc(WU_NSECTORS * sizeof(*wu_con_map[i].sidx));
         check_alloc_status(wu_con_map[i].sidx, "Memory allocation error");
     }
     

@@ -5,7 +5,7 @@
  Global parameters & parameters
 ******************************************/
 bool
-plugin_get_global_param(char *cmdstr)
+plugin_get_global_param(char cmdstr[MAXSTRING])
 {
     if(rout_get_global_param(cmdstr)){} 
     else if(wu_get_global_param(cmdstr)){} 
@@ -28,7 +28,7 @@ plugin_validate_global_param(void)
 }
 
 bool
-plugin_get_parameters(char *optstr)
+plugin_get_parameters(char cmdstr[MAXSTRING])
 {
     return false;
 }
@@ -152,7 +152,7 @@ plugin_finalize(void)
     MPI_Type_free(&plugin_mpi_option_struct_type);
     MPI_Type_free(&plugin_mpi_param_struct_type);
     
-    if(plugin_options.ROUTING) 
+    if(plugin_options.ROUTING)
         rout_finalize();
     if(plugin_options.WATERUSE) 
         wu_finalize();

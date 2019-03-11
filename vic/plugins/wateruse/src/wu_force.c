@@ -74,14 +74,14 @@ wu_forcing(void)
     d3count[1] = global_domain.n_ny;
     d3count[2] = global_domain.n_nx;
 
+    // Get forcing data
     for(k = 0; k < WU_NSECTORS; k++){
         if(plugin_options.WU_INPUT[k] == WU_FROM_FILE){
-            // Get forcing data
             for (j = 0; j < NF; j++) {
                 d3start[0] = global_param.forceskip[0] +
                              global_param.forceoffset[0] + j - NF;
 
-                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing), 
+                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing[k]), 
                     "demand", d3start, d3count, dvar);
 
                 for (i = 0; i < local_domain.ncells_active; i++) {
@@ -92,7 +92,7 @@ wu_forcing(void)
                     }
                 }
 
-                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing), 
+                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing[k]), 
                     "groundwater_fraction", d3start, d3count, dvar);
 
                 for (i = 0; i < local_domain.ncells_active; i++) {
@@ -103,7 +103,7 @@ wu_forcing(void)
                     }
                 }
 
-                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing), 
+                get_scatter_nc_field_double(&(plugin_filenames.wateruse_forcing[k]), 
                     "consumption_fraction", d3start, d3count, dvar);
 
                 for (i = 0; i < local_domain.ncells_active; i++) {

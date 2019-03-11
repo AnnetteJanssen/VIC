@@ -96,10 +96,8 @@ vic_start(void)
                         filenames.domain.nc_filename);
 
         // Validate forcing files and variables
-        for(i = 0; i < 2; i++){
-            if (global_param.forceyear[i] > 0) {
-                compare_ncdomain_with_global_domain(&filenames.forcing[i]);
-            }
+        for(i = 0; i < param_set.N_FORCE_FILES; i++){
+            compare_ncdomain_with_global_domain(&filenames.forcing[i]);
         }
         
         // add the number of vegetation type to the location info in the
@@ -142,10 +140,10 @@ vic_start(void)
             options.NLAKENODES = get_nc_dimension(&(filenames.params),
                                                   "lake_node");
         }
-        
+
         // plugin start
         plugin_start();
-        
+
         // Check that model parameters are valid
         validate_parameters();
     }

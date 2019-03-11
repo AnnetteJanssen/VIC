@@ -26,17 +26,17 @@ plugin_run(void)
     extern size_t             *routing_order;
     
     size_t                     i;
-    size_t                     cur_cell;
+    size_t                     iCell;
     
     if(plugin_options.ROUTING){
         if(plugin_options.DECOMPOSITION == BASIN_DECOMPOSITION ||
                 plugin_options.DECOMPOSITION == FILE_DECOMPOSITION) {
             for (i = 0; i < local_domain.ncells_active; i++) {
-                cur_cell = routing_order[i];
+                iCell = routing_order[i];
                 
-                rout_basin_run(cur_cell);
+                rout_basin_run(iCell);
                 if(plugin_options.WATERUSE)
-                    wu_run(cur_cell);
+                    wu_run(iCell);
             }
         } 
         else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION){

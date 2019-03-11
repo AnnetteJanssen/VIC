@@ -54,7 +54,7 @@ set_wu_type(char *cmdstr)
     }
     
     plugin_options.WU_INPUT[type] = source;
-    plugin_filenames.wf_path_pfx[type] = filename;
+    strcpy(plugin_filenames.wf_path_pfx[type], filename);
 }
 
 bool
