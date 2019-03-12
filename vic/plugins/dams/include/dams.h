@@ -71,7 +71,7 @@ void local_dam_register(dam_con_struct *, dam_var_struct *, size_t);
 void global_dam_register(dam_con_struct *, dam_var_struct *, size_t);
 void dam_calc_opt_release(double *, double *, double *, double *, size_t);
 void dam_corr_opt_release(double *, double *, size_t, double, double);
-double dam_corr_release(double, double, double, double);
+double dam_corr_release(double, double, double);
 double dam_calc_k_factor(double, double);
 double dam_calc_c_factor(double *, double, size_t, size_t *);
 void dam_calc_opt_storage(double *, double *, double *, size_t, size_t*, double);

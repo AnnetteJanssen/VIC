@@ -50,6 +50,8 @@ dam_get_parameters(char *cmdstr)
                 sscanf(cmdstr, "%*s %lf", &plugin_param.DAM_ALPHA);
     } else if (strcasecmp("DAM_BETA", optstr) == 0) {
                 sscanf(cmdstr, "%*s %lf", &plugin_param.DAM_BETA);
+    } else if (strcasecmp("DAM_GAMMA", optstr) == 0) {
+                sscanf(cmdstr, "%*s %lf", &plugin_param.DAM_GAMMA);
     }
     else {
         return false;

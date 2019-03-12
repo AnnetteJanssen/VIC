@@ -81,30 +81,6 @@ dam_corr_opt_release(double *inflow,
     }
 }
 
-// Calculates release correction similar to van Beek et al. 2011
-// This factor reduces release based on deviations from optimal storage
-double
-dam_corr_release(double release,
-                 double cur_storage,
-                 double opt_storage,
-                 double capacity)
-{
-    extern plugin_parameters_struct plugin_param;
-    
-    double frac;
-    
-    if(cur_storage > opt_storage){
-        frac = (cur_storage - opt_storage) / (capacity - opt_storage);
-    } else {
-        frac = 1 - cur_storage / opt_storage;
-    }
-    frac = max(1 - cur_storage / capacity, cur_storage / capacity);
-    
-        return(max(0, release + 
-                     (cur_storage - opt_storage) * 
-                      pow(frac, plugin_param.DAM_BETA)));
-}
-
 // Calculates dam Kr factor according to Hanasaki et al. 2006
 // This factor handles inter-annual variability in storage
 // Make sure all inputs have the same units & length
@@ -185,4 +161,38 @@ dam_height(double area, double max_height)
     }
     
     return height;
+}
+
+// Calculates release correction similar to van Beek et al. 2011
+// This factor reduces release based on deviations from optimal storage
+double
+dam_corr_release(double release,
+                 double cur_storage,
+                 double capacity)
+{
+    extern global_param_struct global_param;
+    extern plugin_parameters_struct plugin_param;
+    
+    double difference;
+    double frac;
+    double corrected;
+    
+    difference = 0;
+    if(cur_storage > capacity * plugin_param.DAM_ALPHA){
+        difference = cur_storage - capacity * plugin_param.DAM_ALPHA;
+    } else if (cur_storage < capacity - capacity * plugin_param.DAM_ALPHA) {
+        difference = cur_storage - (capacity - capacity * plugin_param.DAM_ALPHA);
+    }
+    
+    frac = 1;
+    if(difference != 0){
+        frac = max(1 - cur_storage / capacity, cur_storage / capacity);
+        frac = (frac - plugin_param.DAM_ALPHA) / (1 - plugin_param.DAM_ALPHA);
+        frac = pow(frac, plugin_param.DAM_BETA);
+    }
+    
+    corrected = release + difference * frac / 
+                 (plugin_param.DAM_GAMMA * global_param.model_steps_per_day);
+    
+    return(max(0, corrected));
 }
