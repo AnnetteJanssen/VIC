@@ -111,13 +111,14 @@ wu_run(size_t iCell)
                 }
                 av_gw[iVeg][iBand] -= ice;
                 
+                av_gw[iVeg][iBand] *= soil_con[iCell].AreaFract[iBand] *
+                            veg_con[iCell][iVeg].Cv;
+                
                 if(av_gw[iVeg][iBand] < 0){
                     av_gw[iVeg][iBand] = 0;
                 }
                 
-                available_gw += av_gw[iVeg][iBand] *
-                            soil_con[iCell].AreaFract[iBand] *
-                            veg_con[iCell][iVeg].Cv;
+                available_gw += av_gw[iVeg][iBand];
             }
         }
     }
