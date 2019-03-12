@@ -53,6 +53,7 @@ vic_run(force_data_struct   *force,
     size_t                   Nveg;
     unsigned short           veg_class;
     unsigned short           band;
+    size_t                   bandStart;
     size_t                   Nbands;
     int                      ErrorFlag;
     double                  *out_prec;
@@ -149,7 +150,8 @@ vic_run(force_data_struct   *force,
             /**************************************************
                Initialize Model Parameters
             **************************************************/
-
+            bandStart = 0;
+            
             /** Lake-specific processing **/
             if (veg_con[iveg].LAKE) {
                 lake_class = veg_con[iveg].lake_class;
@@ -160,6 +162,7 @@ vic_run(force_data_struct   *force,
                 lakefrac = lake_var->sarea / lake_con[lake_class].basin[0];
 
                 Nbands = 1;
+                bandStart = lake_con[lake_class].elev_idx;
                 Cv *= (1 - lakefrac);
 
                 if (Cv == 0) {
@@ -213,7 +216,7 @@ vic_run(force_data_struct   *force,
             /**************************************************
                Loop over elevation bands
             **************************************************/
-            for (band = 0; band < Nbands; band++) {
+            for (band = bandStart; band < Nbands; band++) {
                 /** Solve band only if coverage greater than 0% **/
                 if (soil_con->AreaFract[band] > 0) {
 
@@ -373,6 +376,7 @@ vic_run(force_data_struct   *force,
         wetland_runoff = wetland_baseflow = 0;
         sum_runoff = sum_baseflow = 0;
                 
+        bandStart = 0;
         for (iveg = 0; iveg <= Nveg; iveg++) {
             /** Solve Veg Tile only if Coverage Greater than 0% **/
             if (veg_con[iveg].Cv > 0.0) {
@@ -392,6 +396,7 @@ vic_run(force_data_struct   *force,
                     lakefrac = lake_var->sarea / lake_con[lake_class].basin[0];
 
                     Nbands = 1;
+                    bandStart = lake_con[lake_class].elev_idx;
                     Cv *= (1 - lakefrac);
 
                     if (Cv == 0) {
@@ -400,7 +405,7 @@ vic_run(force_data_struct   *force,
                 }
                 
                 // Loop through snow elevation bands
-                for (band = 0; band < Nbands; band++) {
+                for (band = bandStart; band < Nbands; band++) {
                     if (soil_con->AreaFract[band] > 0) {
                         /* Set local pointers */
                         cell = &(all_vars->cell[iveg][band]);
@@ -463,7 +468,7 @@ vic_run(force_data_struct   *force,
                 }
                 
                 /** Run lake model **/
-                band = 0;
+                band = lake_con[lake_class].elev_idx;
                 lake_var->runoff_in =
                     (sum_runoff * lake_con[lake_class].rpercent +
                      wetland_runoff) * soil_con->cell_area / MM_PER_M;                                               // m3
@@ -472,8 +477,9 @@ vic_run(force_data_struct   *force,
                      wetland_baseflow) * soil_con->cell_area / MM_PER_M;                                                 // m3
                 lake_var->channel_in = force->channel_in[NR] * soil_con->cell_area /
                                        MM_PER_M;                                        // m3
-                lake_var->prec = force->prec[NR] * lake_var->sarea / MM_PER_M; // m3
-                rainonly = calc_rainonly(force->air_temp[NR], force->prec[NR],
+                lake_var->prec = force->prec[NR] * soil_con->Pfactor[band] * lake_var->sarea / MM_PER_M; // m3
+                rainonly = calc_rainonly(force->air_temp[NR] + soil_con->Tfactor[band], 
+                                         force->prec[NR] *  soil_con->Pfactor[band],
                                          param.SNOW_MAX_SNOW_TEMP,
                                          param.SNOW_MIN_RAIN_TEMP);
                 if ((int) rainonly == ERROR) {
@@ -484,14 +490,15 @@ vic_run(force_data_struct   *force,
                    Solve the energy budget for the lake.
                 **********************************************************************/
 
-                snowprec = gauge_correction[SNOW] * (force->prec[NR] - rainonly);
+                snowprec = gauge_correction[SNOW] * (force->prec[NR] * soil_con->Pfactor - rainonly);
                 rainprec = gauge_correction[SNOW] * rainonly;
                 Cv = veg_con[iveg].Cv * lakefrac;
                 force->out_prec += (snowprec + rainprec) * Cv;
                 force->out_rain += rainprec * Cv;
                 force->out_snow += snowprec * Cv;
 
-                ErrorFlag = solve_lake(snowprec, rainprec, force->air_temp[NR],
+                ErrorFlag = solve_lake(snowprec, rainprec, 
+                                       force->air_temp[NR] + soil_con->Tfactor[band],
                                        force->wind[NR], force->vp[NR] / PA_PER_KPA,
                                        force->shortwave[NR], force->longwave[NR],
                                        force->vpd[NR] / PA_PER_KPA,

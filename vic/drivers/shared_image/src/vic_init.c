@@ -1377,6 +1377,20 @@ vic_init(void)
             i = lake_con[j].cell_idx;
             lake_con[j].lake_type_num = lake_con_map[i].nl_active;
         }
+        
+        // lake_elevation
+        get_nc_field_double(&(filenames.params), "lake_elevation",
+                                 ld1start, ld1count, ldvar);
+        for (i = 0; i < options.NLAKETYPES; i++){
+            lake_con[i].elev_idx = options.SNOW_BAND - 1;
+            
+            for(j = 0; j < options.SNOW_BAND; j++){
+                if(ldvar[i] < soil_con[lake_con[i].cell_idx].BandElev[j]){
+                    lake_con[i].elev_idx = j;
+                    break;
+                }
+            }
+        }
 
         // numnod
         get_nc_field_int(&(filenames.params), "numnod",

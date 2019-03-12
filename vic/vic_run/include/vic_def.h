@@ -1034,7 +1034,8 @@ typedef struct {
     // Initial conditions
     double depth_in;              /**< Initial lake depth (distance from surface to deepest point) (m) */
     int cell_idx;                 /**< cell id of the lake/wetland */
-    int lake_idx;                  /**< veg index of the lake/wetland */
+    int lake_idx;                 /**< veg index of the lake/wetland */
+    int elev_idx;                 /**< elevation band index of the lake/wetland */
     size_t lake_type_num;         /**< number of lake types in the grid
                                           cell */
 } lake_con_struct;
