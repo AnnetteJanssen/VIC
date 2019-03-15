@@ -4,7 +4,7 @@ void
 plugin_initialize_options(void)
 {
     extern plugin_option_struct plugin_options;
-    
+
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
     plugin_options.DAMS = false;
@@ -18,7 +18,7 @@ void
 plugin_initialize_global(void)
 {
     extern plugin_global_param_struct plugin_global_param;
-    
+
     plugin_global_param.rout_steps_per_day = 0;
     plugin_global_param.rout_dt = 0;
 }
@@ -27,7 +27,7 @@ void
 plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
-    
+
     plugin_param.DAM_ALPHA = 0.85;
     plugin_param.DAM_BETA = 0.6;
     plugin_param.DAM_GAMMA = 5;
@@ -37,12 +37,15 @@ void
 plugin_initialize_filenames(void)
 {
     extern plugin_filenames_struct plugin_filenames;
-    
-    strcpy(plugin_filenames.routing.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.decomposition.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.dams.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.routing_forcing.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.rf_path_pfx, MISSING_S);
+
+    snprintf(plugin_filenames.routing.nc_filename, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.decomposition.nc_filename, MAXSTRING, "%s",
+             MISSING_S);
+    snprintf(plugin_filenames.dams.nc_filename, MAXSTRING, "%s",
+             MISSING_S);
+    snprintf(plugin_filenames.routing_forcing.nc_filename, MAXSTRING, "%s",
+             MISSING_S);
+    snprintf(plugin_filenames.rf_path_pfx, MAXSTRING, "%s", MISSING_S);
 }
 
 void

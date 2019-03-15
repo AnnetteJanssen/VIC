@@ -2,44 +2,47 @@
 #include <plugin.h>
 
 /******************************************
- Forcing
+   Forcing
 ******************************************/
 void
 plugin_force(void)
 {
-    extern plugin_option_struct       plugin_options;
-    
-    if(plugin_options.ROUTING && plugin_options.FORCE_ROUTING)
+    extern plugin_option_struct plugin_options;
+
+    if (plugin_options.ROUTING && plugin_options.FORCE_ROUTING) {
         rout_forcing();
+    }
 }
 
 /******************************************
- Running
+   Running
 ******************************************/
 void
 plugin_run(void)
 {
-    extern domain_struct       local_domain;
-    extern plugin_option_struct       plugin_options;
-    extern size_t             *routing_order;
-    
-    size_t                     i;
-    size_t                     iCell;
-    
-    if(plugin_options.ROUTING){
-        if(plugin_options.DECOMPOSITION == BASIN_DECOMPOSITION ||
-                plugin_options.DECOMPOSITION == FILE_DECOMPOSITION) {
+    extern domain_struct        local_domain;
+    extern plugin_option_struct plugin_options;
+    extern size_t              *routing_order;
+
+    size_t                      i;
+    size_t                      iCell;
+
+    if (plugin_options.ROUTING) {
+        if (plugin_options.DECOMPOSITION == BASIN_DECOMPOSITION ||
+            plugin_options.DECOMPOSITION == FILE_DECOMPOSITION) {
             for (i = 0; i < local_domain.ncells_active; i++) {
                 iCell = routing_order[i];
-                
-                if(plugin_options.DAMS)
+		
+                if (plugin_options.DAMS) {
                     local_dam_run(iCell);
+                }
                 rout_basin_run(iCell);
-                if(plugin_options.DAMS)
+                if (plugin_options.DAMS) {
                     global_dam_run(iCell);
+                }
             }
-        } 
-        else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION){
+        }
+        else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION) {
             rout_random_run();
         }
     }
@@ -48,17 +51,19 @@ plugin_run(void)
 void
 plugin_put_data()
 {
-    extern domain_struct       local_domain;
-    extern plugin_option_struct       plugin_options;
-    
-    size_t                     i;
-    
+    extern domain_struct        local_domain;
+    extern plugin_option_struct plugin_options;
+
+    size_t                      i;
+
     // If running with OpenMP, run this for loop using multiple threads
     #pragma omp parallel for default(shared) private(i)
     for (i = 0; i < local_domain.ncells_active; i++) {
-        if(plugin_options.ROUTING)
+        if (plugin_options.ROUTING) {
             rout_put_data(i);
-        if(plugin_options.DAMS)
+        }
+        if (plugin_options.DAMS) {
             dam_put_data(i);
+        }
     }
 }

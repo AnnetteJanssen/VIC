@@ -36,7 +36,7 @@ get_global_domain(nameid_struct *domain_nc_nameid,
 {
     int    *run = NULL;
     int    *mask = NULL;
-    int typeid;
+    int     typeid;
     double *var = NULL;
     size_t  i;
     size_t  j;
@@ -176,11 +176,11 @@ get_nc_latlon(nameid_struct *nc_nameid,
 
 
     n_nx = get_nc_dimension(nc_nameid,
-                                       nc_domain->info.x_dim);
+                            nc_domain->info.x_dim);
     n_ny = get_nc_dimension(nc_nameid,
-                                       nc_domain->info.y_dim);
+                            nc_domain->info.y_dim);
 
-    if(nc_domain->n_nx != n_nx || nc_domain->n_ny != n_ny){
+    if (nc_domain->n_nx != n_nx || nc_domain->n_ny != n_ny) {
         log_err("dimensions do not match for file \"%s\"",
                 nc_nameid->nc_filename);
     }
@@ -284,11 +284,13 @@ void
 copy_domain_info(domain_struct *domain_from,
                  domain_struct *domain_to)
 {
-    strcpy(domain_to->info.x_dim, domain_from->info.x_dim);
-    strcpy(domain_to->info.y_dim, domain_from->info.y_dim);
+    snprintf(domain_to->info.x_dim, MAXSTRING, "%s", domain_from->info.x_dim);
+    snprintf(domain_to->info.y_dim, MAXSTRING, "%s", domain_from->info.y_dim);
 
-    strcpy(domain_to->info.lon_var, domain_from->info.lon_var);
-    strcpy(domain_to->info.lat_var, domain_from->info.lat_var);
+    snprintf(domain_to->info.lon_var, MAXSTRING, "%s",
+             domain_from->info.lon_var);
+    snprintf(domain_to->info.lat_var, MAXSTRING, "%s",
+             domain_from->info.lat_var);
 
     domain_to->n_nx = domain_from->n_nx;
     domain_to->n_ny = domain_from->n_ny;
@@ -309,13 +311,13 @@ initialize_domain(domain_struct *domain)
     domain->locations = NULL;
 
     // Initialize domain info structure
-    strcpy(domain->info.lat_var, "MISSING");
-    strcpy(domain->info.lon_var, "MISSING");
-    strcpy(domain->info.mask_var, "MISSING");
-    strcpy(domain->info.area_var, "MISSING");
-    strcpy(domain->info.frac_var, "MISSING");
-    strcpy(domain->info.y_dim, "MISSING");
-    strcpy(domain->info.x_dim, "MISSING");
+    snprintf(domain->info.lat_var, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.lon_var, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.mask_var, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.area_var, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.frac_var, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.y_dim, MAXSTRING, "%s", "MISSING");
+    snprintf(domain->info.x_dim, MAXSTRING, "%s", "MISSING");
     domain->info.n_coord_dims = MISSING_USI;
 }
 
@@ -375,37 +377,37 @@ get_domain_type(char *cmdstr)
     char                 optstr[MAXSTRING];
     char                 ncvarname[MAXSTRING];
 
-    strcpy(ncvarname, "MISSING");
+    snprintf(ncvarname, MAXSTRING, "%s", "MISSING");
 
     sscanf(cmdstr, "%*s %s %s", optstr, ncvarname);
 
     // Lattitude variable name
     if (strcasecmp("LAT", optstr) == 0) {
-        strcpy(global_domain.info.lat_var, ncvarname);
+        snprintf(global_domain.info.lat_var, MAXSTRING, "%s", ncvarname);
     }
     // Longitude variable name
     else if (strcasecmp("LON", optstr) == 0) {
-        strcpy(global_domain.info.lon_var, ncvarname);
+        snprintf(global_domain.info.lon_var, MAXSTRING, "%s", ncvarname);
     }
     // Mask variable name
     else if (strcasecmp("MASK", optstr) == 0) {
-        strcpy(global_domain.info.mask_var, ncvarname);
+        snprintf(global_domain.info.mask_var, MAXSTRING, "%s", ncvarname);
     }
     // Area variable name
     else if (strcasecmp("AREA", optstr) == 0) {
-        strcpy(global_domain.info.area_var, ncvarname);
+        snprintf(global_domain.info.area_var, MAXSTRING, "%s", ncvarname);
     }
     // Fraction variable name
     else if (strcasecmp("FRAC", optstr) == 0) {
-        strcpy(global_domain.info.frac_var, ncvarname);
+        snprintf(global_domain.info.frac_var, MAXSTRING, "%s", ncvarname);
     }
     // y dimension name
     else if (strcasecmp("YDIM", optstr) == 0) {
-        strcpy(global_domain.info.y_dim, ncvarname);
+        snprintf(global_domain.info.y_dim, MAXSTRING, "%s", ncvarname);
     }
     // x dimension name
     else if (strcasecmp("XDIM", optstr) == 0) {
-        strcpy(global_domain.info.x_dim, ncvarname);
+        snprintf(global_domain.info.x_dim, MAXSTRING, "%s", ncvarname);
     }
     else {
         log_err("Unrecognized domain variable: %s %s", optstr, ncvarname);
