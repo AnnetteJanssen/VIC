@@ -2344,7 +2344,7 @@ main(int    argc,
     parameters_struct   param;
 
     // Initialize Log Destination
-    strcpy(filenames.log_path, "MISSING");
+    snprintf(filenames.log_path, MAXSTRING, "%s", "MISSING");
     initialize_log();
 
     status = MPI_Init(&argc, &argv);
@@ -2373,7 +2373,7 @@ main(int    argc,
         // last element of location
         location.local_idx = 12345678;
 
-        sprintf(ncfile.fname, "Space Needle, Seattle, WA");
+        snprintf(ncfile.fname, MAXSTRING, "Space Needle, Seattle, WA");
         // last element of ncfile
         ncfile.open = true;
 

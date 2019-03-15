@@ -34,7 +34,7 @@
 #include <netcdf.h>
 
 #define MAXDIMS 10
-#define AREA_SUM_ERROR_THRESH 1e-20
+#define AREA_SUM_ERROR_THRESH 1e-2
 
 /******************************************************************************
  * @brief   NetCDF file types
@@ -142,10 +142,10 @@ typedef struct {
     size_t root_zone_size;
     size_t time_size;
     size_t veg_size;
-    //plugins
+    // plugins
     int rdt_dimid;
     size_t rdt_size;
-    
+
     bool open;
     nc_var_struct *nc_vars;
 } nc_file_struct;

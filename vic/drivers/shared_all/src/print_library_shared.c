@@ -95,14 +95,10 @@ void
 sprint_dmy(char       *str,
            dmy_struct *dmy)
 {
-    sprintf(str,
-            "dmy:\n"
-            "\tday         : %hu\n"
-            "\tday_in_year : %hu\n"
-            "\tseconds     : %u\n"
-            "\tmonth       : %hu\n"
-            "\tyear        : %u\n",
-            dmy->day, dmy->day_in_year, dmy->dayseconds, dmy->month, dmy->year);
+    snprintf(str, MAXSTRING,
+             "(%02i-%02i-%2i, %02i:00, %5i)\n",
+             dmy->day, dmy->month, dmy->year, dmy->dayseconds / SEC_PER_HOUR,
+             dmy->dayseconds);
 }
 
 /******************************************************************************
@@ -266,13 +262,15 @@ print_global_param(global_param_struct *gp)
     fprintf(LOG_DEST, "\tendmonth            : %hu\n", gp->endmonth);
     fprintf(LOG_DEST, "\tendyear             : %hu\n", gp->endyear);
     for (i = 0; i < 1; i++) {
-        fprintf(LOG_DEST, "\tforceday[%zd]         : %hu\n", i, gp->forceday[i]);
+        fprintf(LOG_DEST, "\tforceday[%zd]         : %hu\n", i,
+                gp->forceday[i]);
         fprintf(LOG_DEST, "\tforcesec[%zd]         : %u\n", i, gp->forcesec[i]);
         fprintf(LOG_DEST, "\tforcemonth[%zd]       : %hu\n", i,
                 gp->forcemonth[i]);
         fprintf(LOG_DEST, "\tforceoffset[%zd]      : %hu\n", i,
                 gp->forceoffset[i]);
-        fprintf(LOG_DEST, "\tforceskip[%zd]        : %u\n", i, gp->forceskip[i]);
+        fprintf(LOG_DEST, "\tforceskip[%zd]        : %u\n", i,
+                gp->forceskip[i]);
         fprintf(LOG_DEST, "\tforceyear[%zd]        : %hu\n", i,
                 gp->forceyear[i]);
     }
