@@ -39,12 +39,11 @@ vic_store(dmy_struct *dmy_state,
     extern domain_struct       local_domain;
     extern option_struct       options;
     extern veg_con_map_struct *veg_con_map;
-    extern lake_con_map_struct *lake_con_map;
+    extern lake_con_struct    *lake_con;
     extern int                 mpi_rank;
 
     int                        status;
     int                        v;
-    int                        l;
     size_t                     i;
     size_t                     j;
     size_t                     k;
@@ -52,13 +51,19 @@ vic_store(dmy_struct *dmy_state,
     size_t                     p;
     int                       *ivar = NULL;
     double                    *dvar = NULL;
+    int                       *livar = NULL;
+    double                    *ldvar = NULL;
+    size_t                     ld1start[1];
+    size_t                     ld2start[2];
+    size_t                     ld3start[3];
     size_t                     d2start[2];
-    size_t                     d3start[3];
     size_t                     d4start[4];
     size_t                     d5start[5];
     size_t                     d6start[6];
     nc_file_struct             nc_state_file;
     nc_var_struct             *nc_var;
+    size_t                     lake_cell;
+    size_t                     lake_veg;
 
     set_nc_state_file_info(&nc_state_file);
 
@@ -84,14 +89,29 @@ vic_store(dmy_struct *dmy_state,
     dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
     check_alloc_status(dvar, "Memory allocation error");
 
+    if(options.LAKES){
+        // allocate memory for variables to be stored
+        livar = malloc(options.NLAKETYPES * sizeof(*livar));
+        check_alloc_status(livar, "Memory allocation error");
+
+
+        ldvar = malloc(options.NLAKETYPES * sizeof(*ldvar));
+        check_alloc_status(ldvar, "Memory allocation error");
+    }
 
     // initialize starts and counts
+    
+    ld1start[0] = 0;
+    
+    ld2start[0] = 0;
+    ld2start[1] = 0;
+    
+    ld3start[0] = 0;
+    ld3start[1] = 0;
+    ld3start[2] = 0;
+    
     d2start[0] = 0;
     d2start[1] = 0;
-
-    d3start[0] = 0;
-    d3start[1] = 0;
-    d3start[2] = 0;
 
     d4start[0] = 0;
     d4start[1] = 0;
@@ -742,864 +762,651 @@ vic_store(dmy_struct *dmy_state,
     }
 
 
-//    if (options.LAKES) {
-//        // total soil moisture
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_MOISTURE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d4start[0] = k;
-//            for (j = 0; j < options.Nlayer; j++) {
-//                d4start[1] = j;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {
-//                        dvar[i] = (double) all_vars[i].lake_var[v].soil.layer[j].moist;
-//                    }
-//                    else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d4start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//        }
-//
-//        // ice content
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_ICE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d5start[0] = k;
-//            for (j = 0; j < options.Nlayer; j++) {
-//                d5start[1] = j;
-//                for (p = 0; p < options.Nfrost; p++) {
-//                    d5start[2] = p;
-//                    for (i = 0; i < local_domain.ncells_active; i++) {
-//                        l = lake_con_map[i].lidx[k];
-//                        if (l != NODATA_VEG) {
-//                            dvar[i] =
-//                                (double) all_vars[i].lake_var[k].soil.layer[j].ice[p];
-//                        }
-//                        else {
-//                            dvar[i] = nc_state_file.d_fillvalue;
-//                        }
-//                    }
-//                    gather_put_nc_field_double(nc_state_file.nc_id,
-//                                               nc_var->nc_varid,
-//                                               nc_state_file.d_fillvalue,
-//                                               d5start, nc_var->nc_counts, dvar);
-//                    for (i = 0; i < local_domain.ncells_active; i++) {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (options.CARBON) {
-//            // litter carbon: tmpval = lake_var.soil.CLitter;
-//            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CLITTER]);
-//            for (k = 0; k < options.NLAKETYPES; k++) {
-//                d3start[0] = k;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {
-//                        dvar[i] = (double) all_vars[i].lake_var[k].soil.CLitter;
-//                    }
-//                    else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d3start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//        }
-//
-//            // intermediate carbon: tmpval = lake_var.soil.CInter;
-//            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CINTER]);
-//            for (k = 0; k < options.NLAKETYPES; k++) {
-//                d3start[0] = k;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {
-//                        dvar[i] = (double) all_vars[i].lake_var[k].soil.CInter;
-//                    }
-//                    else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d3start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//
-//            // slow carbon: tmpval = lake_var.soil.CSlow;
-//            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CSLOW]);
-//            for (k = 0; k < options.NLAKETYPES; k++) {
-//                d3start[0] = k;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {
-//                        dvar[i] = (double) all_vars[i].lake_var[k].soil.CSlow;
-//                    }
-//                    else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d3start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//        }
-//
-//        // snow age: lake_var.snow.last_snow
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_AGE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    ivar[i] = (int) all_vars[i].lake_var[k].snow.last_snow;
-//                }
-//                else {
-//                    ivar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_int(nc_state_file.nc_id,
-//                                    nc_var->nc_varid,
-//                                    nc_state_file.i_fillvalue,
-//                                    d3start, nc_var->nc_counts, ivar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                ivar[i] = nc_state_file.i_fillvalue;
-//            }
-//        }
-//
-//        // melting state: (int)lake_var.snow.MELTING
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_MELT_STATE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    ivar[i] = (int) all_vars[i].lake_var[k].snow.MELTING;
-//                }
-//                else {
-//                    ivar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_int(nc_state_file.nc_id,
-//                                    nc_var->nc_varid,
-//                                    nc_state_file.i_fillvalue,
-//                                    d3start, nc_var->nc_counts, ivar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                ivar[i] = nc_state_file.i_fillvalue;
-//            }
-//        }
-//
-//        // snow covered fraction: lake_var.snow.coverage
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_COVERAGE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.coverage;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow water equivalent: lake_var.snow.swq
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_WATER_EQUIVALENT]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.swq;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow surface temperature: lake_var.snow.surf_temp
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_SURF_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.surf_temp;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow surface water: lake_var.snow.surf_water
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_SURF_WATER]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.surf_water;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow pack temperature: lake_var.snow.pack_temp
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_PACK_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.pack_temp;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow pack water: lake_var.snow.pack_water
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_PACK_WATER]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.pack_water;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow density: lake_var.snow.density
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_DENSITY]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.density;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow cold content: lake_var.snow.coldcontent
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_COLD_CONTENT]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.coldcontent;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // snow canopy storage: lake_var.snow.snow_canopy
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_CANOPY]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].snow.snow_canopy;
-//                }
-//                else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // soil node temperatures: lake_var.energy.T[nidx]
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_NODE_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d4start[0] = k;
-//            for (j = 0; j < options.Nnode; j++) {
-//                d4start[1] = j;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {
-//                        dvar[i] = (double) all_vars[i].lake_var[k].soil.layer[j].moist;
-//                    }
-//                    else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d4start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//        }
-//
-//        // lake active layers: lake_var.activenod
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ACTIVE_LAYERS]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    ivar[i] = (int) all_vars[i].lake_var[k].activenod;
-//                } else {
-//                    ivar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_int(nc_state_file.nc_id,
-//                                    nc_var->nc_varid,
-//                                    nc_state_file.i_fillvalue,
-//                                    d3start, nc_var->nc_counts, ivar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                ivar[i] = nc_state_file.i_fillvalue;
-//            }
-//        }
-//
-//        // lake layer thickness: lake_var.dz
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_DZ]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].dz;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake surface layer thickness: lake_var.surfdz
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SURF_LAYER_DZ]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {
-//                    dvar[i] = (double) all_vars[i].lake_var[k].surfdz;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake depth: lake_var.ldepth
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_DEPTH]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].ldepth;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake layer surface areas: lake_var.surface[ndix]
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_SURF_AREA]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d4start[0] = k;
-//            for (j = 0; j < MAX_LAKE_NODES; j++) {
-//                d4start[1] = j;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {  
-//                        dvar[i] = (double) all_vars[i].lake_var[k].surface[j];
-//                    } else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d4start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//        }
-//
-//        // lake surface area: lake_var.sarea
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SURF_AREA]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].sarea;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake volume: lake_var.volume
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_VOLUME]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].volume;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake layer temperatures: lake_var.temp[nidx]
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d4start[0] = k;
-//            for (j = 0; j < MAX_LAKE_NODES; j++) {
-//                d4start[1] = j;
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    l = lake_con_map[i].lidx[k];
-//                    if (l != NODATA_VEG) {  
-//                        dvar[i] = (double) all_vars[i].lake_var[k].temp[j];
-//                    } else {
-//                        dvar[i] = nc_state_file.d_fillvalue;
-//                    }
-//                }
-//                gather_put_nc_field_double(nc_state_file.nc_id,
-//                                           nc_var->nc_varid,
-//                                           nc_state_file.d_fillvalue,
-//                                           d4start, nc_var->nc_counts, dvar);
-//                for (i = 0; i < local_domain.ncells_active; i++) {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//        }
-//
-//        // vertical average lake temperature: lake_var.tempavg
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_AVERAGE_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].tempavg;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice area fraction: lake_var.areai
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_AREA_FRAC]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].areai;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // new lake ice area fraction: lake_var.new_ice_area
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_AREA_FRAC_NEW]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].new_ice_area;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice water equivalent: lake_var.ice_water_eq
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_WATER_EQUIVALENT]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].ice_water_eq;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice height: lake_var.hice
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_HEIGHT]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].hice;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice temperature: lake_var.tempi
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].tempi;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow water equivalent: lake_var.swe
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SWE]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].swe;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow surface temperature: lake_var.surf_temp
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_SURF_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].surf_temp;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow pack temperature: lake_var.pack_temp
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_PACK_TEMP]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].pack_temp;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow coldcontent: lake_var.coldcontent
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_COLD_CONTENT]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].coldcontent;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow surface water: lake_var.surf_water
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_SURF_WATER]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].surf_water;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow pack water: lake_var.pack_water
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_PACK_WATER]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].pack_water;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow albedo: lake_var.SAlbedo
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_ALBEDO]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].SAlbedo;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//
-//        // lake ice snow depth: lake_var.sdepth
-//        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_DEPTH]);
-//        for (k = 0; k < options.NLAKETYPES; k++) {
-//            d3start[0] = k;
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                l = lake_con_map[i].lidx[k];
-//                if (l != NODATA_VEG) {  
-//                    dvar[i] = (double) all_vars[i].lake_var[k].sdepth;
-//                } else {
-//                    dvar[i] = nc_state_file.d_fillvalue;
-//                }
-//            }
-//            gather_put_nc_field_double(nc_state_file.nc_id,
-//                                       nc_var->nc_varid,
-//                                       nc_state_file.d_fillvalue,
-//                                       d3start, nc_var->nc_counts, dvar);
-//            for (i = 0; i < local_domain.ncells_active; i++) {
-//                dvar[i] = nc_state_file.d_fillvalue;
-//            }
-//        }
-//    }
+    if (options.LAKES) {
+        // total soil moisture
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_MOISTURE]);
+        for (j = 0; j < options.Nlayer; j++) {
+            ld2start[0] = j;
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+                
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].moist;
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld2start, nc_var->nc_counts, ldvar);
+            for (i = 0; i < options.NLAKETYPES; i++) {
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+        }
+
+        // ice content
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_ICE]);
+        for (j = 0; j < options.Nlayer; j++) {
+            ld3start[0] = j;
+            for (p = 0; p < options.Nfrost; p++) {
+                ld3start[1] = p;
+                for(i = 0; i < options.NLAKETYPES; i++){
+                    lake_cell = lake_con[i].cell_idx;
+                    lake_veg = lake_con[i].lake_idx;
+                    
+                    ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].ice[p];
+                }
+                gather_put_nc_field_double(nc_state_file.nc_id,
+                                           nc_var->nc_varid,
+                                           nc_state_file.d_fillvalue,
+                                           ld3start, nc_var->nc_counts, ldvar);
+                for(i = 0; i < options.NLAKETYPES; i++){
+                    ldvar[i] = nc_state_file.d_fillvalue;
+                }
+            }
+        }
+
+        if (options.CARBON) {
+            // litter carbon: tmpval = lake_var.soil.CLitter;
+            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CLITTER]);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CLitter;
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld1start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+
+            // intermediate carbon: tmpval = lake_var.soil.CInter;
+            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CINTER]);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CInter;
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld1start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+
+            // slow carbon: tmpval = lake_var.soil.CSlow;
+            nc_var = &(nc_state_file.nc_vars[STATE_LAKE_CSLOW]);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CSlow;
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld1start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+        }
+
+        // snow age: lake_var.snow.last_snow
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_AGE]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+                    
+            livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->snow.last_snow;
+        }
+        gather_put_nc_field_int(nc_state_file.nc_id,
+                                nc_var->nc_varid,
+                                nc_state_file.i_fillvalue,
+                                ld1start, nc_var->nc_counts, livar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            livar[i] = nc_state_file.i_fillvalue;
+        }
+
+        // melting state: (int)lake_var.snow.MELTING
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_MELT_STATE]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+                    
+            livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->snow.MELTING;
+        }
+        gather_put_nc_field_int(nc_state_file.nc_id,
+                                nc_var->nc_varid,
+                                nc_state_file.i_fillvalue,
+                                ld1start, nc_var->nc_counts, livar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            livar[i] = nc_state_file.i_fillvalue;
+        }
+
+        // snow covered fraction: lake_var.snow.coverage
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_COVERAGE]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.coverage;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow water equivalent: lake_var.snow.swq
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_WATER_EQUIVALENT]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.swq;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow surface temperature: lake_var.snow.surf_temp
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_SURF_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.surf_temp;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow surface water: lake_var.snow.surf_water
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_SURF_WATER]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.surf_water;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow pack temperature: lake_var.snow.pack_temp
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_PACK_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.pack_temp;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow pack water: lake_var.snow.pack_water
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_PACK_WATER]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.pack_water;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow density: lake_var.snow.density
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_DENSITY]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.density;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i =0;  i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow cold content: lake_var.snow.coldcontent
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_COLD_CONTENT]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.coldcontent;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // snow canopy storage: lake_var.snow.snow_canopy
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SNOW_CANOPY]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.snow_canopy;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // soil node temperatures: lake_var.energy.T[nidx]
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SOIL_NODE_TEMP]);
+        for (j = 0; j < options.Nnode; j++) {
+            ld2start[0] = j;
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].moist;
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld2start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+        }
+
+        // lake active layers: lake_var.activenod
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ACTIVE_LAYERS]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->activenod;
+        }
+        gather_put_nc_field_int(nc_state_file.nc_id,
+                                nc_var->nc_varid,
+                                nc_state_file.i_fillvalue,
+                                ld1start, nc_var->nc_counts, livar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            livar[i] = nc_state_file.i_fillvalue;
+        }
+
+        // lake layer thickness: lake_var.dz
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_DZ]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->dz;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake surface layer thickness: lake_var.surfdz
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SURF_LAYER_DZ]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surfdz;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake depth: lake_var.ldepth
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_DEPTH]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->ldepth;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake layer surface areas: lake_var.surface[ndix]
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_SURF_AREA]);
+        for (j = 0; j < MAX_LAKE_NODES; j++) {
+            ld2start[0] = j;
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surface[j];
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld2start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+        }
+
+        // lake surface area: lake_var.sarea
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_SURF_AREA]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->sarea;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake volume: lake_var.volume
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_VOLUME]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->volume;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake layer temperatures: lake_var.temp[nidx]
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_LAYER_TEMP]);
+        for (j = 0; j < MAX_LAKE_NODES; j++) {
+            ld2start[0] = j;
+            for(i = 0; i < options.NLAKETYPES; i++){
+                lake_cell = lake_con[i].cell_idx;
+                lake_veg = lake_con[i].lake_idx;
+
+                ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->temp[j];
+            }
+            gather_put_nc_field_double(nc_state_file.nc_id,
+                                       nc_var->nc_varid,
+                                       nc_state_file.d_fillvalue,
+                                       ld2start, nc_var->nc_counts, ldvar);
+            for(i = 0; i < options.NLAKETYPES; i++){
+                ldvar[i] = nc_state_file.d_fillvalue;
+            }
+        }
+
+        // vertical average lake temperature: lake_var.tempavg
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_AVERAGE_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->tempavg;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice area fraction: lake_var.areai
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_AREA_FRAC]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->areai;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // new lake ice area fraction: lake_var.new_ice_area
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_AREA_FRAC_NEW]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->new_ice_area;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice water equivalent: lake_var.ice_water_eq
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_WATER_EQUIVALENT]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->ice_water_eq;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice height: lake_var.hice
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_HEIGHT]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->hice;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice temperature: lake_var.tempi
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->tempi;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow water equivalent: lake_var.swe
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SWE]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->swe;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow surface temperature: lake_var.surf_temp
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_SURF_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surf_temp;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow pack temperature: lake_var.pack_temp
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_PACK_TEMP]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->pack_temp;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow coldcontent: lake_var.coldcontent
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_COLD_CONTENT]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->coldcontent;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow surface water: lake_var.surf_water
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_SURF_WATER]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surf_water;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow pack water: lake_var.pack_water
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_PACK_WATER]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->pack_water;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow albedo: lake_var.SAlbedo
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_ALBEDO]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->SAlbedo;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+
+        // lake ice snow depth: lake_var.sdepth
+        nc_var = &(nc_state_file.nc_vars[STATE_LAKE_ICE_SNOW_DEPTH]);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            lake_cell = lake_con[i].cell_idx;
+            lake_veg = lake_con[i].lake_idx;
+
+            ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->sdepth;
+        }
+        gather_put_nc_field_double(nc_state_file.nc_id,
+                                   nc_var->nc_varid,
+                                   nc_state_file.d_fillvalue,
+                                   ld1start, nc_var->nc_counts, ldvar);
+        for(i = 0; i < options.NLAKETYPES; i++){
+            ldvar[i] = nc_state_file.d_fillvalue;
+        }
+    }
 
     // store extension variables
     vic_store_rout_extension(&nc_state_file);
@@ -1615,6 +1422,10 @@ vic_store(dmy_struct *dmy_state,
 
     free(ivar);
     free(dvar);
+    if(options.LAKES){
+        free(livar);
+        free(ldvar);
+    }
     free(nc_state_file.nc_vars);
 }
 
@@ -1653,6 +1464,7 @@ set_nc_state_file_info(nc_file_struct *nc_state_file)
     nc_state_file->band_size = options.SNOW_BAND;
     nc_state_file->front_size = MAX_FRONTS;
     nc_state_file->frost_size = options.Nfrost;
+    nc_state_file->lake_node_size = MAX_LAKE_NODES;
     nc_state_file->layer_size = options.Nlayer;
     nc_state_file->ni_size = global_domain.n_nx;
     nc_state_file->nj_size = global_domain.n_ny;
@@ -1788,30 +1600,22 @@ set_nc_state_var_info(nc_file_struct *nc)
             break;
 
         case STATE_LAKE_SOIL_MOISTURE:
-            // 3d vars [layer, j, i]
-            nc->nc_vars[i].nc_dims = 4;
-            nc->nc_vars[i].nc_dimids[0] = nc->lake_dimid;
-            nc->nc_vars[i].nc_dimids[1] = nc->layer_dimid;
-            nc->nc_vars[i].nc_dimids[2] = nc->nj_dimid;
-            nc->nc_vars[i].nc_dimids[3] = nc->ni_dimid;
+            // 2d vars [lake, layer]
+            nc->nc_vars[i].nc_dims = 2;
+            nc->nc_vars[i].nc_dimids[0] = nc->layer_dimid;
+            nc->nc_vars[i].nc_dimids[1] = nc->lake_dimid;
             nc->nc_vars[i].nc_counts[0] = 1;
-            nc->nc_vars[i].nc_counts[1] = 1;
-            nc->nc_vars[i].nc_counts[2] = nc->nj_size;
-            nc->nc_vars[i].nc_counts[3] = nc->ni_size;
+            nc->nc_vars[i].nc_counts[1] = nc->lake_size;
             break;
         case STATE_LAKE_SOIL_ICE:
-            // 4d vars [layer, frost, j, i]
-            nc->nc_vars[i].nc_dims = 5;
-            nc->nc_vars[i].nc_dimids[0] = nc->lake_dimid;
-            nc->nc_vars[i].nc_dimids[1] = nc->layer_dimid;
-            nc->nc_vars[i].nc_dimids[2] = nc->frost_dimid;
-            nc->nc_vars[i].nc_dimids[3] = nc->nj_dimid;
-            nc->nc_vars[i].nc_dimids[4] = nc->ni_dimid;
+            // 3d vars [lake, layer, frost]
+            nc->nc_vars[i].nc_dims = 3;
+            nc->nc_vars[i].nc_dimids[0] = nc->layer_dimid;
+            nc->nc_vars[i].nc_dimids[1] = nc->frost_dimid;
+            nc->nc_vars[i].nc_dimids[2] = nc->lake_dimid;
             nc->nc_vars[i].nc_counts[0] = 1;
             nc->nc_vars[i].nc_counts[1] = 1;
-            nc->nc_vars[i].nc_counts[2] = 1;
-            nc->nc_vars[i].nc_counts[3] = nc->nj_size;
-            nc->nc_vars[i].nc_counts[4] = nc->ni_size;
+            nc->nc_vars[i].nc_counts[2] = nc->lake_size;
             break;
         case STATE_LAKE_CLITTER:
         case STATE_LAKE_CINTER:
@@ -1847,39 +1651,27 @@ set_nc_state_var_info(nc_file_struct *nc)
         case STATE_LAKE_ICE_SNOW_PACK_WATER:
         case STATE_LAKE_ICE_SNOW_ALBEDO:
         case STATE_LAKE_ICE_SNOW_DEPTH:
-            // 2d vars [j, i]
-            nc->nc_vars[i].nc_dims = 3;
+            // 1d vars [lake]
+            nc->nc_vars[i].nc_dims = 1;
             nc->nc_vars[i].nc_dimids[0] = nc->lake_dimid;
-            nc->nc_vars[i].nc_dimids[1] = nc->nj_dimid;
-            nc->nc_vars[i].nc_dimids[2] = nc->ni_dimid;
-            nc->nc_vars[i].nc_counts[0] = 1;
-            nc->nc_vars[i].nc_counts[1] = nc->nj_size;
-            nc->nc_vars[i].nc_counts[2] = nc->ni_size;
+            nc->nc_vars[i].nc_counts[0] = nc->lake_size;
             break;
         case STATE_LAKE_SOIL_NODE_TEMP:
-            // 3d vars [node, j, i]
-            nc->nc_vars[i].nc_dims = 4;
-            nc->nc_vars[i].nc_dimids[0] = nc->lake_dimid;
-            nc->nc_vars[i].nc_dimids[1] = nc->node_dimid;
-            nc->nc_vars[i].nc_dimids[2] = nc->nj_dimid;
-            nc->nc_vars[i].nc_dimids[3] = nc->ni_dimid;
+            // 2d vars [lake, node]
+            nc->nc_vars[i].nc_dims = 2;
+            nc->nc_vars[i].nc_dimids[0] = nc->node_dimid;
+            nc->nc_vars[i].nc_dimids[1] = nc->lake_dimid;
             nc->nc_vars[i].nc_counts[0] = 1;
-            nc->nc_vars[i].nc_counts[1] = 1;
-            nc->nc_vars[i].nc_counts[2] = nc->nj_size;
-            nc->nc_vars[i].nc_counts[3] = nc->ni_size;
+            nc->nc_vars[i].nc_counts[1] = nc->lake_size;
             break;
         case STATE_LAKE_LAYER_SURF_AREA:
         case STATE_LAKE_LAYER_TEMP:
-            // 3d vars [lake_node, j, i]
-            nc->nc_vars[i].nc_dims = 4;
-            nc->nc_vars[i].nc_dimids[0] = nc->lake_dimid;
-            nc->nc_vars[i].nc_dimids[1] = nc->lake_node_dimid;
-            nc->nc_vars[i].nc_dimids[2] = nc->nj_dimid;
-            nc->nc_vars[i].nc_dimids[3] = nc->ni_dimid;
+            // 2d vars [lake, lake_node]
+            nc->nc_vars[i].nc_dims = 2;
+            nc->nc_vars[i].nc_dimids[0] = nc->lake_node_dimid;
+            nc->nc_vars[i].nc_dimids[1] = nc->lake_dimid;
             nc->nc_vars[i].nc_counts[0] = 1;
-            nc->nc_vars[i].nc_counts[1] = 1;
-            nc->nc_vars[i].nc_counts[2] = nc->nj_size;
-            nc->nc_vars[i].nc_counts[3] = nc->ni_size;
+            nc->nc_vars[i].nc_counts[1] = nc->lake_size;
             break;
         default:
             log_err("state variable %zu not found when setting dimensions", i);
@@ -2029,12 +1821,12 @@ initialize_state_file(char           *filename,
         check_nc_status(status, "Error defining soil_node in %s", filename);
 
 
-//        if (options.LAKES) {
-//            status = nc_def_dim(nc_state_file->nc_id, "lake_node",
-//                                nc_state_file->lake_node_size,
-//                                &(nc_state_file->lake_node_dimid));
-//            check_nc_status(status, "Error defining lake_node in %s", filename);
-//        }
+        if (options.LAKES) {
+            status = nc_def_dim(nc_state_file->nc_id, "lake_node",
+                                nc_state_file->lake_node_size,
+                                &(nc_state_file->lake_node_dimid));
+            check_nc_status(status, "Error defining lake_node in %s", filename);
+        }
 
         // add extension dimensions
         initialize_state_file_rout_extension(filename, nc_state_file);
@@ -2243,24 +2035,24 @@ initialize_state_file(char           *filename,
         dimids[1] = -1;
         dimids[2] = -1;
 
-//        if (options.LAKES) {
-//            // lake_node
-//            dimids[0] = nc_state_file->lake_node_dimid;
-//            status = nc_def_var(nc_state_file->nc_id, "lake_node", NC_INT, 1,
-//                                dimids, &(lake_node_var_id));
-//            check_nc_status(status, "Error defining node variable in %s",
-//                            filename);
-//            status = nc_put_att_text(nc_state_file->nc_id, lake_node_var_id,
-//                                     "long_name",
-//                                     strlen("lake_node"), "lake_node");
-//            check_nc_status(status, "Error adding attribute in %s", filename);
-//            status = nc_put_att_text(nc_state_file->nc_id, dz_node_var_id,
-//                                     "standard_name", strlen(
-//                                         "lake_node_number"),
-//                                     "lake_node_number");
-//            check_nc_status(status, "Error adding attribute in %s", filename);
-//            dimids[0] = -1;
-//        }
+        if (options.LAKES) {
+            // lake_node
+            dimids[0] = nc_state_file->lake_node_dimid;
+            status = nc_def_var(nc_state_file->nc_id, "lake_node", NC_INT, 1,
+                                dimids, &(lake_node_var_id));
+            check_nc_status(status, "Error defining node variable in %s",
+                            filename);
+            status = nc_put_att_text(nc_state_file->nc_id, lake_node_var_id,
+                                     "long_name",
+                                     strlen("lake_node"), "lake_node");
+            check_nc_status(status, "Error adding attribute in %s", filename);
+            status = nc_put_att_text(nc_state_file->nc_id, dz_node_var_id,
+                                     "standard_name", strlen(
+                                         "lake_node_number"),
+                                     "lake_node_number");
+            check_nc_status(status, "Error adding attribute in %s", filename);
+            dimids[0] = -1;
+        }
     }
 
     // Define state variables
@@ -2548,24 +2340,24 @@ initialize_state_file(char           *filename,
     }
     free(dvar);
 
-//    if (options.LAKES) {
-//        // lake nodes
-//        dimids[0] = nc_state_file->lake_node_dimid;
-//        dcount[0] = nc_state_file->lake_node_size;
-//        ivar = malloc(nc_state_file->lake_node_size * sizeof(*ivar));
-//        check_alloc_status(ivar, "Memory allocation error");
-//
-//        for (j = 0; j < nc_state_file->lake_node_size; j++) {
-//            ivar[j] = (int) j;
-//        }
-//        status = nc_put_vara_int(nc_state_file->nc_id, lake_node_var_id, dstart,
-//                                 dcount, ivar);
-//        check_nc_status(status, "Error writing lake nodes");
-//
-//        for (i = 0; i < MAXDIMS; i++) {
-//            dimids[i] = -1;
-//            dcount[i] = 0;
-//        }
-//        free(ivar);
-//    }
+    if (options.LAKES) {
+        // lake nodes
+        dimids[0] = nc_state_file->lake_node_dimid;
+        dcount[0] = nc_state_file->lake_node_size;
+        ivar = malloc(nc_state_file->lake_node_size * sizeof(*ivar));
+        check_alloc_status(ivar, "Memory allocation error");
+
+        for (j = 0; j < nc_state_file->lake_node_size; j++) {
+            ivar[j] = (int) j;
+        }
+        status = nc_put_vara_int(nc_state_file->nc_id, lake_node_var_id, dstart,
+                                 dcount, ivar);
+        check_nc_status(status, "Error writing lake nodes");
+
+        for (i = 0; i < MAXDIMS; i++) {
+            dimids[i] = -1;
+            dcount[i] = 0;
+        }
+        free(ivar);
+    }
 }
