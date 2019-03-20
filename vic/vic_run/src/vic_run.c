@@ -142,6 +142,7 @@ vic_run(force_data_struct   *force,
         /** Solve Veg Tile only if Coverage Greater than 0% **/
         if (veg_con[iveg].Cv > 0.0) {
             Cv = veg_con[iveg].Cv;
+            bandStart = 0;
             Nbands = options.SNOW_BAND;
 
             /** Define vegetation class number **/
@@ -150,8 +151,7 @@ vic_run(force_data_struct   *force,
             /**************************************************
                Initialize Model Parameters
             **************************************************/
-            bandStart = 0;
-            
+
             /** Lake-specific processing **/
             if (veg_con[iveg].LAKE) {
                 lake_class = veg_con[iveg].lake_class;
@@ -370,17 +370,19 @@ vic_run(force_data_struct   *force,
     /****************************
        Run Lake Model
     ****************************/
+
+    /** Compute total runoff and baseflow for all vegetation types
+        within each snowband. **/
     if(options.LAKES){
-        /** Compute total runoff and baseflow for all vegetation types
-            within each snowband. **/
         wetland_runoff = wetland_baseflow = 0;
         sum_runoff = sum_baseflow = 0;
-                
-        bandStart = 0;
+
+        // Loop through all vegetation tiles
         for (iveg = 0; iveg <= Nveg; iveg++) {
             /** Solve Veg Tile only if Coverage Greater than 0% **/
-            if (veg_con[iveg].Cv > 0.0) {
+            if (veg_con[iveg].Cv > 0.) {
                 Cv = veg_con[iveg].Cv;
+                bandStart = 0;
                 Nbands = options.SNOW_BAND;
 
                 /** Define vegetation class number **/
@@ -434,6 +436,7 @@ vic_run(force_data_struct   *force,
             /** Solve Veg Tile only if Coverage Greater than 0% **/
             if (veg_con[iveg].Cv > 0.0) {
                 Cv = veg_con[iveg].Cv;
+                bandStart = 0;
                 Nbands = options.SNOW_BAND;
 
                 /** Define vegetation class number **/
@@ -490,7 +493,7 @@ vic_run(force_data_struct   *force,
                    Solve the energy budget for the lake.
                 **********************************************************************/
 
-                snowprec = gauge_correction[SNOW] * (force->prec[NR] * soil_con->Pfactor - rainonly);
+                snowprec = gauge_correction[SNOW] * (force->prec[NR] * soil_con->Pfactor[band] - rainonly);
                 rainprec = gauge_correction[SNOW] * rainonly;
                 Cv = veg_con[iveg].Cv * lakefrac;
                 force->out_prec += (snowprec + rainprec) * Cv;
