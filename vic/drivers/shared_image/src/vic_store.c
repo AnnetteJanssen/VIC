@@ -49,6 +49,8 @@ vic_store(dmy_struct *dmy_state,
     size_t                     k;
     size_t                     m;
     size_t                     p;
+    size_t                     lake_cell;
+    size_t                     lake_veg;
     int                       *ivar = NULL;
     double                    *dvar = NULL;
     int                       *livar = NULL;
@@ -62,8 +64,6 @@ vic_store(dmy_struct *dmy_state,
     size_t                     d6start[6];
     nc_file_struct             nc_state_file;
     nc_var_struct             *nc_var;
-    size_t                     lake_cell;
-    size_t                     lake_veg;
 
     set_nc_state_file_info(&nc_state_file);
 
@@ -101,15 +101,6 @@ vic_store(dmy_struct *dmy_state,
 
     // initialize starts and counts
     
-    ld1start[0] = 0;
-    
-    ld2start[0] = 0;
-    ld2start[1] = 0;
-    
-    ld3start[0] = 0;
-    ld3start[1] = 0;
-    ld3start[2] = 0;
-    
     d2start[0] = 0;
     d2start[1] = 0;
 
@@ -130,6 +121,15 @@ vic_store(dmy_struct *dmy_state,
     d6start[3] = 0;
     d6start[4] = 0;
     d6start[5] = 0;
+    
+    ld1start[0] = 0;
+    
+    ld2start[0] = 0;
+    ld2start[1] = 0;
+    
+    ld3start[0] = 0;
+    ld3start[1] = 0;
+    ld3start[2] = 0;
 
     // set missing values
     for (i = 0; i < local_domain.ncells_active; i++) {
@@ -773,9 +773,8 @@ vic_store(dmy_struct *dmy_state,
                 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].moist;
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld2start, nc_var->nc_counts, ldvar);
             for (i = 0; i < options.NLAKETYPES; i++) {
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -794,9 +793,8 @@ vic_store(dmy_struct *dmy_state,
                     
                     ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].ice[p];
                 }
-                gather_put_nc_field_double(nc_state_file.nc_id,
+                nc_put_vara_double(nc_state_file.nc_id,
                                            nc_var->nc_varid,
-                                           nc_state_file.d_fillvalue,
                                            ld3start, nc_var->nc_counts, ldvar);
                 for(i = 0; i < options.NLAKETYPES; i++){
                     ldvar[i] = nc_state_file.d_fillvalue;
@@ -813,9 +811,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CLitter;
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld1start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -829,9 +826,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CInter;
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld1start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -845,9 +841,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.CSlow;
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld1start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -862,9 +857,8 @@ vic_store(dmy_struct *dmy_state,
                     
             livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->snow.last_snow;
         }
-        gather_put_nc_field_int(nc_state_file.nc_id,
+        nc_put_vara_int(nc_state_file.nc_id,
                                 nc_var->nc_varid,
-                                nc_state_file.i_fillvalue,
                                 ld1start, nc_var->nc_counts, livar);
         for(i = 0; i < options.NLAKETYPES; i++){
             livar[i] = nc_state_file.i_fillvalue;
@@ -878,9 +872,8 @@ vic_store(dmy_struct *dmy_state,
                     
             livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->snow.MELTING;
         }
-        gather_put_nc_field_int(nc_state_file.nc_id,
+        nc_put_vara_int(nc_state_file.nc_id,
                                 nc_var->nc_varid,
-                                nc_state_file.i_fillvalue,
                                 ld1start, nc_var->nc_counts, livar);
         for(i = 0; i < options.NLAKETYPES; i++){
             livar[i] = nc_state_file.i_fillvalue;
@@ -894,9 +887,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.coverage;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -910,9 +902,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.swq;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -926,9 +917,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.surf_temp;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -942,9 +932,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.surf_water;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -958,9 +947,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.pack_temp;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -974,9 +962,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.pack_water;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -990,9 +977,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.density;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i =0;  i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1006,9 +992,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.coldcontent;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1022,9 +1007,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->snow.snow_canopy;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1040,9 +1024,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->soil.layer[j].moist;
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld2start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -1057,9 +1040,8 @@ vic_store(dmy_struct *dmy_state,
 
             livar[i] = (int) all_vars[lake_cell].lake_var[lake_veg]->activenod;
         }
-        gather_put_nc_field_int(nc_state_file.nc_id,
+        nc_put_vara_int(nc_state_file.nc_id,
                                 nc_var->nc_varid,
-                                nc_state_file.i_fillvalue,
                                 ld1start, nc_var->nc_counts, livar);
         for(i = 0; i < options.NLAKETYPES; i++){
             livar[i] = nc_state_file.i_fillvalue;
@@ -1073,9 +1055,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->dz;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1089,9 +1070,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surfdz;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1105,9 +1085,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->ldepth;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1123,9 +1102,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surface[j];
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld2start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -1140,9 +1118,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->sarea;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1156,9 +1133,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->volume;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1174,9 +1150,8 @@ vic_store(dmy_struct *dmy_state,
 
                 ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->temp[j];
             }
-            gather_put_nc_field_double(nc_state_file.nc_id,
+            nc_put_vara_double(nc_state_file.nc_id,
                                        nc_var->nc_varid,
-                                       nc_state_file.d_fillvalue,
                                        ld2start, nc_var->nc_counts, ldvar);
             for(i = 0; i < options.NLAKETYPES; i++){
                 ldvar[i] = nc_state_file.d_fillvalue;
@@ -1191,9 +1166,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->tempavg;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1207,9 +1181,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->areai;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1223,9 +1196,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->new_ice_area;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1239,9 +1211,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->ice_water_eq;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1255,9 +1226,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->hice;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1271,9 +1241,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->tempi;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1287,9 +1256,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->swe;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1303,9 +1271,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surf_temp;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1319,9 +1286,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->pack_temp;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1335,9 +1301,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->coldcontent;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1351,9 +1316,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->surf_water;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1367,9 +1331,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->pack_water;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1383,9 +1346,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->SAlbedo;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -1399,9 +1361,8 @@ vic_store(dmy_struct *dmy_state,
 
             ldvar[i] = (double) all_vars[lake_cell].lake_var[lake_veg]->sdepth;
         }
-        gather_put_nc_field_double(nc_state_file.nc_id,
+        nc_put_vara_double(nc_state_file.nc_id,
                                    nc_var->nc_varid,
-                                   nc_state_file.d_fillvalue,
                                    ld1start, nc_var->nc_counts, ldvar);
         for(i = 0; i < options.NLAKETYPES; i++){
             ldvar[i] = nc_state_file.d_fillvalue;
@@ -2342,7 +2303,7 @@ initialize_state_file(char           *filename,
 
     if (options.LAKES) {
         // lake nodes
-        dimids[0] = nc_state_file->lake_node_dimid;
+        dstart[0] = 0;
         dcount[0] = nc_state_file->lake_node_size;
         ivar = malloc(nc_state_file->lake_node_size * sizeof(*ivar));
         check_alloc_status(ivar, "Memory allocation error");

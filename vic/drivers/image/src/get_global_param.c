@@ -39,6 +39,7 @@ get_global_param(FILE *gp)
     extern param_set_struct    param_set;
     extern filenames_struct    filenames;
     extern size_t              NF, NR;
+    extern int                 mpi_rank;
 
     char                       cmdstr[MAXSTRING];
     char                       optstr[MAXSTRING];
@@ -119,6 +120,9 @@ get_global_param(FILE *gp)
                 options.FULL_ENERGY = str_to_bool(flgstr);
             } 
             else if(strcasecmp("TLAKE_MODE", optstr) == 0) {
+                if(mpi_rank != VIC_MPI_ROOT){
+                    log_err("TLAKE_MODE can only be run with 1 node (root-node)");
+                }
                 sscanf(cmdstr, "%*s %s", flgstr);
                 options.TLAKE_MODE = str_to_bool(flgstr);
             }
@@ -829,9 +833,6 @@ get_global_param(FILE *gp)
 
     // Validate the input state file information
     if (options.INIT_STATE) {
-        if(options.LAKES){
-            log_err("Initializing from state file for lakes temporary disabled")
-        }
         if (strcmp(filenames.init_state.nc_filename, "MISSING") == 0) {
             log_err("\"INIT_STATE\" was specified, but no input state file "
                     "has been defined.  Make sure that the global file "
@@ -842,9 +843,6 @@ get_global_param(FILE *gp)
 
     // Validate the output state file information
     if (options.SAVE_STATE) {
-        if(options.LAKES){
-            log_err("Saving to state file for lakes temporary disabled")
-        }
         if (strcmp(filenames.statefile, "MISSING") == 0) {
             log_err("\"SAVE_STATE\" was specified, but no output state "
                     "file has been defined.  Make sure that the global "
