@@ -3,6 +3,7 @@
 
 #include <vic_driver_shared_image.h>
 #include <routing.h>
+#include <irrigation.h>
 #include <support.h>
 
 enum {
@@ -25,6 +26,11 @@ enum {
     // routing
     OUT_DISCHARGE,                      /**< river discharge [m3 s-1]) */
     OUT_STREAM_MOIST,
+    // irrigation
+    OUT_SHORTAGE,
+    OUT_REQUIREMENT,
+    OUT_NEED,
+    OUT_DEFICIT,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
@@ -34,10 +40,13 @@ typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
+    bool IRRIGATION;
 
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
+    size_t NIRRTYPES;
+    bool POTENTIAL_IRRIGATION;
 } plugin_option_struct;
 
 typedef struct {
@@ -46,12 +55,14 @@ typedef struct {
 } plugin_global_param_struct;
 
 typedef struct {
+    double Wirr;
 } plugin_parameters_struct;
 
 typedef struct {
     // parameters
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
+    nameid_struct irrigation;  /**< irrigation parameter file */
 
     // forcing
     nameid_struct routing_forcing;  /**< routing forcing files */

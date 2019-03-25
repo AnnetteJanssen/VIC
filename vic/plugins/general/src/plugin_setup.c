@@ -9,6 +9,8 @@ plugin_get_global_param(char cmdstr[MAXSTRING])
 {
     if (rout_get_global_param(cmdstr)) {
     }
+    else if (irr_get_global_param(cmdstr)) {
+    }
     else {
         return false;
     }
@@ -24,21 +26,31 @@ plugin_validate_global_param(void)
     if (plugin_options.ROUTING) {
         rout_validate_global_param();
     }
+    if (plugin_options.IRRIGATION) {
+        irr_validate_global_param();
+    }
 }
 
 bool
 plugin_get_parameters(char cmdstr[MAXSTRING])
 {
-    /* Unused variables */
-    UNUSED(cmdstr);
+    if (irr_get_parameters(cmdstr)) {
+    }
+    else {
+        return false;
+    }
 
-    return false;
+    return true;
 }
 
 void
 plugin_validate_parameters(void)
 {
     extern plugin_option_struct plugin_options;
+    
+    if (plugin_options.IRRIGATION) {
+        irr_validate_parameters();
+    }
 }
 
 /******************************************
@@ -69,6 +81,9 @@ plugin_start(void)
     if (plugin_options.ROUTING) {
         rout_start();
     }
+    if (plugin_options.IRRIGATION) {
+        irr_start();
+    }
 }
 
 /******************************************
@@ -82,6 +97,9 @@ plugin_alloc(void)
     if (plugin_options.ROUTING) {
         rout_alloc();
     }
+    if (plugin_options.IRRIGATION) {
+        irr_alloc();
+    }
 }
 
 /******************************************
@@ -94,6 +112,9 @@ plugin_init(void)
 
     if (plugin_options.ROUTING) {
         rout_init();
+    }
+    if (plugin_options.IRRIGATION) {
+        irr_init();
     }
 
     plugin_set_state_meta_data_info();
@@ -156,5 +177,8 @@ plugin_finalize(void)
 
     if (plugin_options.ROUTING) {
         rout_finalize();
+    }
+    if (plugin_options.IRRIGATION) {
+        irr_finalize();
     }
 }

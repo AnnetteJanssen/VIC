@@ -34,10 +34,25 @@ plugin_run(void)
                 iCell = routing_order[i];
 
                 rout_basin_run(iCell);
+                
+                if (plugin_options.IRRIGATION) {
+                    irr_run_requirement(iCell);
+                    // TODO if wateruse
+                    irr_set_demand(iCell);
+                    // TODO if wateruse
+                    if(plugin_options.POTENTIAL_IRRIGATION){
+                        irr_get_withdrawn(iCell);
+                    }
+                    irr_run_shortage(iCell);
+                }
             }
         }
         else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION) {
             rout_random_run();
+            
+            if (plugin_options.IRRIGATION) {
+                log_err("IRRIGATION not enabled for random decomposition");
+            }
         }
     }
 }
@@ -55,6 +70,9 @@ plugin_put_data()
     for (i = 0; i < local_domain.ncells_active; i++) {
         if (plugin_options.ROUTING) {
             rout_put_data(i);
+        }
+        if (plugin_options.IRRIGATION) {
+            irr_put_data(i);
         }
     }
 }

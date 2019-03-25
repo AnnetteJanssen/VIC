@@ -7,8 +7,11 @@ plugin_initialize_options(void)
 
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
+    plugin_options.IRRIGATION = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
+    plugin_options.NIRRTYPES = 0;
+    plugin_options.POTENTIAL_IRRIGATION = false;
 }
 
 void
@@ -24,9 +27,8 @@ void
 plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
-
-    /* Unused variables */
-    UNUSED(plugin_param);
+    
+    plugin_param.Wirr = 0.7;
 }
 
 void
@@ -35,6 +37,8 @@ plugin_initialize_filenames(void)
     extern plugin_filenames_struct plugin_filenames;
 
     snprintf(plugin_filenames.routing.nc_filename, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.irrigation.nc_filename, MAXSTRING, "%s", 
+            MISSING_S);
     snprintf(plugin_filenames.decomposition.nc_filename, MAXSTRING, "%s",
              MISSING_S);
     snprintf(plugin_filenames.routing_forcing.nc_filename, MAXSTRING, "%s",
