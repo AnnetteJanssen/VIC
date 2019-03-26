@@ -28,7 +28,8 @@ plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
     
-    plugin_param.Wfc = 0.7;
+    plugin_param.Wfc_fract = 0.7;
+    plugin_param.Ksat_expt = 0.33;
 }
 
 void

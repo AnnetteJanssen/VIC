@@ -53,10 +53,9 @@ irr_run_requirement(size_t iCell)
                     /**********************************************************************
                     * Initialize
                     **********************************************************************/
-                    // reduce Ksat
+                    // Reduce Ksat
                     if (cirr_con->paddy){
-                        // TODO: change to FAO formulation
-                        //ccell_var->layer[0].Ksat = pow(csoil_con->Ksat[0], param.IRR_KPUDDLE);
+                        ccell_var->layer[0].Ksat = pow(csoil_con->Ksat[0], plugin_param.Ksat_expt);
                     }
                     
                     // Get moisture content and critical moisture content of every layer
@@ -98,7 +97,7 @@ irr_run_requirement(size_t iCell)
                         // moisture point of all layers with roots are combined
                         if(total_moist + cirr_var->leftover < total_wcr){
                             cirr_var->requirement = 
-                                    (total_wcr / plugin_param.Wfc) - 
+                                    (total_wcr / plugin_param.Wfc_fract) - 
                                     (total_moist + cirr_var->leftover);
                         }
                     }else{
@@ -116,7 +115,7 @@ irr_run_requirement(size_t iCell)
 
                         if(calc_req){
                             cirr_var->requirement = 
-                                    (total_wcr / plugin_param.Wfc) - 
+                                    (total_wcr / plugin_param.Wfc_fract) - 
                                     (total_moist + cirr_var->leftover);
                         }
                     }

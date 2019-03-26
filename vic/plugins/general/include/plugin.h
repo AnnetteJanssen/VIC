@@ -55,7 +55,8 @@ typedef struct {
 } plugin_global_param_struct;
 
 typedef struct {
-    double Wfc;
+    double Wfc_fract;
+    double Ksat_expt;
 } plugin_parameters_struct;
 
 typedef struct {

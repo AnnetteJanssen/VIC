@@ -49,5 +49,6 @@ void
 plugin_print_parameters(plugin_parameters_struct *pa)
 {
     fprintf(LOG_DEST, "plugin parameters:\n");
-    fprintf(LOG_DEST, "\tWfc                : %.4f\n", pa->Wfc);
+    fprintf(LOG_DEST, "\tWfc_fract            : %.4f\n", pa->Wfc_fract);
+    fprintf(LOG_DEST, "\tKsat_expt            : %.4f\n", pa->Ksat_expt);
 }
