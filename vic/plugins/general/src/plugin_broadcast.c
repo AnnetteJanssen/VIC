@@ -193,8 +193,8 @@ plugin_create_MPI_param_struct_type(MPI_Datatype *mpi_type)
     }
     i = 0;
 
-    // double Wirr;
-    offsets[i] = offsetof(plugin_parameters_struct, Wirr);
+    // double Wfc;
+    offsets[i] = offsetof(plugin_parameters_struct, Wfc);
     mpi_types[i++] = MPI_DOUBLE;
     
     // make sure that the we have the right number of elements

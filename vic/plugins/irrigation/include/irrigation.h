@@ -37,7 +37,7 @@ void irr_validate_parameters(void);
 void irr_mpi_map_decomp_domain(size_t, size_t, int **, int **, size_t **);
 
 void irr_start(void);
-void irr_alloc(void);
+void irr_late_alloc(void);
 void irr_initialize_local_structures(void);
 void irr_init(void);
 

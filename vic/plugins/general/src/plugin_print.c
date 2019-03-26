@@ -49,5 +49,5 @@ void
 plugin_print_parameters(plugin_parameters_struct *pa)
 {
     fprintf(LOG_DEST, "plugin parameters:\n");
-    fprintf(LOG_DEST, "\tWirr                : %.4f\n", pa->Wirr);
+    fprintf(LOG_DEST, "\tWfc                : %.4f\n", pa->Wfc);
 }

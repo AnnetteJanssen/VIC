@@ -97,9 +97,6 @@ plugin_alloc(void)
     if (plugin_options.ROUTING) {
         rout_alloc();
     }
-    if (plugin_options.IRRIGATION) {
-        irr_alloc();
-    }
 }
 
 /******************************************
@@ -114,6 +111,7 @@ plugin_init(void)
         rout_init();
     }
     if (plugin_options.IRRIGATION) {
+        irr_late_alloc();
         irr_init();
     }
 

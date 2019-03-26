@@ -29,7 +29,7 @@ irr_set_nirrtypes(void)
     check_alloc_status(ivar, "Memory allocation error.");
     
     if(mpi_rank == VIC_MPI_ROOT){
-        get_scatter_nc_field_int(&(plugin_filenames.irrigation), 
+        get_nc_field_int(&(plugin_filenames.irrigation), 
                 "veg_class", d1start, d1count, ivar);
     }
     
@@ -39,14 +39,18 @@ irr_set_nirrtypes(void)
 
     for (i = 0; i < local_domain.ncells_active; i++) {
         irr_con_map[i].ni_types = plugin_options.NIRRTYPES;
+        irr_con_map[i].ni_active = 0;
         
         for(j = 0; j < plugin_options.NIRRTYPES; j++){
-            veg_class = ivar[i] - 1;
+            veg_class = ivar[j] - 1;
             
             if(veg_con_map[i].vidx[veg_class] != NODATA_VEG){
                 irr_con_map[i].iidx[j] = irr_con_map[i].ni_active;
                 irr_con_map[i].vidx[j] = veg_con_map[i].vidx[veg_class];
                 irr_con_map[i].ni_active++;
+            } else {
+                irr_con_map[i].iidx[j] = NODATA_VEG;
+                irr_con_map[i].vidx[j] = NODATA_VEG;
             }
         }
     }
@@ -55,7 +59,7 @@ irr_set_nirrtypes(void)
 }
 
 void
-irr_alloc(void)
+irr_late_alloc(void)
 {
     extern domain_struct              local_domain;
     extern plugin_option_struct       plugin_options;
@@ -63,10 +67,21 @@ irr_alloc(void)
     extern irr_con_struct           **irr_con;
     extern irr_con_map_struct        *irr_con_map;
     extern option_struct options;
+    extern int                 mpi_rank;
+
+    int                        status;
 
     size_t                            i;
     size_t                            j;
 
+    // open parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_open(plugin_filenames.irrigation.nc_filename, NC_NOWRITE,
+                         &(plugin_filenames.irrigation.nc_id));
+        check_nc_status(status, "Error opening %s",
+                        plugin_filenames.irrigation.nc_filename);
+    }
+    
     irr_var = malloc(local_domain.ncells_active * sizeof(*irr_var));
     check_alloc_status(irr_var, "Memory allocation error");
 
@@ -101,6 +116,13 @@ irr_alloc(void)
             check_alloc_status(irr_var[i][j], "Memory allocation error");
         }
     }
+    
+    // close parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_close(plugin_filenames.irrigation.nc_id);
+        check_nc_status(status, "Error closing %s",
+                        plugin_filenames.irrigation.nc_filename);
+    }
 
     irr_initialize_local_structures();
 }
@@ -127,4 +149,5 @@ irr_finalize(void)
     }
     free(irr_var);
     free(irr_con);
+    free(irr_con_map);
 }

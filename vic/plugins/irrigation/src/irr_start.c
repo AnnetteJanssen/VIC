@@ -17,7 +17,6 @@ irr_start(void)
 
     plugin_options.NIRRTYPES = get_nc_dimension(&(plugin_filenames.irrigation),
                                                 "irr_class");
-    compare_ncdomain_with_global_domain(&plugin_filenames.irrigation);
 
     status = nc_close(plugin_filenames.irrigation.nc_id);
     check_nc_status(status, "Error closing %s",

@@ -48,7 +48,7 @@ irr_run_requirement(size_t iCell)
                 cirr_var->need = 0.0;
                 ccell_var->layer[0].Ksat = csoil_con->Ksat[0];
                 
-                if(cveg_var->fcanopy > 0){
+                if(cveg_var->fcanopy > MIN_FCANOPY){
                     
                     /**********************************************************************
                     * Initialize
@@ -98,7 +98,7 @@ irr_run_requirement(size_t iCell)
                         // moisture point of all layers with roots are combined
                         if(total_moist + cirr_var->leftover < total_wcr){
                             cirr_var->requirement = 
-                                    (total_wcr / plugin_param.Wirr) - 
+                                    (total_wcr / plugin_param.Wfc) - 
                                     (total_moist + cirr_var->leftover);
                         }
                     }else{
@@ -116,7 +116,7 @@ irr_run_requirement(size_t iCell)
 
                         if(calc_req){
                             cirr_var->requirement = 
-                                    (total_wcr / plugin_param.Wirr) - 
+                                    (total_wcr / plugin_param.Wfc) - 
                                     (total_moist + cirr_var->leftover);
                         }
                     }
@@ -133,16 +133,6 @@ irr_run_requirement(size_t iCell)
                         cirr_var->need = 0.0;
                     }
                     cirr_var->prev_req = cirr_var->requirement;
-                    
-                    /**********************************************************************
-                    * Potential
-                    **********************************************************************/
-                    if(plugin_options.POTENTIAL_IRRIGATION && cirr_var->requirement > 0.0){
-                        ccell_var->layer[0].moist += cirr_var->requirement;
-                        if(ccell_var->layer[0].moist > csoil_con->max_moist[0]){
-                            ccell_var->layer[0].moist = csoil_con->max_moist[0];
-                        }
-                    }
                 }
             }
         }   
@@ -195,7 +185,7 @@ irr_run_shortage(size_t iCell)
                 // Reset values
                 cirr_var->deficit = 0.0;
                 
-                if(cveg_var->fcanopy > 0){
+                if(cveg_var->fcanopy > MIN_FCANOPY){
                     
                     /**********************************************************************
                     * Initialize
@@ -229,14 +219,14 @@ irr_run_shortage(size_t iCell)
                         // With ponding the moisture of the top layer should
                         // always be saturated
                         if(moist[0] < csoil_con->max_moist[0]){
-                            cirr_var->shortage += csoil_con->max_moist[0] - moist[0];
+                            cirr_var->shortage = csoil_con->max_moist[0] - moist[0];
                         }
                     } 
                     else if(options.SHARE_LAYER_MOIST){
                         // In the SHARE_LAYER_MOIST option the moisture and critical
                         // moisture point of all layers with roots are combined
                         if(total_moist < total_wcr){
-                            cirr_var->shortage += total_wcr - total_moist;
+                            cirr_var->shortage = total_wcr - total_moist;
                         }
                     }
                     else{
@@ -245,7 +235,7 @@ irr_run_shortage(size_t iCell)
                         for(k = 0; k < options.Nlayer; k++){
                             if(cveg_con->root[k] > 0.){
                                 if(moist[k] < csoil_con->Wcr[k]){
-                                    cirr_var->shortage += csoil_con->Wcr[k] - moist[k];
+                                    cirr_var->shortage = csoil_con->Wcr[k] - moist[k];
                                 }
                             }
                         }

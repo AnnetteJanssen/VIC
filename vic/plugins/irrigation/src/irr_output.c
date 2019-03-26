@@ -88,7 +88,7 @@ irr_put_data(size_t iCell)
     double area_fract;
     int veg_index;
     
-    for(i = 0; i < plugin_options.NIRRTYPES; i++){
+    for(i = 0; i < irr_con_map[iCell].ni_active; i++){
         veg_index = irr_con_map[iCell].vidx[i];
         if(veg_index != NODATA_VEG){
             veg_fract = veg_con[iCell][veg_index].Cv;
@@ -98,16 +98,16 @@ irr_put_data(size_t iCell)
                 if(area_fract > 0){
                     
                     out_data[iCell][N_OUTVAR_TYPES +
-                                    OUT_REQUIREMENT][0] = irr_var[iCell][i][j].requirement *
+                                    OUT_REQUIREMENT][0] += irr_var[iCell][i][j].requirement *
                             veg_fract * area_fract;
                     out_data[iCell][N_OUTVAR_TYPES +
-                                    OUT_SHORTAGE][0] = irr_var[iCell][i][j].shortage *
+                                    OUT_SHORTAGE][0] += irr_var[iCell][i][j].shortage *
                             veg_fract * area_fract;
                     out_data[iCell][N_OUTVAR_TYPES +
-                                    OUT_DEFICIT][0] = irr_var[iCell][i][j].deficit *
+                                    OUT_DEFICIT][0] += irr_var[iCell][i][j].deficit *
                             veg_fract * area_fract;
                     out_data[iCell][N_OUTVAR_TYPES +
-                                    OUT_NEED][0] = irr_var[iCell][i][j].need *
+                                    OUT_NEED][0] += irr_var[iCell][i][j].need *
                             veg_fract * area_fract;
                 }
             }

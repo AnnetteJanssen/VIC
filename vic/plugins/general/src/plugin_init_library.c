@@ -28,7 +28,7 @@ plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
     
-    plugin_param.Wirr = 0.7;
+    plugin_param.Wfc = 0.7;
 }
 
 void

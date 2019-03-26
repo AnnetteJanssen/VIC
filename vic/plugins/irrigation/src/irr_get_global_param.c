@@ -50,8 +50,8 @@ irr_get_parameters(char *cmdstr)
 
     sscanf(cmdstr, "%s", optstr);
     
-    if (strcasecmp("Wirr", optstr) == 0) {
-        sscanf(cmdstr, "%*s %lf", &plugin_param.Wirr);
+    if (strcasecmp("Wfc", optstr) == 0) {
+        sscanf(cmdstr, "%*s %lf", &plugin_param.Wfc);
     }
     else {
         return false;
@@ -65,7 +65,7 @@ irr_validate_parameters(void)
 {
     extern plugin_parameters_struct    plugin_param;
     
-    if (!(plugin_param.Wirr >= 0 && plugin_param.Wirr <= 1)) {
-        log_err("Wirr must be defined on the interval [0,1] (-)");
+    if (!(plugin_param.Wfc >= 0 && plugin_param.Wfc <= 1)) {
+        log_err("Wfc must be defined on the interval [0,1] (-)");
     }
 }

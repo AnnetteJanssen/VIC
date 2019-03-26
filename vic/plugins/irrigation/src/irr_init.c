@@ -59,7 +59,7 @@ irr_set_paddy(void)
     check_alloc_status(ivar, "Memory allocation error.");
     
     if(mpi_rank == VIC_MPI_ROOT){
-        get_scatter_nc_field_int(&(plugin_filenames.irrigation), 
+        get_nc_field_int(&(plugin_filenames.irrigation), 
                 "paddy", d1start, d1count, ivar);
     }
     
