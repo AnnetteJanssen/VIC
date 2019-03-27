@@ -450,15 +450,6 @@ vic_force(void)
                             MIN_FCANOPY);
                         veg_hist[i][vidx].fcanopy[j] = MIN_FCANOPY;
                     }
-                    if ((veg_hist[i][vidx].fcanopy[j] > 1) &&
-                        ((current == 0) ||
-                         (options.FCAN_SRC == FROM_VEGHIST))) {
-                        // Only issue this warning once if not using veg hist fractions
-                        log_warn(
-                            "cell %zu, veg` %d substep %zu fcanopy %f > maximum of 1.0; setting = 1.0", i, vidx, j,
-                            veg_hist[i][vidx].fcanopy[j]);
-                        veg_hist[i][vidx].fcanopy[j] = 1;
-                    }
                 }
             }
         }

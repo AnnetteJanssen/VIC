@@ -45,6 +45,7 @@ irr_run_requirement(size_t iCell)
             if(area_fract > 0){
 
                 // Reset values
+                cirr_var->requirement = 0.0;
                 cirr_var->need = 0.0;
                 ccell_var->layer[0].Ksat = csoil_con->Ksat[0];
                 
@@ -148,7 +149,6 @@ irr_run_shortage(size_t iCell)
     extern irr_var_struct ***irr_var;
     extern soil_con_struct *soil_con;
     extern veg_con_struct **veg_con;
-    extern plugin_parameters_struct plugin_param;
     
     double moist[MAX_LAYERS];
     double total_moist;
@@ -182,6 +182,7 @@ irr_run_shortage(size_t iCell)
             if(area_fract > 0){ 
 
                 // Reset values
+                cirr_var->shortage = 0.0;
                 cirr_var->deficit = 0.0;
                 
                 if(cveg_var->fcanopy > MIN_FCANOPY){
@@ -214,14 +215,7 @@ irr_run_shortage(size_t iCell)
                     **********************************************************************/
                     // Calculate shortage - suboptimal evapotranspiration
                     // (based on VIC equations for evapotranspiration)
-                    if(cirr_con->paddy){
-                        // With ponding the moisture of the top layer should
-                        // always be saturated
-                        if(moist[0] < csoil_con->max_moist[0]){
-                            cirr_var->shortage = csoil_con->max_moist[0] - moist[0];
-                        }
-                    } 
-                    else if(options.SHARE_LAYER_MOIST){
+                    if(options.SHARE_LAYER_MOIST){
                         // In the SHARE_LAYER_MOIST option the moisture and critical
                         // moisture point of all layers with roots are combined
                         if(total_moist < total_wcr){

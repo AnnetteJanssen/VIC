@@ -129,7 +129,7 @@ irr_get_withdrawn(size_t iCell)
                 ccell_var->layer[0].moist += avail_irr;
             } else {
                 ccell_var->layer[0].moist += max_added;
-                cirr_var->leftover += avail_irr - max_added;
+                cirr_var->leftover = avail_irr - max_added;
             }
         }
     }
