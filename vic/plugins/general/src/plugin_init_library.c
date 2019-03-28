@@ -7,6 +7,7 @@ plugin_initialize_options(void)
 
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
+    plugin_options.EFR = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
 }
@@ -40,6 +41,9 @@ plugin_initialize_filenames(void)
     snprintf(plugin_filenames.routing_forcing.nc_filename, MAXSTRING, "%s",
              MISSING_S);
     snprintf(plugin_filenames.rf_path_pfx, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.efr_forcing.nc_filename, MAXSTRING, "%s",
+             MISSING_S);
+    snprintf(plugin_filenames.ef_path_pfx, MAXSTRING, "%s", MISSING_S);
 }
 
 void

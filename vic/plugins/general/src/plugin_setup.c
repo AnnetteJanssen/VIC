@@ -9,6 +9,8 @@ plugin_get_global_param(char cmdstr[MAXSTRING])
 {
     if (rout_get_global_param(cmdstr)) {
     }
+    else if (efr_get_global_param(cmdstr)) {
+    }
     else {
         return false;
     }
@@ -23,6 +25,9 @@ plugin_validate_global_param(void)
 
     if (plugin_options.ROUTING) {
         rout_validate_global_param();
+    }
+    if (plugin_options.EFR) {
+        efr_validate_global_param();
     }
 }
 
@@ -69,6 +74,9 @@ plugin_start(void)
     if (plugin_options.ROUTING) {
         rout_start();
     }
+    if (plugin_options.EFR) {
+        efr_start();
+    }
 }
 
 /******************************************
@@ -81,6 +89,9 @@ plugin_alloc(void)
 
     if (plugin_options.ROUTING) {
         rout_alloc();
+    }
+    if (plugin_options.EFR) {
+        efr_alloc();
     }
 }
 
@@ -156,5 +167,8 @@ plugin_finalize(void)
 
     if (plugin_options.ROUTING) {
         rout_finalize();
+    }
+    if (plugin_options.EFR) {
+        efr_finalize();
     }
 }

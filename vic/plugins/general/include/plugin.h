@@ -3,6 +3,7 @@
 
 #include <vic_driver_shared_image.h>
 #include <routing.h>
+#include <efr.h>
 #include <support.h>
 
 enum {
@@ -25,6 +26,10 @@ enum {
     // routing
     OUT_DISCHARGE,                      /**< river discharge [m3 s-1]) */
     OUT_STREAM_MOIST,
+    // efr
+    OUT_EFR_DISCHARGE,                  /**< environmental river discharge [m3 s-1]) */
+    OUT_EFR_BASEFLOW,                   /**< environmental soil baseflow [mm]) */
+    OUT_EFR_MOIST,                      /**< environmental soil moisture [mm]) */
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
@@ -34,6 +39,7 @@ typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
+    bool EFR;
 
     // module options
     short unsigned int UH_LENGTH;
@@ -56,6 +62,8 @@ typedef struct {
     // forcing
     nameid_struct routing_forcing;  /**< routing forcing files */
     char rf_path_pfx[MAXSTRING]; /**< path and prefix for routing forcing files */
+    nameid_struct efr_forcing;  /**< efr forcing files */
+    char ef_path_pfx[MAXSTRING]; /**< path and prefix for efr forcing files */
 } plugin_filenames_struct;
 
 // Setup
