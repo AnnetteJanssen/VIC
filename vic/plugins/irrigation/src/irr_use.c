@@ -76,6 +76,7 @@ irr_get_withdrawn(size_t iCell)
     cell_data_struct *ccell_var;
         
     // get demand
+    // TODO get demand from water use module
     demand = 0.0;
     csoil_con = &soil_con[iCell];
     for(i = 0; i < irr_con_map[iCell].ni_active; i++){
@@ -127,8 +128,10 @@ irr_get_withdrawn(size_t iCell)
             avail_irr = cirr_var->requirement * avail_frac + cirr_var->leftover;
             if(avail_irr < max_added){
                 ccell_var->layer[0].moist += avail_irr;
+                cirr_var->prev_req -= avail_irr;
             } else {
                 ccell_var->layer[0].moist += max_added;
+                cirr_var->prev_req -= max_added;
                 cirr_var->leftover = avail_irr - max_added;
             }
         }

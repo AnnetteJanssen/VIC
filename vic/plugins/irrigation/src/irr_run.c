@@ -133,6 +133,8 @@ irr_run_requirement(size_t iCell)
                         cirr_var->need = 0.0;
                     }
                     cirr_var->prev_req = cirr_var->requirement;
+                } else {
+                    cirr_var->prev_req = 0.0;
                 }
             }
         }   
