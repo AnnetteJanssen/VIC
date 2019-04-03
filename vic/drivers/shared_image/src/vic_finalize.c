@@ -118,6 +118,7 @@ vic_finalize(void)
     free(veg_con);
     free(veg_hist);
     free(veg_lib);
+    free(lake_con_map);
     free(lake_con);
     free(lake_var);
     free(all_vars);

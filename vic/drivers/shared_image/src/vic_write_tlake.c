@@ -301,4 +301,7 @@ vic_write_tlake(stream_struct  *stream,
     if (cvar != NULL) {
         free(cvar);
     }
+    if (nvar != NULL) {
+        free(nvar);
+    }
 }
