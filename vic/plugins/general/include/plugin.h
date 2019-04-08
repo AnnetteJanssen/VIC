@@ -16,12 +16,13 @@ enum {
 };
 
 enum {
+    // routing
     STATE_DISCHARGE_DT,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_STATE_VARS                   /**< used as a loop counter*/
 };
-   
+
 enum {
     // routing
     OUT_DISCHARGE,                      /**< river discharge [m3 s-1]) */
@@ -45,12 +46,36 @@ enum {
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
 };
 
+enum {
+    // routing
+    FORCING_DISCHARGE,
+    // water-use
+    FORCING_IRR_DEMAND,
+    FORCING_IRR_GROUNDWATER,
+    FORCING_IRR_CONSUMPTION,
+    FORCING_MUN_DEMAND,
+    FORCING_MUN_GROUNDWATER,
+    FORCING_MUN_CONSUMPTION,
+    FORCING_LIV_DEMAND,
+    FORCING_LIV_GROUNDWATER,
+    FORCING_LIV_CONSUMPTION,
+    FORCING_MAN_DEMAND,
+    FORCING_MAN_GROUNDWATER,
+    FORCING_MAN_CONSUMPTION,
+    FORCING_ENG_DEMAND,
+    FORCING_ENG_GROUNDWATER,
+    FORCING_ENG_CONSUMPTION,
+    // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
+    // used as a loop counter and must be >= the largest value in this enum
+    PLUGIN_N_FORCING_TYPES                /**< used as a loop counter*/
+};
+
 typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
     bool WATERUSE;
-    
+
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
@@ -72,17 +97,17 @@ typedef struct {
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
     nameid_struct wateruse;        /**< water-use parameter file */
-    
+
     // forcing
-    nameid_struct routing_forcing;  /**< routing forcing files */
-    nameid_struct wateruse_forcing[WU_NSECTORS]; /**< water-use forcing files */
-    char rf_path_pfx[MAXSTRING]; /**< path and prefix for routing forcing files */
-    char wf_path_pfx[WU_NSECTORS][MAXSTRING]; /**< path and prefix for water-use forcing files */
+    nameid_struct forcing[PLUGIN_N_FORCING_TYPES]; /**< forcing files */
+    char f_path_pfx[PLUGIN_N_FORCING_TYPES][MAXSTRING]; /**< path and prefix for forcing files */
+    char f_varname[PLUGIN_N_FORCING_TYPES][MAXSTRING]; /**< variable name for forcing files */
 } plugin_filenames_struct;
 
 // Setup
 void plugin_initialize_global_structures(void);
-bool plugin_get_global_param(char optstr[MAXSTRING]);
+bool plugin_get_global_param(char *cmdstr);
+void plugin_set_force_type(char *cmdstr);
 void plugin_validate_global_param(void);
 bool plugin_get_parameters(char optstr[MAXSTRING]);
 void plugin_validate_parameters(void);

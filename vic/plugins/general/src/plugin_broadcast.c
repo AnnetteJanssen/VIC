@@ -2,7 +2,7 @@
 #include <plugin.h>
 
 /******************************************
- Setup broadcasting structures
+   Setup broadcasting structures
 ******************************************/
 void
 plugin_create_MPI_global_struct_type(MPI_Datatype *mpi_type)
@@ -81,11 +81,13 @@ plugin_create_MPI_filenames_struct_type(MPI_Datatype *mpi_type)
     }
     i = 0;
 
-    // char rf_path_pfx[MAXSTRING];
-    offsets[i] = offsetof(plugin_filenames_struct, rf_path_pfx);
+    // char f_path_pfx[PLUGIN_N_FORCING_TYPES][MAXSTRING];
+    offsets[i] = offsetof(plugin_filenames_struct, f_path_pfx);
+    blocklengths[i] *= PLUGIN_N_FORCING_TYPES;
     mpi_types[i++] = MPI_CHAR;
-    // char wf_path_pfx[MAXSTRING];
-    offsets[i] = offsetof(plugin_filenames_struct, wf_path_pfx);
+    // char f_varname[PLUGIN_N_FORCING_TYPES][MAXSTRING];
+    offsets[i] = offsetof(plugin_filenames_struct, f_varname);
+    blocklengths[i] *= PLUGIN_N_FORCING_TYPES;
     mpi_types[i++] = MPI_CHAR;
 
     // make sure that the we have the right number of elements
@@ -222,7 +224,7 @@ plugin_initialize_mpi(void)
     extern MPI_Datatype plugin_mpi_filenames_struct_type;
     extern MPI_Datatype plugin_mpi_option_struct_type;
     extern MPI_Datatype plugin_mpi_param_struct_type;
-    
+
     // initialize MPI data structures
     plugin_create_MPI_global_struct_type(&plugin_mpi_global_struct_type);
     plugin_create_MPI_filenames_struct_type(&plugin_mpi_filenames_struct_type);
@@ -231,17 +233,17 @@ plugin_initialize_mpi(void)
 }
 
 /******************************************
- Broadcast global structures
+   Broadcast global structures
 ******************************************/
 void
 plugin_broadcast_filenames(void)
 {
     extern plugin_filenames_struct plugin_filenames;
-    extern MPI_Datatype plugin_mpi_filenames_struct_type;
-    extern MPI_Comm            MPI_COMM_VIC;
-    
-    int status;
-    
+    extern MPI_Datatype            plugin_mpi_filenames_struct_type;
+    extern MPI_Comm                MPI_COMM_VIC;
+
+    int                            status;
+
     status = MPI_Bcast(&plugin_filenames, 1, plugin_mpi_filenames_struct_type,
                        VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
@@ -251,11 +253,11 @@ void
 plugin_broadcast_global_params(void)
 {
     extern plugin_global_param_struct plugin_global_param;
-    extern MPI_Datatype plugin_mpi_global_struct_type;
-    extern MPI_Comm            MPI_COMM_VIC;
-    
-    int status;
-    
+    extern MPI_Datatype               plugin_mpi_global_struct_type;
+    extern MPI_Comm                   MPI_COMM_VIC;
+
+    int                               status;
+
     status = MPI_Bcast(&plugin_global_param, 1, plugin_mpi_global_struct_type,
                        VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
@@ -265,11 +267,11 @@ void
 plugin_broadcast_options(void)
 {
     extern plugin_option_struct plugin_options;
-    extern MPI_Datatype plugin_mpi_option_struct_type;
-    extern MPI_Comm            MPI_COMM_VIC;
-    
-    int status;
-    
+    extern MPI_Datatype         plugin_mpi_option_struct_type;
+    extern MPI_Comm             MPI_COMM_VIC;
+
+    int                         status;
+
     status = MPI_Bcast(&plugin_options, 1, plugin_mpi_option_struct_type,
                        VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");
@@ -279,11 +281,11 @@ void
 plugin_broadcast_params(void)
 {
     extern plugin_parameters_struct plugin_param;
-    extern MPI_Datatype plugin_mpi_param_struct_type;
-    extern MPI_Comm            MPI_COMM_VIC;
-    
-    int status;
-    
+    extern MPI_Datatype             plugin_mpi_param_struct_type;
+    extern MPI_Comm                 MPI_COMM_VIC;
+
+    int                             status;
+
     status = MPI_Bcast(&plugin_param, 1, plugin_mpi_param_struct_type,
                        VIC_MPI_ROOT, MPI_COMM_VIC);
     check_mpi_status(status, "MPI error.");

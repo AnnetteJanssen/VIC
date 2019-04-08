@@ -1,62 +1,6 @@
 #include <vic_driver_image.h>
 #include <plugin.h>
 
-void
-set_wu_type(char *cmdstr)
-{
-    extern plugin_filenames_struct plugin_filenames;
-    extern plugin_option_struct    plugin_options;
-    
-    char                    typename[MAXSTRING];
-    char                    sourcename[MAXSTRING];
-    char                    filename[MAXSTRING];
-    int                     type = WU_IRRIGATION;
-    int                     source = WU_SKIP;
-
-    strcpy(typename, "MISSING");
-    strcpy(sourcename, "MISSING");
-    strcpy(filename, "MISSING");
-    
-    sscanf(cmdstr, "%*s %s %s %s", typename, sourcename, filename);
-    
-    if (strcasecmp("IRRIGATION", typename) == 0) {
-        type = WU_IRRIGATION;
-    }
-    else if (strcasecmp("MUNICIPAL", typename) == 0) {
-        type = WU_MUNICIPAL;
-    }
-    else if (strcasecmp("MANUFACTURING", typename) == 0) {
-        type = WU_MANUFACTURING;
-    }
-    else if (strcasecmp("ENERGY", typename) == 0) {
-        type = WU_ENERGY;
-    }
-    else if (strcasecmp("LIVESTOCK", typename) == 0) {
-        type = WU_LIVESTOCK;
-    } 
-    else {
-        log_err("Undefined wateruse forcing variable type %s",
-                typename);
-    }
-    
-    if (strcasecmp("FROM_FILE", sourcename) == 0) {
-        source = WU_FROM_FILE;
-    }
-    else if (strcasecmp("CALCULATE", sourcename) == 0) {
-        source = WU_CALCULATE;
-    }
-    else if (strcasecmp("SKIP", sourcename) == 0) {
-        source = WU_SKIP;
-    }
-    else {
-        log_err("Undefined wateruse forcing source type %s",
-                sourcename);
-    }
-    
-    plugin_options.WU_INPUT[type] = source;
-    strcpy(plugin_filenames.wf_path_pfx[type], filename);
-}
-
 bool
 wu_get_global_param(char *cmdstr)
 {
@@ -75,9 +19,6 @@ wu_get_global_param(char *cmdstr)
     else if (strcasecmp("WATERUSE_PARAMETERS", optstr) == 0) {
         sscanf(cmdstr, "%*s %s", plugin_filenames.wateruse.nc_filename);
     }
-    else if (strcasecmp("WU_TYPE", optstr) == 0) {
-        set_wu_type(cmdstr);
-    }
     else {
         return false;
     }
@@ -90,8 +31,6 @@ wu_validate_global_param(void)
 {
     extern plugin_option_struct    plugin_options;
     extern plugin_filenames_struct plugin_filenames;
-    
-    size_t i;
     
     // Options
     if(!plugin_options.ROUTING){
@@ -107,11 +46,29 @@ wu_validate_global_param(void)
     }
     
     // Forcing
-    for(i = 0; i < WU_NSECTORS; i++){
-        if(plugin_options.WU_INPUT[i] == WU_FROM_FILE){
-            if (strcasecmp(plugin_filenames.wf_path_pfx[i], MISSING_S) == 0) {
-                log_err("WATERUSE = TRUE but forcing is missing");
-            }
-        }
+    if (strcasecmp(plugin_filenames.f_path_pfx[FORCING_IRR_DEMAND], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_IRR_GROUNDWATER], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_IRR_CONSUMPTION], MISSING_S) != 0) {
+        plugin_options.WU_INPUT[WU_IRRIGATION] = WU_FROM_FILE;
+    }
+    if (strcasecmp(plugin_filenames.f_path_pfx[FORCING_MUN_DEMAND], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_MUN_GROUNDWATER], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_MUN_CONSUMPTION], MISSING_S) != 0) {
+        plugin_options.WU_INPUT[WU_MUNICIPAL] = WU_FROM_FILE;
+    }
+    if (strcasecmp(plugin_filenames.f_path_pfx[FORCING_LIV_DEMAND], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_LIV_GROUNDWATER], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_LIV_CONSUMPTION], MISSING_S) != 0) {
+        plugin_options.WU_INPUT[WU_LIVESTOCK] = WU_FROM_FILE;
+    }
+    if (strcasecmp(plugin_filenames.f_path_pfx[FORCING_ENG_DEMAND], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_ENG_GROUNDWATER], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_ENG_CONSUMPTION], MISSING_S) != 0) {
+        plugin_options.WU_INPUT[WU_ENERGY] = WU_FROM_FILE;
+    }
+    if (strcasecmp(plugin_filenames.f_path_pfx[FORCING_MAN_DEMAND], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_MAN_GROUNDWATER], MISSING_S) != 0 &&
+            strcasecmp(plugin_filenames.f_path_pfx[FORCING_MAN_CONSUMPTION], MISSING_S) != 0) {
+        plugin_options.WU_INPUT[WU_MANUFACTURING] = WU_FROM_FILE;
     }
 }

@@ -4,9 +4,9 @@ void
 plugin_initialize_options(void)
 {
     extern plugin_option_struct plugin_options;
-    
+
     size_t i;
-    
+
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
     plugin_options.WATERUSE = false;
@@ -23,7 +23,7 @@ void
 plugin_initialize_global(void)
 {
     extern plugin_global_param_struct plugin_global_param;
-    
+
     plugin_global_param.rout_steps_per_day = 0;
     plugin_global_param.rout_dt = 0;
 }
@@ -32,6 +32,9 @@ void
 plugin_initialize_parameters(void)
 {
     extern plugin_parameters_struct plugin_param;
+
+    /* Unused variables */
+    UNUSED(plugin_param);
 }
 
 void
@@ -41,15 +44,14 @@ plugin_initialize_filenames(void)
     
     size_t i;
     
-    strcpy(plugin_filenames.routing.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.wateruse.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.decomposition.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.routing_forcing.nc_filename, MISSING_S);
-    strcpy(plugin_filenames.rf_path_pfx, MISSING_S);
+    snprintf(plugin_filenames.routing.nc_filename, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.decomposition.nc_filename, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.wateruse.nc_filename, MAXSTRING, "%s", MISSING_S);
     
-    for(i = 0; i < WU_NSECTORS; i++){
-        strcpy(plugin_filenames.wateruse_forcing[i].nc_filename, MISSING_S);
-        strcpy(plugin_filenames.wf_path_pfx[i], MISSING_S);
+    for(i = 0; i < PLUGIN_N_FORCING_TYPES; i++){
+        snprintf(plugin_filenames.forcing[i].nc_filename, MAXSTRING, "%s", MISSING_S);
+        snprintf(plugin_filenames.f_path_pfx[i], MAXSTRING, "%s", MISSING_S);
+        snprintf(plugin_filenames.f_varname[i], MAXSTRING, "%s", MISSING_S);
     }
 }
 
