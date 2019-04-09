@@ -99,7 +99,10 @@ compute_derived_state_vars(all_vars_struct *all_vars,
                     }
 
                     // set Ksat from soil_con
-                    cell[veg][band].layer[lidx].Ksat = soil_con->Ksat[lidx];
+                    for (lidx = 0; lidx < options.Nlayer; lidx++) {
+                        cell[veg][band].layer[lidx].Ksat = soil_con->Ksat[lidx];
+                    }
+                    
                     // compute saturated area and water table
                     compute_runoff_and_asat(soil_con, tmpM[veg][band], 0,
                                             &(cell[veg][band].asat),
