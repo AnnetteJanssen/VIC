@@ -28,6 +28,9 @@ plugin_set_output_met_data_info(void)
     if (plugin_options.ROUTING) {
         rout_set_output_met_data_info();
     }
+    if (plugin_options.EFR) {
+        efr_set_output_met_data_info();
+    }
 }
 
 // Initialize outfile dimension size & id
@@ -105,6 +108,9 @@ plugin_get_default_outvar_aggtype(unsigned int  varid,
 
     if (plugin_options.ROUTING) {
         rout_history(varid, agg_type);
+    }
+    if (plugin_options.EFR) {
+        efr_history(varid, agg_type);
     }
 }
 

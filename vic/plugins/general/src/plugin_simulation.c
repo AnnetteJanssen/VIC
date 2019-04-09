@@ -56,6 +56,9 @@ plugin_force(void)
     if (plugin_options.ROUTING && plugin_options.FORCE_ROUTING) {
         rout_forcing();
     }
+    if (plugin_options.EFR) {
+        efr_forcing();
+    }
     
     for(f = 0; f < PLUGIN_N_FORCING_TYPES; f++){
         if(strcasecmp(plugin_filenames.f_path_pfx[f], MISSING_S) == 0){
@@ -115,6 +118,9 @@ plugin_put_data()
     for (i = 0; i < local_domain.ncells_active; i++) {
         if (plugin_options.ROUTING) {
             rout_put_data(i);
+        }
+        if (plugin_options.EFR) {
+            efr_put_data(i);
         }
     }
 }

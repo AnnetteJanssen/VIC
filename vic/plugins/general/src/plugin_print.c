@@ -31,6 +31,8 @@ plugin_print_options(plugin_option_struct *op)
             op->DECOMPOSITION);
     fprintf(LOG_DEST, "\tROUTING              : %s\n",
             op->ROUTING ? "true" : "false");
+    fprintf(LOG_DEST, "\tEFR                  : %s\n",
+            op->EFR ? "true" : "false");
     fprintf(LOG_DEST, "\tFORCE_ROUTING        : %s\n",
             op->FORCE_ROUTING ? "true" : "false");
 

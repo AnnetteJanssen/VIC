@@ -7,6 +7,7 @@ plugin_initialize_options(void)
 
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
+    plugin_options.EFR = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
 }

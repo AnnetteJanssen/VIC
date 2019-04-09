@@ -3,6 +3,7 @@
 
 #include <vic_driver_shared_image.h>
 #include <routing.h>
+#include <efr.h>
 #include <support.h>
 
 enum {
@@ -26,6 +27,10 @@ enum {
     // routing
     OUT_DISCHARGE,                      /**< river discharge [m3 s-1]) */
     OUT_STREAM_MOIST,
+    // efr
+    OUT_EFR_DISCHARGE,                  /**< environmental river discharge [m3 s-1]) */
+    OUT_EFR_BASEFLOW,                   /**< environmental soil baseflow [mm]) */
+    OUT_EFR_MOIST,                      /**< environmental soil moisture [mm]) */
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
@@ -34,6 +39,9 @@ enum {
 enum {
     // routing
     FORCING_DISCHARGE,
+    // efr
+    FORCING_EFR_DISCHARGE,
+    FORCING_EFR_BASEFLOW,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_FORCING_TYPES                /**< used as a loop counter*/
@@ -43,6 +51,7 @@ typedef struct {
     // simulation options
     short unsigned int DECOMPOSITION;
     bool ROUTING;
+    bool EFR;
 
     // module options
     short unsigned int UH_LENGTH;
@@ -73,7 +82,7 @@ void plugin_initialize_global_structures(void);
 bool plugin_get_global_param(char *cmdstr);
 void plugin_set_force_type(char *cmdstr);
 void plugin_validate_global_param(void);
-bool plugin_get_parameters(char optstr[MAXSTRING]);
+bool plugin_get_parameters(char *cmdstr);
 void plugin_validate_parameters(void);
 
 void plugin_initialize_mpi(void);
