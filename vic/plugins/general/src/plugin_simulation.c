@@ -92,8 +92,14 @@ plugin_run(void)
             plugin_options.DECOMPOSITION == FILE_DECOMPOSITION) {
             for (i = 0; i < local_domain.ncells_active; i++) {
                 iCell = routing_order[i];
-
+		
+                if (plugin_options.DAMS) {
+                    local_dam_run(iCell);
+                }
                 rout_basin_run(iCell);
+                if (plugin_options.DAMS) {
+                    global_dam_run(iCell);
+                }
             }
         }
         else if (plugin_options.DECOMPOSITION == RANDOM_DECOMPOSITION) {
@@ -115,6 +121,9 @@ plugin_put_data()
     for (i = 0; i < local_domain.ncells_active; i++) {
         if (plugin_options.ROUTING) {
             rout_put_data(i);
+        }
+        if (plugin_options.DAMS) {
+            dam_put_data(i);
         }
     }
 }

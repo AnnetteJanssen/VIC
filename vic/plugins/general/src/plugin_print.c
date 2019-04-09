@@ -31,18 +31,24 @@ plugin_print_options(plugin_option_struct *op)
             op->DECOMPOSITION);
     fprintf(LOG_DEST, "\tROUTING              : %s\n",
             op->ROUTING ? "true" : "false");
+    fprintf(LOG_DEST, "\tDAMS                 : %s\n",
+            op->DAMS ? "true" : "false");
     fprintf(LOG_DEST, "\tFORCE_ROUTING        : %s\n",
             op->FORCE_ROUTING ? "true" : "false");
 
     fprintf(LOG_DEST, "\tUH_LENGTH            : %d\n",
             op->UH_LENGTH);
+    fprintf(LOG_DEST, "\tNDAMTYPES            : %d\n",
+            op->NDAMTYPES);
+    fprintf(LOG_DEST, "\tNDAMSERVICE          : %d\n",
+            op->NDAMSERVICE);
 }
 
 void
 plugin_print_parameters(plugin_parameters_struct *pa)
 {
-    /* Unused variables */
-    UNUSED(pa);
-
     fprintf(LOG_DEST, "plugin parameters:\n");
+    fprintf(LOG_DEST, "\tDAM_ALPHA           : %.4f\n", pa->DAM_ALPHA);
+    fprintf(LOG_DEST, "\tDAM_BETA            : %.4f\n", pa->DAM_BETA);
+    fprintf(LOG_DEST, "\tDAM_GAMMA           : %.4f\n", pa->DAM_GAMMA);
 }
