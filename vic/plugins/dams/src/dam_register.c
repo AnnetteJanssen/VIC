@@ -127,11 +127,6 @@ dam_register_operation(dam_con_struct *dam_con, dam_var_struct *dam_var)
     for(i = 0; i < MONTHS_PER_YEAR; i++){
         dam_var->op_storage[i] = storage[i];
     }
-    
-    // Set dam active
-    if(dmy[current].year >= dam_con->year){
-        dam_var->active = true;
-    }
 }
 
 void
@@ -205,18 +200,17 @@ dam_register_history(dam_var_struct *dam_var)
 //        }
 //    }
 //}
-//
-//void
-//dam_register_efr(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
-//{
-//    extern global_param_struct global_param;
-//    extern efr_force_struct *efr_force;
-//    extern size_t NR;
-//    
-//    dam_var->efr = efr_force[iCell].req_discharge[NR] * 
-//            global_param.dt * 
-//            dam_con->inflow_frac / M3_PER_HM3;
-//}
+
+void
+dam_register_efr(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
+{
+    extern global_param_struct global_param;
+    extern efr_force_struct *efr_force;
+    extern size_t NR;
+    
+    dam_var->efr = efr_force[iCell].discharge[NR] * global_param.dt * 
+            dam_con->inflow_frac / M3_PER_HM3;
+}
 
 void
 global_dam_register_inflow(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
@@ -242,6 +236,7 @@ local_dam_register_inflow(dam_con_struct *dam_con, dam_var_struct *dam_var, size
 void
 local_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
 {
+    extern plugin_option_struct plugin_options;
     extern dmy_struct *dmy;
     extern size_t current;
     
@@ -252,7 +247,10 @@ local_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCel
                 dam_register_operation_start(dam_var);
             }
             if(dmy[current].month == dam_var->op_month){
-                dam_register_operation(dam_con, dam_var);
+                // Set dam active
+                if(dmy[current].year >= dam_con->year){
+                    dam_var->active = true;
+                }
             }
         }
     }
@@ -262,9 +260,9 @@ local_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCel
 //    if(options.IRRIGATION){
 //        dam_register_demand(dam_con, dam_var);
 //    }
-//    if(options.EFR){
-//        dam_register_efr(dam_con, dam_var, iCell);
-//    }
+    if(plugin_options.EFR){
+        dam_register_efr(dam_con, dam_var, iCell);
+    }
     
     dam_var->total_inflow += dam_var->inflow;
     dam_var->total_demand += dam_var->demand;
@@ -275,6 +273,7 @@ local_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCel
 void
 global_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
 {
+    extern plugin_option_struct plugin_options;
     extern dmy_struct *dmy;
     extern size_t current;
     
@@ -285,6 +284,10 @@ global_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCe
                 dam_register_operation_start(dam_var);
             }
             if(dmy[current].month == dam_var->op_month){
+                // Set dam active
+                if(dmy[current].year >= dam_con->year){
+                    dam_var->active = true;
+                }
                 dam_register_operation(dam_con, dam_var);
             }
         }
@@ -295,9 +298,9 @@ global_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCe
 //    if(options.IRRIGATION){
 //        dam_register_demand(dam_con, dam_var);
 //    }
-//    if(options.EFR){
-//        dam_register_efr(dam_con, dam_var, iCell);
-//    }
+    if(plugin_options.EFR){
+        dam_register_efr(dam_con, dam_var, iCell);
+    }
     
     dam_var->total_inflow += dam_var->inflow;
     dam_var->total_demand += dam_var->demand;
