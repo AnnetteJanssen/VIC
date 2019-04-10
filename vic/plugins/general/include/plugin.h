@@ -109,7 +109,7 @@ void plugin_initialize_global_structures(void);
 bool plugin_get_global_param(char *cmdstr);
 void plugin_set_force_type(char *cmdstr);
 void plugin_validate_global_param(void);
-bool plugin_get_parameters(char optstr[MAXSTRING]);
+bool plugin_get_parameters(char *cmdstr);
 void plugin_validate_parameters(void);
 
 void plugin_initialize_mpi(void);
