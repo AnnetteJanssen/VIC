@@ -19,6 +19,12 @@ wu_set_output_met_data_info(void)
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_SURF].units, "mm");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_SURF].description, "available from surface water for sector");
 
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].varname, "OUT_AVAILABLE_DAM");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].long_name, "available_dam_storage");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].standard_name, "available_dam_storage");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].units, "mm");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].description, "available from dam storage for sector");
+
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE].varname, "OUT_AVAILABLE_REMOTE");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE].long_name, "available_remote_water");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE].standard_name, "available_remote_water");
@@ -55,6 +61,12 @@ wu_set_output_met_data_info(void)
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF].units, "mm");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF].description, "withdrawn from surface water for sector");
 
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].varname, "OUT_WITHDRAWN_DAM");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].long_name, "withdrawn_dam_storage");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].standard_name, "withdrawn_dam_storage");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].units, "mm");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].description, "withdrawn from dam storage for sector");
+
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE].varname, "OUT_WITHDRAWN_REMOTE");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE].long_name, "withdrawn_remote");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE].standard_name, "withdrawn_remote");
@@ -87,12 +99,14 @@ wu_set_output_met_data_info(void)
 
     out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_GW].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_SURF].nelem = plugin_options.NWUTYPES;
+    out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_DAM].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_DEMAND_GW].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_DEMAND_SURF].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_DEMAND_REMOTE].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_GW].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF].nelem = plugin_options.NWUTYPES;
+    out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_AVAILABLE].nelem = plugin_options.NWUTYPES;
     out_metadata[N_OUTVAR_TYPES + OUT_DEMAND].nelem = plugin_options.NWUTYPES;
@@ -131,12 +145,14 @@ wu_set_nc_var_info(unsigned int    varid,
     switch(varid){
         case N_OUTVAR_TYPES + OUT_AVAILABLE_GW:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_SURF:
+        case N_OUTVAR_TYPES + OUT_AVAILABLE_DAM:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE:
         case N_OUTVAR_TYPES + OUT_DEMAND_GW:
         case N_OUTVAR_TYPES + OUT_DEMAND_SURF:
         case N_OUTVAR_TYPES + OUT_DEMAND_REMOTE:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_GW:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF:
+        case N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE:
         case N_OUTVAR_TYPES + OUT_AVAILABLE:
         case N_OUTVAR_TYPES + OUT_DEMAND:
@@ -146,6 +162,7 @@ wu_set_nc_var_info(unsigned int    varid,
         nc_var->nc_counts[1] = nc_hist_file->wu_size;
         nc_var->nc_counts[2] = nc_hist_file->nj_size;
         nc_var->nc_counts[3] = nc_hist_file->ni_size;
+        break;
     }
 }
 
@@ -157,12 +174,14 @@ wu_set_nc_var_dimids(unsigned int    varid,
     switch(varid){
         case N_OUTVAR_TYPES + OUT_AVAILABLE_GW:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_SURF:
+        case N_OUTVAR_TYPES + OUT_AVAILABLE_DAM:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE:
         case N_OUTVAR_TYPES + OUT_DEMAND_GW:
         case N_OUTVAR_TYPES + OUT_DEMAND_SURF:
         case N_OUTVAR_TYPES + OUT_DEMAND_REMOTE:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_GW:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF:
+        case N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE:
         case N_OUTVAR_TYPES + OUT_AVAILABLE:
         case N_OUTVAR_TYPES + OUT_DEMAND:
@@ -172,6 +191,7 @@ wu_set_nc_var_dimids(unsigned int    varid,
         nc_var->nc_dimids[1] = nc_hist_file->wu_dimid;
         nc_var->nc_dimids[2] = nc_hist_file->nj_dimid;
         nc_var->nc_dimids[3] = nc_hist_file->ni_dimid;
+        break;
     }
 }
 
@@ -181,18 +201,21 @@ wu_history(unsigned int varid, unsigned int *agg_type)
     switch (varid) {
         case N_OUTVAR_TYPES + OUT_AVAILABLE_GW:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_SURF:
+        case N_OUTVAR_TYPES + OUT_AVAILABLE_DAM:
         case N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE:
         case N_OUTVAR_TYPES + OUT_DEMAND_GW:
         case N_OUTVAR_TYPES + OUT_DEMAND_SURF:
         case N_OUTVAR_TYPES + OUT_DEMAND_REMOTE:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_GW:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF:
+        case N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE:
         case N_OUTVAR_TYPES + OUT_AVAILABLE:
         case N_OUTVAR_TYPES + OUT_DEMAND:
         case N_OUTVAR_TYPES + OUT_WITHDRAWN:
         case N_OUTVAR_TYPES + OUT_RETURNED:
         (*agg_type) = AGG_TYPE_SUM;
+        break;
     }
 }
 
@@ -212,16 +235,19 @@ wu_put_data(size_t cur_cell)
         if(iSector != NODATA_WU){
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_GW][i] = wu_var[cur_cell][iSector].available_gw;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_SURF][i] = wu_var[cur_cell][iSector].available_surf;
+            out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_DAM][i] = wu_var[cur_cell][iSector].available_dam;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_REMOTE][i] = wu_var[cur_cell][iSector].available_remote;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND_GW][i] = wu_var[cur_cell][iSector].demand_gw;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND_SURF][i] = wu_var[cur_cell][iSector].demand_surf;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND_REMOTE][i] = wu_var[cur_cell][iSector].demand_remote;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_GW][i] = wu_var[cur_cell][iSector].withdrawn_gw;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF][i] = wu_var[cur_cell][iSector].withdrawn_surf;
+            out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM][i] = wu_var[cur_cell][iSector].withdrawn_dam;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE][i] = wu_var[cur_cell][iSector].withdrawn_remote;
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE][i] = 
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_GW][i] +
-                    out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_SURF][i];
+                    out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_SURF][i] +
+                    out_data[cur_cell][N_OUTVAR_TYPES + OUT_AVAILABLE_DAM][i];
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND][i] = 
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND_GW][i] +
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_DEMAND_SURF][i] +
@@ -229,6 +255,7 @@ wu_put_data(size_t cur_cell)
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN][i] = 
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_GW][i] +
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_SURF][i] +
+                    out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_DAM][i] +
                     out_data[cur_cell][N_OUTVAR_TYPES + OUT_WITHDRAWN_REMOTE][i];
             out_data[cur_cell][N_OUTVAR_TYPES + OUT_RETURNED][i] = wu_var[cur_cell][iSector].returned;
         }

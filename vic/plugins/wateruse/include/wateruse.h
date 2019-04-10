@@ -44,12 +44,14 @@ typedef struct {
 typedef struct {
     double available_gw;
     double available_surf;
+    double available_dam;
     double available_remote;
     double demand_gw;
     double demand_surf;
     double demand_remote;
     double withdrawn_gw;
     double withdrawn_surf;
+    double withdrawn_dam;
     double withdrawn_remote;
     double returned;
 } wu_var_struct;
