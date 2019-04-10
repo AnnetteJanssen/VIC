@@ -18,6 +18,8 @@ plugin_get_global_param(char cmdstr[MAXSTRING])
     }
     else if (efr_get_global_param(cmdstr)) {
     }
+    else if(dam_get_global_param(cmdstr)){
+    }
     else {
         return false;
     }
@@ -36,21 +38,29 @@ plugin_validate_global_param(void)
     if (plugin_options.EFR) {
         efr_validate_global_param();
     }
+    if (plugin_options.DAMS) {
+        dam_validate_global_param();
+    }
 }
 
 bool
 plugin_get_parameters(char cmdstr[MAXSTRING])
 {
-    /* Unused variables */
-    UNUSED(cmdstr);
-
-    return false;
+    if(dam_get_parameters(cmdstr)){} 
+    else {
+        return false;
+    }
+    
+    return true;
 }
 
 void
 plugin_validate_parameters(void)
 {
-    extern plugin_option_struct plugin_options;
+    extern plugin_option_struct    plugin_options;
+    
+    if(plugin_options.DAMS)
+        dam_validate_parameters();
 }
 
 /******************************************
@@ -84,6 +94,9 @@ plugin_start(void)
     if (plugin_options.EFR) {
         efr_start();
     }
+    if (plugin_options.DAMS) {
+        dam_start();
+    }
 }
 
 /******************************************
@@ -100,6 +113,9 @@ plugin_alloc(void)
     if (plugin_options.EFR) {
         efr_alloc();
     }
+    if (plugin_options.DAMS) {
+        dam_alloc();
+    }
 }
 
 /******************************************
@@ -113,6 +129,9 @@ plugin_init(void)
     if (plugin_options.ROUTING) {
         rout_init();
     }
+    if (plugin_options.DAMS) {
+        dam_init();
+    }
 
     plugin_set_state_meta_data_info();
 }
@@ -123,6 +142,10 @@ plugin_init(void)
 void
 plugin_generate_default_state(void)
 {
+    extern plugin_option_struct    plugin_options;
+ 
+    if(plugin_options.DAMS)
+        dam_generate_default_state();  
 }
 
 void
@@ -143,6 +166,9 @@ plugin_check_init_state_file(void)
     if (plugin_options.ROUTING) {
         rout_check_init_state_file();
     }
+    if (plugin_options.DAMS) {
+        log_warn("DAM state restore not implemented yet...");
+    }
 }
 
 void
@@ -152,6 +178,9 @@ plugin_restore(void)
 
     if (plugin_options.ROUTING) {
         rout_restore();
+    }
+    if (plugin_options.DAMS) {
+        log_warn("DAM state restore not implemented yet...");
     }
 }
 
@@ -177,5 +206,8 @@ plugin_finalize(void)
     }
     if (plugin_options.EFR) {
         efr_finalize();
+    }
+    if (plugin_options.DAMS) {
+        dam_finalize();
     }
 }

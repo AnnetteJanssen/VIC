@@ -4,6 +4,7 @@
 #include <vic_driver_shared_image.h>
 #include <routing.h>
 #include <efr.h>
+#include <dams.h>
 #include <support.h>
 
 enum {
@@ -31,6 +32,27 @@ enum {
     OUT_EFR_DISCHARGE,                  /**< environmental river discharge [m3 s-1]) */
     OUT_EFR_BASEFLOW,                   /**< environmental soil baseflow [mm]) */
     OUT_EFR_MOIST,                      /**< environmental soil moisture [mm]) */
+    //dams
+    OUT_LDAM_INFLOW,
+    OUT_LDAM_DEMAND,
+    OUT_LDAM_EFR,
+    OUT_LDAM_RELEASE,
+    OUT_LDAM_STORAGE,
+    OUT_LDAM_HIST_INFLOW,
+    OUT_LDAM_HIST_DEMAND,
+    OUT_LDAM_HIST_EFR,
+    OUT_LDAM_OP_RELEASE,
+    OUT_LDAM_OP_STORAGE,
+    OUT_GDAM_INFLOW,
+    OUT_GDAM_DEMAND,
+    OUT_GDAM_EFR,
+    OUT_GDAM_RELEASE,
+    OUT_GDAM_STORAGE,
+    OUT_GDAM_HIST_INFLOW,
+    OUT_GDAM_HIST_DEMAND,
+    OUT_GDAM_HIST_EFR,
+    OUT_GDAM_OP_RELEASE,
+    OUT_GDAM_OP_STORAGE,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
@@ -52,10 +74,13 @@ typedef struct {
     short unsigned int DECOMPOSITION;
     bool ROUTING;
     bool EFR;
+    bool DAMS;
 
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
+    short unsigned int NDAMTYPES;
+    short unsigned int NDAMSERVICE;
 } plugin_option_struct;
 
 typedef struct {
@@ -64,12 +89,16 @@ typedef struct {
 } plugin_global_param_struct;
 
 typedef struct {
+    double DAM_ALPHA;
+    double DAM_BETA;
+    double DAM_GAMMA;
 } plugin_parameters_struct;
 
 typedef struct {
     // parameters
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
+    nameid_struct dams;     /**< dams parameter file */
 
     // forcing
     nameid_struct forcing[PLUGIN_N_FORCING_TYPES]; /**< forcing files */

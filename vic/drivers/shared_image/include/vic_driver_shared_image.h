@@ -144,7 +144,9 @@ typedef struct {
     size_t veg_size;
     // plugins
     int rdt_dimid;
+    int dam_dimid;
     size_t rdt_size;
+    size_t dam_size;
 
     bool open;
     nc_var_struct *nc_vars;
