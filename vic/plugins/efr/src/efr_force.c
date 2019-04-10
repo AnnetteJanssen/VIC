@@ -118,7 +118,7 @@ efr_forcing(void)
             }
 
             if(calculated_baseflow < efr_force[i].baseflow[NR]){
-                frac += min(1, frac + 0.01);
+                frac = min(1, frac + 0.01);
                 break;
             }
         }
@@ -135,8 +135,7 @@ efr_forcing(void)
                 }
                 liq = moist - ice;
 
-                efr_force[i].moist[j][k] = liq * frac;
-
+                efr_force[i].moist[j][k] = liq * frac + ice;
             }
         }
     }

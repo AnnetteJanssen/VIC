@@ -89,7 +89,7 @@ efr_put_data(size_t iCell)
             area_fract = soil_con[iCell].AreaFract[j];
             
             out_data[iCell][N_OUTVAR_TYPES +
-                            OUT_EFR_MOIST][0] = efr_force[iCell].moist[i][j] * 
+                            OUT_EFR_MOIST][0] += efr_force[iCell].moist[i][j] * 
                                                 veg_fract * area_fract;
         }
     }
