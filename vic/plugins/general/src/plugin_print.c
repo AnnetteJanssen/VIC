@@ -26,6 +26,8 @@ plugin_print_global_param(plugin_global_param_struct *gp)
 void
 plugin_print_options(plugin_option_struct *op)
 {
+    size_t i;
+    
     fprintf(LOG_DEST, "plugin option:\n");
     fprintf(LOG_DEST, "\tDECOMPOSITION        : %d\n",
             op->DECOMPOSITION);
@@ -35,6 +37,8 @@ plugin_print_options(plugin_option_struct *op)
             op->EFR ? "true" : "false");
     fprintf(LOG_DEST, "\tDAMS                 : %s\n",
             op->DAMS ? "true" : "false");
+    fprintf(LOG_DEST, "\tWATERUSE             : %s\n",
+            op->WATERUSE ? "true" : "false");
     fprintf(LOG_DEST, "\tFORCE_ROUTING        : %s\n",
             op->FORCE_ROUTING ? "true" : "false");
 
@@ -44,6 +48,14 @@ plugin_print_options(plugin_option_struct *op)
             op->NDAMTYPES);
     fprintf(LOG_DEST, "\tNDAMSERVICE          : %d\n",
             op->NDAMSERVICE);
+    fprintf(LOG_DEST, "\tNWUTYPES             : %d\n",
+            op->NWUTYPES);
+    fprintf(LOG_DEST, "\tNWURECEIVING         : %d\n",
+            op->NWURECEIVING);
+    for(i = 0; i < WU_NSECTORS; i++){
+        fprintf(LOG_DEST, "\tWU_INPUT             : %d\n",
+                op->WU_INPUT[i]);
+    }
 }
 
 void

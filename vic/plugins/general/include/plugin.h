@@ -6,6 +6,7 @@
 #include <efr.h>
 #include <dams.h>
 #include <support.h>
+#include <wateruse.h>
 
 enum {
     RANDOM_DECOMPOSITION,
@@ -53,6 +54,22 @@ enum {
     OUT_GDAM_HIST_EFR,
     OUT_GDAM_OP_RELEASE,
     OUT_GDAM_OP_STORAGE,
+    // water-use
+    OUT_AVAILABLE_GW,
+    OUT_AVAILABLE_SURF,
+    OUT_AVAILABLE_DAM,
+    OUT_AVAILABLE_REMOTE,
+    OUT_DEMAND_GW,
+    OUT_DEMAND_SURF,
+    OUT_DEMAND_REMOTE,
+    OUT_WITHDRAWN_GW,
+    OUT_WITHDRAWN_SURF,
+    OUT_WITHDRAWN_DAM,
+    OUT_WITHDRAWN_REMOTE,
+    OUT_AVAILABLE,
+    OUT_DEMAND,
+    OUT_WITHDRAWN,
+    OUT_RETURNED,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_OUTVAR_TYPES                /**< used as a loop counter*/
@@ -64,6 +81,22 @@ enum {
     // efr
     FORCING_EFR_DISCHARGE,
     FORCING_EFR_BASEFLOW,
+    // water-use
+    FORCING_IRR_DEMAND,
+    FORCING_IRR_GROUNDWATER,
+    FORCING_IRR_CONSUMPTION,
+    FORCING_MUN_DEMAND,
+    FORCING_MUN_GROUNDWATER,
+    FORCING_MUN_CONSUMPTION,
+    FORCING_LIV_DEMAND,
+    FORCING_LIV_GROUNDWATER,
+    FORCING_LIV_CONSUMPTION,
+    FORCING_MAN_DEMAND,
+    FORCING_MAN_GROUNDWATER,
+    FORCING_MAN_CONSUMPTION,
+    FORCING_ENG_DEMAND,
+    FORCING_ENG_GROUNDWATER,
+    FORCING_ENG_CONSUMPTION,
     // Last value of enum - DO NOT ADD ANYTHING BELOW THIS LINE!!
     // used as a loop counter and must be >= the largest value in this enum
     PLUGIN_N_FORCING_TYPES                /**< used as a loop counter*/
@@ -75,12 +108,16 @@ typedef struct {
     bool ROUTING;
     bool EFR;
     bool DAMS;
+    bool WATERUSE;
 
     // module options
     short unsigned int UH_LENGTH;
     bool FORCE_ROUTING;
     short unsigned int NDAMTYPES;
     short unsigned int NDAMSERVICE;
+    short unsigned int NWUTYPES;
+    short unsigned int NWURECEIVING;
+    int WU_INPUT[WU_NSECTORS];
 } plugin_option_struct;
 
 typedef struct {
@@ -99,6 +136,7 @@ typedef struct {
     nameid_struct routing;  /**< routing parameter file */
     nameid_struct decomposition;   /**< basin parameter file */
     nameid_struct dams;     /**< dams parameter file */
+    nameid_struct wateruse;        /**< water-use parameter file */
 
     // forcing
     nameid_struct forcing[PLUGIN_N_FORCING_TYPES]; /**< forcing files */

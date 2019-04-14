@@ -145,8 +145,10 @@ typedef struct {
     // plugins
     int rdt_dimid;
     int dam_dimid;
+    int wu_dimid;
     size_t rdt_size;
     size_t dam_size;
+    size_t wu_size;
 
     bool open;
     nc_var_struct *nc_vars;

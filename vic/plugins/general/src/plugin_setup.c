@@ -20,6 +20,8 @@ plugin_get_global_param(char cmdstr[MAXSTRING])
     }
     else if(dam_get_global_param(cmdstr)){
     }
+    else if (wu_get_global_param(cmdstr)) {
+    }
     else {
         return false;
     }
@@ -40,6 +42,9 @@ plugin_validate_global_param(void)
     }
     if (plugin_options.DAMS) {
         dam_validate_global_param();
+    }
+    if (plugin_options.WATERUSE) {
+        wu_validate_global_param();
     }
 }
 
@@ -97,6 +102,9 @@ plugin_start(void)
     if (plugin_options.DAMS) {
         dam_start();
     }
+    if (plugin_options.WATERUSE) {
+        wu_start();
+    }
 }
 
 /******************************************
@@ -116,6 +124,9 @@ plugin_alloc(void)
     if (plugin_options.DAMS) {
         dam_alloc();
     }
+    if (plugin_options.WATERUSE) {
+        wu_alloc();
+    }
 }
 
 /******************************************
@@ -131,6 +142,9 @@ plugin_init(void)
     }
     if (plugin_options.DAMS) {
         dam_init();
+    }
+    if (plugin_options.WATERUSE) {
+        wu_init();
     }
 
     plugin_set_state_meta_data_info();
@@ -209,5 +223,8 @@ plugin_finalize(void)
     }
     if (plugin_options.DAMS) {
         dam_finalize();
+    }
+    if (plugin_options.WATERUSE) {
+        wu_finalize();
     }
 }

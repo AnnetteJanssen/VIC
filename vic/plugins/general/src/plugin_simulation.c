@@ -59,6 +59,9 @@ plugin_force(void)
     if (plugin_options.EFR) {
         efr_forcing();
     }
+    if (plugin_options.WATERUSE) {
+        wu_forcing();
+    }
     
     for(f = 0; f < PLUGIN_N_FORCING_TYPES; f++){
         if(strcasecmp(plugin_filenames.f_path_pfx[f], MISSING_S) == 0){
@@ -100,6 +103,9 @@ plugin_run(void)
                     local_dam_run(iCell);
                 }
                 rout_basin_run(iCell);
+                if (plugin_options.WATERUSE) {
+                    wu_run(iCell);
+        	}
                 if (plugin_options.DAMS) {
                     global_dam_run(iCell);
                 }
@@ -130,6 +136,9 @@ plugin_put_data()
         }
         if (plugin_options.DAMS) {
             dam_put_data(i);
+        }
+        if (plugin_options.WATERUSE) {
+            wu_put_data(i);
         }
     }
 }

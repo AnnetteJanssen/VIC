@@ -5,14 +5,22 @@ plugin_initialize_options(void)
 {
     extern plugin_option_struct plugin_options;
 
+    size_t i;
+
     plugin_options.DECOMPOSITION = RANDOM_DECOMPOSITION;
     plugin_options.ROUTING = false;
     plugin_options.EFR = false;
     plugin_options.DAMS = false;
+    plugin_options.WATERUSE = false;
     plugin_options.UH_LENGTH = 0;
     plugin_options.FORCE_ROUTING = false;
     plugin_options.NDAMTYPES = 0;
     plugin_options.NDAMSERVICE = 0;
+    plugin_options.NWUTYPES = 0;
+    plugin_options.NWURECEIVING = 0;
+    for(i = 0; i < WU_NSECTORS; i++){
+        plugin_options.WU_INPUT[i] = WU_SKIP;
+    }
 }
 
 void
@@ -44,6 +52,7 @@ plugin_initialize_filenames(void)
     snprintf(plugin_filenames.routing.nc_filename, MAXSTRING, "%s", MISSING_S);
     snprintf(plugin_filenames.decomposition.nc_filename, MAXSTRING, "%s", MISSING_S);
     snprintf(plugin_filenames.dams.nc_filename, MAXSTRING, "%s", MISSING_S);
+    snprintf(plugin_filenames.wateruse.nc_filename, MAXSTRING, "%s", MISSING_S);
     
     for(i = 0; i < PLUGIN_N_FORCING_TYPES; i++){
         snprintf(plugin_filenames.forcing[i].nc_filename, MAXSTRING, "%s", MISSING_S);
