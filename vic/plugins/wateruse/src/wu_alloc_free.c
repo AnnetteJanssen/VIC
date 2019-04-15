@@ -39,58 +39,30 @@ wu_set_nreceiving(void)
     extern domain_struct local_domain;
     extern domain_struct global_domain;
     extern plugin_filenames_struct plugin_filenames;
-    extern wu_con_map_struct  *wu_con_map;
-    extern wu_con_struct  **wu_con;
-    extern int mpi_rank;
+    extern wu_con_struct  *wu_con;
         
     int *ivar;
     
     size_t i;
-    size_t j;
-    int iSector;
-    int status;
     
-    size_t  d3count[3];
-    size_t  d3start[3];
+    size_t  d2count[2];
+    size_t  d2start[2];
     
-    if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_open(plugin_filenames.wateruse.nc_filename, NC_NOWRITE,
-                         &(plugin_filenames.wateruse.nc_id));
-        check_nc_status(status, "Error opening %s",
-                        plugin_filenames.wateruse.nc_filename);
-    }
-    
-    d3start[0] = 0;
-    d3start[1] = 0;
-    d3start[2] = 0;
-    d3count[0] = 1;
-    d3count[1] = global_domain.n_ny;
-    d3count[2] = global_domain.n_nx; 
+    d2start[0] = 0;
+    d2start[1] = 0;
+    d2count[0] = global_domain.n_ny;
+    d2count[1] = global_domain.n_nx; 
     
     ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
     check_alloc_status(ivar, "Memory allocation error.");
     
-    for(j = 0; j < WU_NSECTORS; j++){
-        d3start[0] = j;
-        
-        get_scatter_nc_field_int(&(plugin_filenames.wateruse),
-                                    "nreceiving", d3start, d3count, ivar);
-        for (i = 0; i < local_domain.ncells_active; i++) {
-            iSector = wu_con_map[i].sidx[j];
-            if(iSector != NODATA_WU){
-                wu_con[i][iSector].nreceiving = ivar[i];
-            }
-        } 
+    get_scatter_nc_field_int(&(plugin_filenames.wateruse), "Nreceiving", 
+                             d2start, d2count, ivar);
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        wu_con[i].nreceiving = ivar[i];
     }
-    
     
     free(ivar);
-
-    if (mpi_rank == VIC_MPI_ROOT) {
-        status = nc_close(plugin_filenames.wateruse.nc_id);
-        check_nc_status(status, "Error closing %s",
-                        plugin_filenames.wateruse.nc_filename);
-    }
 }
 
 void
@@ -100,11 +72,21 @@ wu_alloc(void)
     extern size_t           NF;
     extern wu_con_map_struct *wu_con_map;
     extern wu_var_struct **wu_var;
-    extern wu_con_struct **wu_con;
+    extern wu_con_struct *wu_con;
     extern wu_force_struct **wu_force;
+    extern int mpi_rank;
     
     size_t                     i;
     size_t                     j;
+    int status;
+
+    // open parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_open(plugin_filenames.wateruse.nc_filename, NC_NOWRITE,
+                         &(plugin_filenames.wateruse.nc_id));
+        check_nc_status(status, "Error opening %s",
+                        plugin_filenames.wateruse.nc_filename);
+    }
 
     wu_con_map = malloc(local_domain.ncells_active * sizeof(*wu_con_map));
     check_alloc_status(wu_con_map, "Memory allocation error");
@@ -124,8 +106,6 @@ wu_alloc(void)
     for (i = 0; i < local_domain.ncells_active; i++) {
         wu_force[i] = malloc(wu_con_map[i].ns_active * sizeof(*wu_force[i]));
         check_alloc_status(wu_force[i], "Memory allocation error");
-        wu_con[i] = malloc(wu_con_map[i].ns_active * sizeof(*wu_con[i]));
-        check_alloc_status(wu_con[i], "Memory allocation error");
         wu_var[i] = malloc(wu_con_map[i].ns_active * sizeof(*wu_var[i]));
         check_alloc_status(wu_var[i], "Memory allocation error");
         
@@ -142,10 +122,15 @@ wu_alloc(void)
     wu_set_nreceiving();
     
     for (i = 0; i < local_domain.ncells_active; i++) {
-        for (j = 0; j < wu_con_map[i].ns_active; j++) {
-            wu_con[i][j].receiving = malloc(wu_con[i][j].nreceiving * sizeof(*wu_con[i][j].receiving));
-            check_alloc_status(wu_con[i][j].receiving, "Memory allocation error");
-        }
+        wu_con[i].receiving = malloc(wu_con[i].nreceiving * sizeof(*wu_con[i].receiving));
+        check_alloc_status(wu_con[i].receiving, "Memory allocation error");
+    }
+    
+    // close parameter file
+    if (mpi_rank == VIC_MPI_ROOT) {
+        status = nc_close(plugin_filenames.wateruse.nc_id);
+        check_nc_status(status, "Error closing %s",
+                        plugin_filenames.wateruse.nc_filename);
     }
     
     wu_initialize_local_structures();
@@ -157,7 +142,7 @@ wu_finalize(void)
     extern domain_struct    local_domain;
     extern wu_con_map_struct *wu_con_map;
     extern wu_var_struct **wu_var;
-    extern wu_con_struct **wu_con;
+    extern wu_con_struct *wu_con;
     extern wu_force_struct **wu_force;
 
     size_t                  i;
@@ -169,12 +154,9 @@ wu_finalize(void)
             free(wu_force[i][j].consumption_frac);
             free(wu_force[i][j].demand);
         }
-        for (j = 0; j < wu_con_map[i].ns_active; j++) {
-            free(wu_con[i][j].receiving);
-        }
         
         free(wu_con_map[i].sidx);
-        free(wu_con[i]);
+        free(wu_con[i].receiving);
         free(wu_var[i]);
         free(wu_force[i]);
     }

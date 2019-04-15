@@ -16,7 +16,7 @@ plugin_initialize_options(void)
     plugin_options.FORCE_ROUTING = false;
     plugin_options.NDAMTYPES = 0;
     plugin_options.NDAMSERVICE = 0;
-    plugin_options.NWUTYPES = 0;
+    plugin_options.NWUTYPES = WU_NSECTORS;
     plugin_options.NWURECEIVING = 0;
     for(i = 0; i < WU_NSECTORS; i++){
         plugin_options.WU_INPUT[i] = WU_SKIP;

@@ -29,7 +29,7 @@ wu_set_output_met_data_info(void)
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM_SECT].long_name, "available_remote_water_sector");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM_SECT].standard_name, "available_remote_water_sector");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM_SECT].units, "mm");
-    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM_SECT].description, "available for remote cell for sector");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM_SECT].description, "available from remote cell for sector");
 
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_DE_GW_SECT].varname, "OUT_DE_GW_SECT");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_DE_GW_SECT].long_name, "demand_groundwater_sector");
@@ -95,7 +95,7 @@ wu_set_output_met_data_info(void)
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM].long_name, "available_remote_water");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM].standard_name, "available_remote_water");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM].units, "mm");
-    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM].description, "available for remote cell");
+    strcpy(out_metadata[N_OUTVAR_TYPES + OUT_AV_REM].description, "available from remote cell");
 
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_DE_GW].varname, "OUT_DE_GW");
     strcpy(out_metadata[N_OUTVAR_TYPES + OUT_DE_GW].long_name, "demand_groundwater");

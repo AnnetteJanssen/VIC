@@ -49,7 +49,7 @@ wu_initialize_local_structures(void)
     extern plugin_option_struct plugin_options;
     extern wu_con_map_struct *wu_con_map;
     extern wu_var_struct **wu_var;
-    extern wu_con_struct **wu_con;
+    extern wu_con_struct *wu_con;
     extern wu_force_struct **wu_force;
 
     size_t                  i;
@@ -57,10 +57,11 @@ wu_initialize_local_structures(void)
     int                  iSector;
 
     for (i = 0; i < local_domain.ncells_active; i++) {
+        initialize_wu_con(&wu_con[i]);
+        
         for(j = 0; j < plugin_options.NWUTYPES; j++){
             iSector = wu_con_map[i].sidx[j];
             if(iSector != NODATA_WU){
-                initialize_wu_con(&wu_con[i][iSector]);
                 initialize_wu_var(&(wu_var[i][iSector]));
                 initialize_wu_force(&(wu_force[i][iSector]));
             }

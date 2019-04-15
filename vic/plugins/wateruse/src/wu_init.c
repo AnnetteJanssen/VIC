@@ -2,116 +2,76 @@
 #include <plugin.h>
 
 void
-wu_set_info(void)
-{
-    extern domain_struct    local_domain;
-    extern wu_con_map_struct *wu_con_map;
-    extern wu_con_struct **wu_con;
-
-    size_t                  i;
-    size_t                  j;
-    int                     iSector;
-    
-    for (i = 0; i < local_domain.ncells_active; i++) {
-        for(j = 0; j < plugin_options.NWUTYPES; j++){
-            iSector = wu_con_map[i].sidx[j];
-
-            if(iSector != NODATA_WU){
-                wu_con[i][iSector].sector_type_num = plugin_options.NWUTYPES;
-                wu_con[i][iSector].wu_sector = j;
-            }
-        }
-    }
-}
-
-void
 wu_set_receiving(void)
 {
     extern domain_struct    global_domain;
     extern domain_struct    local_domain;
     extern plugin_filenames_struct plugin_filenames;
-    extern wu_con_map_struct *wu_con_map;
-    extern wu_con_struct **wu_con;
+    extern wu_con_struct *wu_con;
 
-    int                    *id;
-    int                    *receiving;
-    int                   **adjustment;
+    int                    *ivar;
+    int                    *receiving_id;
+    int                    *adjustment;
     size_t                  error_count;
     
     bool                    found;
 
     size_t                  i;
-    size_t                  j;
     size_t                  k;
     size_t                  l;
-    int                     iSector;
 
     size_t                  d2count[2];
     size_t                  d2start[2];
-    size_t                  d4count[4];
-    size_t                  d4start[4];
+    size_t                  d3count[3];
+    size_t                  d3start[3];
 
-    receiving = malloc(local_domain.ncells_active * sizeof(*receiving));
-    check_alloc_status(receiving, "Memory allocation error.");
-    id = malloc(local_domain.ncells_active * sizeof(*id));
-    check_alloc_status(id, "Memory allocation error.");
+    ivar = malloc(local_domain.ncells_active * sizeof(*ivar));
+    check_alloc_status(ivar, "Memory allocation error.");
+    receiving_id = malloc(local_domain.ncells_active * sizeof(*receiving_id));
+    check_alloc_status(receiving_id, "Memory allocation error.");
     adjustment = malloc(local_domain.ncells_active * sizeof(*adjustment));
     check_alloc_status(adjustment, "Memory allocation error.");
-    for(i = 0; i < local_domain.ncells_active; i++){
-        adjustment[i] = malloc( plugin_options.NWUTYPES * sizeof(*adjustment[i]));
-        check_alloc_status(adjustment[i], "Memory allocation error.");
-    }
 
     d2start[0] = 0;
     d2start[1] = 0;
     d2count[0] = global_domain.n_ny;
     d2count[1] = global_domain.n_nx;
 
-    d4start[0] = 0;
-    d4start[1] = 0;
-    d4start[2] = 0;
-    d4start[3] = 0;
-    d4count[0] = 1;
-    d4count[1] = 1;
-    d4count[2] = global_domain.n_ny;
-    d4count[3] = global_domain.n_nx;
+    d3start[0] = 0;
+    d3start[1] = 0;
+    d3start[2] = 0;
+    d3count[0] = 1;
+    d3count[1] = global_domain.n_ny;
+    d3count[2] = global_domain.n_nx;
 
     get_scatter_nc_field_int(&(plugin_filenames.wateruse), "receiving_id", 
-                             d2start, d2count, id);
+                             d2start, d2count, receiving_id);
     
     error_count = 0;
     for(i = 0; i < local_domain.ncells_active; i++){
-        for(j = 0; j <  plugin_options.NWUTYPES; j++){
-            adjustment[i][j] = 0;
-        }
+        adjustment[i] = 0;
     }
+    
     for(k = 0; k < plugin_options.NWURECEIVING; k++){
-        d4start[0] = k;
-        
-        for(j = 0; j < plugin_options.NWUTYPES; j++){
-            d4start[1] = j;
+        d3start[0] = k;
             
-            get_scatter_nc_field_int(&(plugin_filenames.wateruse), "receiving", 
-                                     d4start, d4count, receiving);
+        get_scatter_nc_field_int(&(plugin_filenames.wateruse), "receiving", 
+                                 d3start, d3count, ivar);
 
-            for (i = 0; i < local_domain.ncells_active; i++) {
-                iSector = wu_con_map[i].sidx[j];
-                
-                if(iSector != NODATA_WU && k < wu_con[i][iSector].nreceiving){
-                    found = false;
-                    
-                    for (l = 0; l < local_domain.ncells_active; l++) {
-                        if (receiving[i] == id[j]) {
-                            wu_con[i][iSector].receiving[k - adjustment[i][j]] = l;
-                            found = true;
-                        }
+        for (i = 0; i < local_domain.ncells_active; i++) {
+            if(k - adjustment[i] < wu_con[i].nreceiving){
+                found = false;
+                for (l = 0; l < local_domain.ncells_active; l++) {
+                    if (ivar[i] == receiving_id[l]) {
+                        wu_con[i].receiving[k - adjustment[i]] = l;
+                        found = true;
                     }
+                }
 
-                    if(!found){
-                        error_count++;
-                        wu_con[i][iSector].nreceiving--;
-                        adjustment[i][j]++;
-                    }
+                if(!found){
+                    error_count++;
+                    wu_con[i].nreceiving--;
+                    adjustment[i]++;
                 }
             }
         }
@@ -125,12 +85,9 @@ wu_set_receiving(void)
                 error_count);
     }
 
-    for(i = 0; i < local_domain.ncells_active; i++){
-        free(adjustment[i]);
-    }
     free(adjustment);
-    free(receiving);
-    free(id);
+    free(ivar);
+    free(receiving_id);
 }
 
 void
@@ -149,7 +106,6 @@ wu_init(void)
                         plugin_filenames.wateruse.nc_filename);
     }
     
-    wu_set_info();
     wu_set_receiving();
 
     // close parameter file

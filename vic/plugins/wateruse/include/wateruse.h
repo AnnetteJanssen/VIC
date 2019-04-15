@@ -29,9 +29,6 @@ typedef struct {
 } wu_con_map_struct;
 
 typedef struct {
-    size_t wu_sector;
-    size_t sector_type_num;
-    
     size_t nreceiving;
     size_t *receiving;
 } wu_con_struct;
@@ -81,7 +78,7 @@ void wu_run(size_t);
 void wu_finalize(void);
 
 wu_con_map_struct *wu_con_map;
-wu_con_struct **wu_con;
+wu_con_struct *wu_con;
 wu_force_struct **wu_force;
 wu_var_struct **wu_var;
 

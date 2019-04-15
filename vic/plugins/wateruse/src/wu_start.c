@@ -21,17 +21,8 @@ wu_start(void)
                     plugin_filenames.wateruse.nc_filename);
     
     compare_ncdomain_with_global_domain(&plugin_filenames.wateruse);
-    plugin_options.NWUTYPES = get_nc_dimension(&(plugin_filenames.routing),
-                                           "wu_class");
-    plugin_options.NWURECEIVING = get_nc_dimension(&(plugin_filenames.routing),
+    plugin_options.NWURECEIVING = get_nc_dimension(&(plugin_filenames.wateruse),
                                            "wu_receiving");
-    
-    if(plugin_options.NWUTYPES != WU_NSECTORS){
-        log_err("Number of sectors in the water-use file [%d] "
-                "does not match the number of sectors [%d]", 
-                plugin_options.NWUTYPES,
-                WU_NSECTORS);
-    }
 
     status = nc_close(plugin_filenames.wateruse.nc_id);
     check_nc_status(status, "Error closing %s",
