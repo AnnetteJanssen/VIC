@@ -152,54 +152,32 @@ dam_register_history(dam_var_struct *dam_var)
     dam_var->register_steps = 0;
 }
 
-//void
-//dam_register_demand(dam_con_struct *dam_con, dam_var_struct *dam_var)
-//{
-//    extern domain_struct local_domain;
-//    extern soil_con_struct *soil_con;
-//    extern veg_con_struct **veg_con;
-//    extern irr_con_map_struct *irr_con_map;
-//    extern elev_con_map_struct *elev_con_map;
-//    extern irr_var_struct ***irr_var;
-//        
-//    size_t other_cell;
-//    size_t cur_veg;
-//    double serve_factor;
-//    
-//    size_t i;
-//    size_t j;
-//    size_t k;
-//    
-//    irr_con_struct *cirr_con;
-//    irr_var_struct *cirr_var;
-//    soil_con_struct *csoil_con;
-//    veg_con_struct *cveg_con;
-//    
-//    dam_var->demand = 0.0;
-//    
-//    for(i = 0; i < dam_con->nservice; i++){
-//        other_cell = dam_con->service[i];
-//        serve_factor = dam_con->service_frac[i];
-//
-//        for(j = 0; j < irr_con_map[other_cell].ni_active; j++){
-//            cirr_con = &irr_con[other_cell][j];
-//            cur_veg = cirr_con->veg_index;
-//
-//            csoil_con = &soil_con[other_cell];
-//            cveg_con = &veg_con[other_cell][cur_veg];
-//
-//            for(k = 0; k < elev_con_map[other_cell].ne_active; k++){
-//                cirr_var = &irr_var[other_cell][i][k];
-//
-//                dam_var->demand +=
-//                        cirr_var->need * 
-//                        local_domain.locations[other_cell].area *
-//                        csoil_con->AreaFract[k] * cveg_con->Cv *
-//                        serve_factor / MM_PER_M / M3_PER_HM3;
-//            }
-//        }
-//    }
-//}
+void
+dam_register_demand(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
+{
+    extern domain_struct local_domain;
+    extern wu_var_struct **wu_var;
+    extern wu_con_map_struct *wu_con_map;
+        
+    size_t demand_cell;
+    double demand_fraction;
+    
+    size_t iService;
+    size_t iSector;
+    
+    dam_var->demand = 0.0;
+    
+    for(iService = 0; iService < dam_con->nservice; iService++){
+        demand_cell = dam_con->service[iService];
+        demand_fraction = dam_con->service_frac[iService];
+
+        for(iSector = 0; iSector < wu_con_map[demand_cell].ns_active; iSector++){
+            dam_var->demand += wu_var[demand_cell][iSector].demand_surf *
+                    local_domain.locations[iCell].area *
+                    demand_fraction / MM_PER_M / M3_PER_HM3;
+        }
+    }
+}
 
 void
 dam_register_efr(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
@@ -236,38 +214,19 @@ local_dam_register_inflow(dam_con_struct *dam_con, dam_var_struct *dam_var, size
 void
 local_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCell)
 {
-    extern plugin_option_struct plugin_options;
     extern dmy_struct *dmy;
     extern size_t current;
     
     if(current > 0){
         if(dmy[current].month != dmy[current - 1].month){
-            dam_register_history(dam_var);
-            if(dmy[current].year != dmy[current - 1].year){
-                dam_register_operation_start(dam_var);
-            }
-            if(dmy[current].month == dam_var->op_month){
-                // Set dam active
-                if(dmy[current].year >= dam_con->year){
-                    dam_var->active = true;
-                }
+            // Set dam active
+            if(dmy[current].year >= dam_con->year){
+                dam_var->active = true;
             }
         }
     }
     
     local_dam_register_inflow(dam_con, dam_var, iCell);
-    
-//    if(options.IRRIGATION){
-//        dam_register_demand(dam_con, dam_var);
-//    }
-    if(plugin_options.EFR){
-        dam_register_efr(dam_con, dam_var, iCell);
-    }
-    
-    dam_var->total_inflow += dam_var->inflow;
-    dam_var->total_demand += dam_var->demand;
-    dam_var->total_efr += dam_var->efr;
-    dam_var->register_steps++;
 }
 
 void
@@ -295,9 +254,9 @@ global_dam_register(dam_con_struct *dam_con, dam_var_struct *dam_var, size_t iCe
     
     global_dam_register_inflow(dam_con, dam_var, iCell);
     
-//    if(options.IRRIGATION){
-//        dam_register_demand(dam_con, dam_var);
-//    }
+    if(plugin_options.WATERUSE){
+        dam_register_demand(dam_con, dam_var, iCell);
+    }
     if(plugin_options.EFR){
         dam_register_efr(dam_con, dam_var, iCell);
     }

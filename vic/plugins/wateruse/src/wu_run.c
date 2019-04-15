@@ -9,6 +9,10 @@ calculate_demand(size_t iCell,
         double *demand_remote)
 {
     extern plugin_option_struct plugin_options;
+    extern wu_var_struct **wu_var;
+    extern wu_con_struct **wu_con;
+    extern wu_force_struct **wu_force;
+    extern wu_con_map_struct *wu_con_map;
     
     size_t i;
     size_t j;
@@ -56,7 +60,8 @@ calculate_availability(size_t iCell,
         double *available_surf, 
         double *available_dam, 
         double *available_remote, 
-        double **av_gw, 
+        double **av_gw,
+        double *av_dam,
         double demand_surf)
 {
     extern domain_struct  local_domain;
@@ -66,6 +71,9 @@ calculate_availability(size_t iCell,
     extern soil_con_struct     *soil_con;
     extern veg_con_map_struct     *veg_con_map;
     extern veg_con_struct     **veg_con;
+    extern size_t NR;
+    extern dam_con_map_struct *local_dam_con_map;
+    extern dam_var_struct **local_dam_var;
     
     double resid_moist;
     double ice;
@@ -89,9 +97,9 @@ calculate_availability(size_t iCell,
             }
             
             av_gw[iVeg][iBand] = all_vars[iCell].cell[iVeg][iBand].layer[iLayer].moist;
-//                if (plugin_options.EFR) {
-//                    (*av_gw)[iVeg][iBand] -= efr_force[iCell].moist[iVeg][iBand];
-//                }
+            if (plugin_options.EFR) {
+                av_gw[iVeg][iBand] -= efr_force[iCell].moist[iVeg][iBand];
+            }
 
             resid_moist = soil_con[iCell].resid_moist[iLayer] *
                           soil_con[iCell].depth[iLayer] * MM_PER_M;
@@ -118,21 +126,26 @@ calculate_availability(size_t iCell,
     // surface water
     (*available_surf) = rout_var[iCell].discharge * global_param.dt / 
             local_domain.locations[iCell].area * MM_PER_M;
-//    if (plugin_options.EFR) {
-//        (*available_surf) -= efr_force[iCell].discharge * global_param.dt / 
-//            local_domain.locations[iCell].area * MM_PER_M;
-//    }
+    if (plugin_options.EFR) {
+        (*available_surf) -= efr_force[iCell].discharge[NR] * global_param.dt / 
+            local_domain.locations[iCell].area * MM_PER_M;
+    }
     if((*available_surf) < 0){
         (*available_surf) = 0;
     }
     
     // dam
-//    if (plugin_options.DAMS) {
-//        for (iDam = 0; iDam < ldam_con_map[iCell].nd_active; iDam++) {
-//            (*available_dam) += ldam_var[iCell][iDam].storage * M3_PER_HM3 / 
-//            local_domain.locations[iCell].area * MM_PER_M;
-//        }
-//    }
+    if (plugin_options.DAMS) {
+        for (iDam = 0; iDam < local_dam_con_map[iCell].nd_active; iDam++) {
+            av_dam[iDam] = 0;
+            
+            if(local_dam_var[iCell][iDam].active){
+                av_dam[iDam] = local_dam_var[iCell][iDam].storage * M3_PER_HM3 / 
+                local_domain.locations[iCell].area * MM_PER_M;
+                (*available_dam) += av_dam[iDam];
+            }
+        }
+    }
     if((*available_dam) < 0){
         (*available_dam) = 0;
     }
@@ -161,6 +174,9 @@ calculate_division(size_t iCell,
         double demand_remote)
 {
     extern plugin_option_struct plugin_options;
+    extern wu_var_struct **wu_var;
+    extern wu_con_struct **wu_con;
+    extern wu_con_map_struct *wu_con_map;
     
     size_t i;
     size_t j;
@@ -224,6 +240,11 @@ calculate_use(size_t iCell,
         double *returned)
 {
     extern plugin_option_struct plugin_options;
+    extern wu_var_struct **wu_var;
+    extern wu_con_struct **wu_con;
+    extern wu_force_struct **wu_force;
+    extern wu_con_map_struct *wu_con_map;
+    
     double frac;
     
     size_t i;
@@ -255,19 +276,39 @@ calculate_use(size_t iCell,
                 wu_var[iCell][iSector].withdrawn_gw * 
                 (1 - wu_force[iCell][iSector].consumption_frac[NR]);
         
-        // surface water
-        if(wu_var[iCell][iSector].available_surf > 0){
+        // surface water & dams
+        if(wu_var[iCell][iSector].available_surf + 
+                wu_var[iCell][iSector].available_dam > 0){
+            
+            // surface water
             frac = wu_var[iCell][iSector].demand_surf / 
-                    wu_var[iCell][iSector].available_surf;
+                    (wu_var[iCell][iSector].available_surf / 
+                    (wu_var[iCell][iSector].available_surf + 
+                    wu_var[iCell][iSector].available_dam));
+            frac = frac / wu_var[iCell][iSector].available_surf;
             frac = min(frac, 1);
             wu_var[iCell][iSector].withdrawn_surf = 
                     wu_var[iCell][iSector].available_surf * frac;
+            
+            // dams
+            frac = wu_var[iCell][iSector].demand_surf / 
+                    (wu_var[iCell][iSector].available_dam / 
+                    (wu_var[iCell][iSector].available_surf + 
+                    wu_var[iCell][iSector].available_dam));
+            frac = frac / wu_var[iCell][iSector].available_dam;
+            frac = min(frac, 1);
+            wu_var[iCell][iSector].withdrawn_dam = 
+                    wu_var[iCell][iSector].available_dam * frac;
         } else {
             wu_var[iCell][iSector].withdrawn_surf = 0;
+            wu_var[iCell][iSector].withdrawn_dam = 0;
         }
         
         wu_var[iCell][iSector].returned += 
                 wu_var[iCell][iSector].withdrawn_surf * 
+                (1 - wu_force[iCell][iSector].consumption_frac[NR]);
+        wu_var[iCell][iSector].returned += 
+                wu_var[iCell][iSector].withdrawn_dam * 
                 (1 - wu_force[iCell][iSector].consumption_frac[NR]);
         
         // remote
@@ -305,7 +346,9 @@ calculate_use(size_t iCell,
 void
 calculate_hydrology(size_t iCell, 
         double available_gw,
+        double available_dam,
         double **av_gw,
+        double *av_dam,
         double withdrawn_gw, 
         double withdrawn_surf, 
         double withdrawn_dam, 
@@ -319,6 +362,8 @@ calculate_hydrology(size_t iCell,
     extern soil_con_struct     *soil_con;
     extern veg_con_map_struct     *veg_con_map;
     extern veg_con_struct **veg_con;
+    extern dam_con_map_struct *local_dam_con_map;
+    extern dam_var_struct **local_dam_var;
     
     double ice;
     
@@ -373,15 +418,18 @@ calculate_hydrology(size_t iCell,
 
     // dam
     if(withdrawn_dam > 0){
-//            if (plugin_options.DAMS) {
-//                for (iDam = 0; iDam < ldam_con_map[iCell].nd_active; iDam++) {
-//                    ldam_var[iCell][iDam].storage -= 
-//                            withdrawn_dam / 
-//                            MM_PER_M * 
-//                            local_domain.locations[iCell].area / 
-//                            M3_PER_HM3;
-//                }
-//            }
+        if (plugin_options.DAMS) {
+            for (iDam = 0; iDam < local_dam_con_map[iCell].nd_active; iDam++) {
+                if(local_dam_var[iCell][iDam].active){
+                    local_dam_var[iCell][iDam].storage -= 
+                            withdrawn_dam * 
+                            (av_dam[iDam] / available_dam) / 
+                            MM_PER_M * 
+                            local_domain.locations[iCell].area / 
+                            M3_PER_HM3;
+                }
+            }
+        }
     }
 }
 
@@ -400,6 +448,8 @@ check_water_use_balance(size_t iCell,
         double withdrawn_remote)
 {
     extern plugin_option_struct plugin_options;
+    extern wu_var_struct **wu_var;
+    extern wu_con_map_struct *wu_con_map;
     
     size_t i;
     int iSector;
@@ -410,17 +460,17 @@ check_water_use_balance(size_t iCell,
             continue;
         }
                 
-        if(wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].available_gw > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].demand_gw > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_surf - wu_var[iCell][iSector].available_surf > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].available_remote > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_dam - wu_var[iCell][iSector].available_dam > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_dam - wu_var[iCell][iSector].demand_surf > DBL_EPSILON ||
-                wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].demand_remote > DBL_EPSILON){
+        if(wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].available_gw > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_gw - wu_var[iCell][iSector].demand_gw > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_surf - wu_var[iCell][iSector].available_surf > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].available_remote > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_dam - wu_var[iCell][iSector].available_dam > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_surf + wu_var[iCell][iSector].withdrawn_dam - wu_var[iCell][iSector].demand_surf > WU_BALANCE_ERROR_THRESH ||
+                wu_var[iCell][iSector].withdrawn_remote - wu_var[iCell][iSector].demand_remote > WU_BALANCE_ERROR_THRESH){
             log_err("Water-use water balance error for sector %zu:\n"
                     "groundwater:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n"
-                    "surface-water:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n"
-                    "dam:\twithdrawn [%.4f]\tavailable [%.4f]\n"
+                    "surface-water:\twithdrawn [%.4f]\tdemand (s + d) [%.4f]\tavailable [%.4f]\n"
+                    "dam:\twithdrawn [%.4f]\tdemand (s + d) [%.4f]\tavailable [%.4f]\n"
                     "remote:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n",
                     i,
                     wu_var[iCell][iSector].withdrawn_gw, 
@@ -430,23 +480,24 @@ check_water_use_balance(size_t iCell,
                     wu_var[iCell][iSector].demand_surf, 
                     wu_var[iCell][iSector].available_surf,
                     wu_var[iCell][iSector].withdrawn_dam,
+                    wu_var[iCell][iSector].demand_surf,
                     wu_var[iCell][iSector].available_dam,
                     wu_var[iCell][iSector].withdrawn_remote, 
                     wu_var[iCell][iSector].demand_remote, 
                     wu_var[iCell][iSector].available_remote);
         }
     }
-    if(withdrawn_gw - available_gw  > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_gw - demand_gw  > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_surf - available_surf  > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_dam - available_dam  > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_remote - available_remote  > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_surf + withdrawn_dam - demand_surf > DBL_EPSILON * WU_NSECTORS ||
-            withdrawn_remote - demand_remote > DBL_EPSILON * WU_NSECTORS){ 
+    if(withdrawn_gw - available_gw  > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_gw - demand_gw  > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_surf - available_surf  > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_dam - available_dam  > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_remote - available_remote  > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_surf + withdrawn_dam - demand_surf > WU_BALANCE_ERROR_THRESH * WU_NSECTORS ||
+            withdrawn_remote - demand_remote > WU_BALANCE_ERROR_THRESH * WU_NSECTORS){ 
         log_err("Water-use water balance error for cell %zu:\n"
                 "groundwater:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n"
-                "surface-water:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n"
-                "dam:\twithdrawn [%.4f]\tavailable [%.4f]\n"
+                "surface-water:\twithdrawn [%.4f]\tdemand (s + d) [%.4f]\tavailable [%.4f]\n"
+                "dam:\twithdrawn [%.4f]\tdemand (s + d) [%.4f]\tavailable [%.4f]\n"
                 "remote:\twithdrawn [%.4f]\tdemand [%.4f]\tavailable [%.4f]\n",
                 iCell,
                 withdrawn_gw, 
@@ -456,6 +507,7 @@ check_water_use_balance(size_t iCell,
                 demand_surf, 
                 available_surf,
                 withdrawn_dam,
+                demand_surf, 
                 available_dam,
                 withdrawn_remote, 
                 demand_remote, 
@@ -470,6 +522,7 @@ wu_run(size_t iCell)
     extern veg_con_map_struct     *veg_con_map;
     
     double **av_gw;
+    double *av_dam;
     double available_gw;
     double available_surf;
     double available_dam;
@@ -501,6 +554,11 @@ wu_run(size_t iCell)
         }
     }
     
+    if(plugin_options.DAMS){
+        av_dam = malloc(local_dam_con_map[iCell].nd_active * sizeof(*av_dam));
+        check_alloc_status(av_dam, "Memory allocation error.");
+    }
+    
     /******************************************
      Init
     ******************************************/
@@ -525,7 +583,7 @@ wu_run(size_t iCell)
     /******************************************
      Availability
     ******************************************/
-    calculate_availability(iCell, &available_gw, &available_surf, &available_dam, &available_remote, av_gw, demand_surf);
+    calculate_availability(iCell, &available_gw, &available_surf, &available_dam, &available_remote, av_gw, av_dam, demand_surf);
     
     /******************************************
      Devide
@@ -540,7 +598,7 @@ wu_run(size_t iCell)
     /******************************************
      Return
     ******************************************/
-    calculate_hydrology(iCell, available_gw, av_gw, withdrawn_gw, withdrawn_surf, withdrawn_dam, withdrawn_remote, returned);
+    calculate_hydrology(iCell, available_gw, available_dam, av_gw, av_dam, withdrawn_gw, withdrawn_surf, withdrawn_dam, withdrawn_remote, returned);
     
     /******************************************
      Check balance
@@ -554,4 +612,8 @@ wu_run(size_t iCell)
         free(av_gw[iVeg]);
     }
     free(av_gw);
+    
+    if(plugin_options.DAMS){
+        free(av_dam);
+    }
 }

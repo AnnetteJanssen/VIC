@@ -115,8 +115,15 @@ dam_set_service(void)
     size_t                     k;
     size_t                     l;
 
+    size_t                     d2count[2];
+    size_t                     d2start[2];
     size_t                     d4count[4];
     size_t                     d4start[4];
+    
+    d2start[0] = 0;
+    d2start[1] = 0;
+    d2count[0] = global_domain.n_ny;
+    d2count[1] = global_domain.n_nx;
     
     d4start[0] = 0;
     d4start[1] = 0;
@@ -142,7 +149,7 @@ dam_set_service(void)
     }
     
     get_scatter_nc_field_int(&(plugin_filenames.dams), 
-            "service_id", d4start, d4count, service_id);
+            "service_id", d2start, d2count, service_id);
 
     error_count = 0;
     for(i = 0; i < local_domain.ncells_active; i++){
@@ -224,7 +231,7 @@ dam_set_service(void)
     }
     
     if(error_count > 0){
-        log_err("Dams service cell id not found for %zu cells; "
+        log_warn("Dams service cell id not found for %zu cells; "
                 "Probably the ID was outside of the mask or "
                 "the ID was not set; "
                 "Removing from dam service", error_count);

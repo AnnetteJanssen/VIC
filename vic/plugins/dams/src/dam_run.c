@@ -4,50 +4,40 @@
 void
 dam_operate(dam_con_struct *dam_con, dam_var_struct *dam_var)
 {
-    size_t years_running;
-    
     double prev_storage;
-    
-    years_running = (size_t)(dam_var->months_running / 
-            MONTHS_PER_YEAR);
-    if(years_running > DAM_HIST_YEARS){
-        years_running = DAM_HIST_YEARS;
+
+    // Fill reservoir
+    prev_storage = dam_var->storage;
+    dam_var->storage += dam_var->inflow;
+
+    // Calculate discharge
+    dam_var->release = dam_var->op_release[0];
+    dam_var->release = dam_corr_release(dam_var->op_release[0],
+                                        dam_var->storage,
+                                        dam_con->capacity);
+
+    // reduce reservoir
+    dam_var->storage -= dam_var->release;
+
+    // Empty reservoir
+    if(dam_var->storage < 0){
+        dam_var->release += dam_var->storage;
+        dam_var->storage = 0.0;
     }
 
-    if(years_running > 0 && dam_var->op_month != NODATA_DAM){
-        // Fill reservoir
-        prev_storage = dam_var->storage;
-        dam_var->storage += dam_var->inflow;
+    // Full reservoir
+    if(dam_var->storage > dam_con->capacity){
+        dam_var->release += dam_var->storage - dam_con->capacity;            
+        dam_var->storage = dam_con->capacity;
+    }
 
-        // Calculate discharge
-        dam_var->release = dam_var->op_release[0];
-        dam_var->release = dam_corr_release(dam_var->op_release[0],
-                                            dam_var->storage,
-                                            dam_con->capacity);
-        
-        // reduce reservoir
-        dam_var->storage -= dam_var->release;
-
-        // Empty reservoir
-        if(dam_var->storage < 0){
-            dam_var->release += dam_var->storage;
-            dam_var->storage = 0.0;
-        }
-
-        // Full reservoir
-        if(dam_var->storage > dam_con->capacity){
-            dam_var->release += dam_var->storage - dam_con->capacity;            
-            dam_var->storage = dam_con->capacity;
-        }
-        
-        if(abs(dam_var->storage - prev_storage - 
-                dam_var->inflow + dam_var->release) > DBL_EPSILON){
-            log_err("Dam operation error:\n"
-                    "Prev storage [%.4f]\tStorage [%.4f]\t"
-                    "Inflow [%.4f]\tRelease [%.4f]\t",
-                    prev_storage, dam_var->storage,
-                    dam_var->inflow, dam_var->release);
-        }
+    if(abs(dam_var->storage - prev_storage - 
+            dam_var->inflow + dam_var->release) > DBL_EPSILON){
+        log_err("Dam operation error:\n"
+                "Prev storage [%.4f]\tStorage [%.4f]\t"
+                "Inflow [%.4f]\tRelease [%.4f]\t",
+                prev_storage, dam_var->storage,
+                dam_var->inflow, dam_var->release);
     }
 }
 

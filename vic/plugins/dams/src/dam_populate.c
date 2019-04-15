@@ -20,7 +20,7 @@ dam_generate_default_state(void)
     for (i = 0; i < local_domain.ncells_active; i++) {
         for(j = 0; j < plugin_options.NDAMTYPES; j++){
             if(local_dam_con_map[i].didx[j] != NODATA_DAM){
-                local_dam_var[i][j].storage = local_dam_con[i][j].capacity * plugin_param.DAM_ALPHA;
+                local_dam_var[i][j].storage = local_dam_con[i][j].capacity * 0;
             }
             if(global_dam_con_map[i].didx[j] != NODATA_DAM){
                 global_dam_var[i][j].storage = global_dam_con[i][j].capacity * plugin_param.DAM_ALPHA;

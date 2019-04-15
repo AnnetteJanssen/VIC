@@ -4,6 +4,7 @@
 #define WATERUSE_H
 
 #define NODATA_WU -1
+#define WU_BALANCE_ERROR_THRESH 1e-10
 
 enum {
     WU_FROM_FILE,

@@ -158,8 +158,9 @@ plugin_generate_default_state(void)
 {
     extern plugin_option_struct    plugin_options;
  
-    if(plugin_options.DAMS)
-        dam_generate_default_state();  
+    if (plugin_options.DAMS) {
+        dam_generate_default_state();
+    }
 }
 
 void
