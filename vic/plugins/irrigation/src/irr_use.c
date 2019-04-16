@@ -128,10 +128,8 @@ irr_get_withdrawn(size_t iCell)
             avail_irr = cirr_var->requirement * avail_frac + cirr_var->leftover;
             if(avail_irr < max_added){
                 ccell_var->layer[0].moist += avail_irr;
-                cirr_var->prev_req -= avail_irr;
             } else {
                 ccell_var->layer[0].moist += max_added;
-                cirr_var->prev_req -= max_added;
                 cirr_var->leftover = avail_irr - max_added;
             }
         }

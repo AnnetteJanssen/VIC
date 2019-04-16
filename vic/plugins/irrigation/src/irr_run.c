@@ -127,14 +127,11 @@ irr_run_requirement(size_t iCell)
                     }
 
                     // Calculate need - newly added requirement
-                    cirr_var->need = 
-                            cirr_var->requirement - cirr_var->prev_req;
+                    cirr_var->need = cirr_var->requirement - cirr_var->prev_req;
                     if(cirr_var->need < 0.0){
                         cirr_var->need = 0.0;
                     }
-                    cirr_var->prev_req = cirr_var->requirement;
                 } else {
-                    cirr_var->prev_req = 0.0;
                 }
             }
         }   
@@ -186,6 +183,7 @@ irr_run_shortage(size_t iCell)
                 // Reset values
                 cirr_var->shortage = 0.0;
                 cirr_var->deficit = 0.0;
+                cirr_var->prev_req = 0.0;
                 
                 if(cveg_var->fcanopy > MIN_FCANOPY){
                     
@@ -209,6 +207,48 @@ irr_run_shortage(size_t iCell)
                         if(cveg_con->root[k] > 0.){
                             total_moist += moist[k];
                             total_wcr += csoil_con->Wcr[k];
+                        }
+                    }
+                    
+                    /**********************************************************************
+                    * Requirement
+                    **********************************************************************/
+                    // Calculate requirment - suboptimal evapotranspiration
+                    // (based on field capacity)
+                    if(cirr_con->paddy){
+                        // With ponding the moisture of the top layer should
+                        // always be saturated
+                        if(moist[0] + cirr_var->leftover < csoil_con->max_moist[0]){
+                            cirr_var->prev_req = 
+                                    csoil_con->max_moist[0] - 
+                                    (moist[0] + cirr_var->leftover);
+                        }
+                    }         
+                    else if(options.SHARE_LAYER_MOIST){
+                        // In the SHARE_LAYER_MOIST option the moisture and critical
+                        // moisture point of all layers with roots are combined
+                        if(total_moist + cirr_var->leftover < total_wcr){
+                            cirr_var->prev_req = 
+                                    (total_wcr / plugin_param.Wfc_fract) - 
+                                    (total_moist + cirr_var->leftover);
+                        }
+                    }else{
+                        // Without the SHARE_LAYER_MOIST option the moisture and 
+                        // critical moisture point of all layers with roots are assessed individually
+                        bool calc_req = false;
+                        for(k = 0; k < options.Nlayer; k++){
+                            if(cveg_con->root[k] > 0.){
+                                if(moist[k] + cirr_var->leftover < csoil_con->Wcr[k]){
+                                    calc_req = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(calc_req){
+                            cirr_var->prev_req = 
+                                    (total_wcr / plugin_param.Wfc_fract) - 
+                                    (total_moist + cirr_var->leftover);
                         }
                     }
                     
@@ -243,8 +283,7 @@ irr_run_shortage(size_t iCell)
                     }
                     
                     // Calculate deficit - newly added shortage
-                    cirr_var->deficit = 
-                            cirr_var->shortage - cirr_var->prev_short;
+                    cirr_var->deficit = cirr_var->shortage - cirr_var->prev_short;
                     if(cirr_var->deficit < 0.0){
                         cirr_var->deficit = 0.0;
                     }
