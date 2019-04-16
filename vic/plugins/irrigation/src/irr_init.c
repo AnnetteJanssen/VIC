@@ -79,6 +79,42 @@ irr_set_paddy(void)
 }
 
 void
+irr_set_groundwater(void)
+{
+    extern domain_struct local_domain;
+    extern domain_struct global_domain;
+    extern plugin_filenames_struct plugin_filenames;
+    extern irr_con_map_struct  *irr_con_map;
+    
+    double *dvar;
+    
+    size_t i;
+    size_t j;
+    
+    size_t  d2count[2];
+    size_t  d2start[2];
+    
+    d2start[0] = 0;
+    d2start[1] = 0;
+    d2count[0] = global_domain.n_ny;
+    d2count[1] = global_domain.n_nx;
+    
+    dvar = malloc(local_domain.ncells_active * sizeof(*dvar));
+    check_alloc_status(dvar, "Memory allocation error.");
+    
+    get_scatter_nc_field_double(&(plugin_filenames.irrigation), 
+            "groundwater_fraction", d2start, d2count, dvar);
+
+    for (i = 0; i < local_domain.ncells_active; i++) {
+        for(j = 0; j < irr_con_map[i].ni_active; j++){
+            irr_con[i][j].groundwater_fraction = dvar[i];
+        }
+    }
+    
+    free(dvar);
+}
+
+void
 irr_init(void)
 {
     extern plugin_filenames_struct plugin_filenames;
@@ -96,6 +132,7 @@ irr_init(void)
 
     irr_set_mapping();
     irr_set_paddy();
+    irr_set_groundwater();
 
     // close parameter file
     if (mpi_rank == VIC_MPI_ROOT) {

@@ -15,6 +15,7 @@ typedef struct {
     int veg_index;
 
     bool paddy;
+    double groundwater_fraction;
 } irr_con_struct;
 
 typedef struct {
